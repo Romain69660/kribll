@@ -5,7 +5,6 @@ type Tender = {
   title: string
   buyer_name: string
   ai_summary: string
-  leman_analysis?: string
   final_score: number
   url: string
   source?: string
@@ -17,10 +16,12 @@ type Tender = {
 
 type LemanData = {
   project_type?: string
-  estimated_budget?: string
-  required_references?: string
-  relevance_score?: number
-  verdict?: string
+  program?: string
+  location?: string
+  procedure_type?: string
+  main_discipline?: string
+  estimated_scale?: string
+  relevance?: string
   summary?: string
   why_it_matters?: string
 }
@@ -35,13 +36,7 @@ function parseJson(value?: string): LemanData {
 }
 
 function getLemanData(tender: Tender): LemanData {
-  const leman = parseJson(tender.leman_analysis)
-  if (Object.keys(leman).length > 0) return leman
-
-  const ai = parseJson(tender.ai_summary)
-  if (Object.keys(ai).length > 0) return ai
-
-  return {}
+  return parseJson(tender.ai_summary)
 }
 
 function getSummary(tender: Tender) {
@@ -49,22 +44,10 @@ function getSummary(tender: Tender) {
   return leman.summary || tender.ai_summary || "No summary available"
 }
 
-function getDisplayedScore(tender: Tender) {
-  const leman = getLemanData(tender)
-  return leman.relevance_score ?? tender.final_score
-}
-
 function getScoreBadge(score: number) {
-  if (score >= 90) return "bg-black text-white"
-  if (score >= 75) return "bg-gray-800 text-white"
-  if (score >= 60) return "bg-gray-200 text-gray-900"
-  return "bg-gray-100 text-gray-700"
-}
-
-function getVerdictBadge(verdict?: string) {
-  if (verdict === "GO") return "bg-green-100 text-green-700"
-  if (verdict === "MAYBE") return "bg-orange-100 text-orange-700"
-  if (verdict === "NO") return "bg-red-100 text-red-700"
+  if (score >= 100) return "bg-black text-white"
+  if (score >= 85) return "bg-gray-800 text-white"
+  if (score >= 70) return "bg-gray-200 text-gray-900"
   return "bg-gray-100 text-gray-700"
 }
 
@@ -144,7 +127,7 @@ export default async function Home() {
                 Top score
               </div>
               <div className="mt-1 text-2xl font-semibold text-gray-900">
-                {tenders[0] ? getDisplayedScore(tenders[0]) : "-"}
+                {tenders[0]?.final_score ?? "-"}
               </div>
             </div>
           </div>
@@ -167,7 +150,6 @@ export default async function Home() {
             {tenders.map((tender, index) => {
               const leman = getLemanData(tender)
               const summary = getSummary(tender)
-              const displayedScore = getDisplayedScore(tender)
 
               return (
                 <article
@@ -180,16 +162,6 @@ export default async function Home() {
                         {index < 3 && (
                           <span className="rounded-full bg-black px-3 py-1 text-xs font-medium text-white">
                             Top opportunity
-                          </span>
-                        )}
-
-                        {leman.verdict && (
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-medium ${getVerdictBadge(
-                              leman.verdict
-                            )}`}
-                          >
-                            {leman.verdict}
                           </span>
                         )}
 
@@ -230,10 +202,10 @@ export default async function Home() {
                     <div className="shrink-0">
                       <div
                         className={`inline-flex min-w-20 items-center justify-center rounded-full px-4 py-2 text-sm font-semibold ${getScoreBadge(
-                          displayedScore
+                          tender.final_score
                         )}`}
                       >
-                        {displayedScore}
+                        {tender.final_score}
                       </div>
                     </div>
                   </div>
@@ -241,35 +213,71 @@ export default async function Home() {
                   <div className="mb-5 grid gap-3 md:grid-cols-3">
                     <div className="rounded-2xl bg-gray-50 px-4 py-3">
                       <div className="text-xs uppercase tracking-wide text-gray-500">
-                        Estimated budget
+                        Location
                       </div>
                       <div className="mt-1 text-sm font-medium text-gray-900">
-                        {leman.estimated_budget || "Not available"}
+                        {leman.location || "N/A"}
                       </div>
                     </div>
 
                     <div className="rounded-2xl bg-gray-50 px-4 py-3">
                       <div className="text-xs uppercase tracking-wide text-gray-500">
-                        Required references
+                        Project scale
                       </div>
                       <div className="mt-1 text-sm font-medium text-gray-900">
-                        {leman.required_references || "Not specified"}
+                        {leman.estimated_scale || "N/A"}
                       </div>
                     </div>
 
                     <div className="rounded-2xl bg-gray-50 px-4 py-3">
                       <div className="text-xs uppercase tracking-wide text-gray-500">
-                        Project type
+                        Discipline
                       </div>
                       <div className="mt-1 text-sm font-medium text-gray-900">
-                        {leman.project_type || "Not available"}
+                        {leman.main_discipline || "N/A"}
                       </div>
                     </div>
                   </div>
 
+                  {leman.project_type && (
+                    <div className="mb-4 rounded-2xl bg-blue-50 px-4 py-3 text-sm text-gray-800">
+                      <span className="font-semibold text-gray-900">
+                        Project type:
+                      </span>{" "}
+                      {leman.project_type}
+                    </div>
+                  )}
+
+                  {leman.program && (
+                    <div className="mb-4 rounded-2xl bg-gray-50 px-4 py-3 text-sm text-gray-700">
+                      <span className="font-semibold text-gray-900">
+                        Program:
+                      </span>{" "}
+                      {leman.program}
+                    </div>
+                  )}
+
+                  {leman.procedure_type && (
+                    <div className="mb-4 rounded-2xl bg-gray-50 px-4 py-3 text-sm text-gray-700">
+                      <span className="font-semibold text-gray-900">
+                        Procedure:
+                      </span>{" "}
+                      {leman.procedure_type}
+                    </div>
+                  )}
+
                   <p className="mb-5 max-w-5xl text-[15px] leading-7 text-gray-700">
                     {summary}
                   </p>
+
+                  {leman.relevance && (
+                    <div className="mb-4 rounded-2xl bg-green-50 px-4 py-3 text-sm text-gray-700">
+                      <span className="font-semibold text-gray-900">
+                        Relevance:
+                      </span>{" "}
+                      {leman.relevance}
+                    </div>
+                  )}
 
                   {leman.why_it_matters && (
                     <div className="mb-5 rounded-2xl bg-black/5 px-4 py-3 text-sm text-gray-700">
