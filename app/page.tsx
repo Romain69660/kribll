@@ -5,6 +5,7 @@ type Tender = {
   title: string
   buyer_name: string
   ai_summary: string
+  leman_analysis?: string
   final_score: number
   url: string
   source?: string
@@ -14,19 +15,56 @@ type Tender = {
   category?: string
 }
 
-function getSummary(aiSummary: string) {
+type LemanData = {
+  project_type?: string
+  estimated_budget?: string
+  required_references?: string
+  relevance_score?: number
+  verdict?: string
+  summary?: string
+  why_it_matters?: string
+}
+
+function parseJson(value?: string): LemanData {
+  if (!value) return {}
   try {
-    const parsed = JSON.parse(aiSummary)
-    return parsed.summary || aiSummary
+    return JSON.parse(value)
   } catch {
-    return aiSummary
+    return {}
   }
 }
 
+function getLemanData(tender: Tender): LemanData {
+  const leman = parseJson(tender.leman_analysis)
+  if (Object.keys(leman).length > 0) return leman
+
+  const ai = parseJson(tender.ai_summary)
+  if (Object.keys(ai).length > 0) return ai
+
+  return {}
+}
+
+function getSummary(tender: Tender) {
+  const leman = getLemanData(tender)
+  return leman.summary || tender.ai_summary || "No summary available"
+}
+
+function getDisplayedScore(tender: Tender) {
+  const leman = getLemanData(tender)
+  return leman.relevance_score ?? tender.final_score
+}
+
 function getScoreBadge(score: number) {
-  if (score >= 100) return "bg-black text-white"
-  if (score >= 85) return "bg-gray-800 text-white"
-  if (score >= 70) return "bg-gray-200 text-gray-900"
+  if (score >= 90) return "bg-black text-white"
+  if (score >= 75) return "bg-gray-800 text-white"
+  if (score >= 60) return "bg-gray-200 text-gray-900"
+  return "bg-gray-100 text-gray-700"
+}
+
+function getVerdictBadge(verdict?: string) {
+  if (verdict === "GO") return "bg-green-100 text-green-700"
+  if (verdict === "MAYBE") return "bg-orange-100 text-orange-700"
+  if (verdict === "NO") return "bg-red-100 text-red-700"
   return "bg-gray-100 text-gray-700"
 }
 
@@ -106,7 +144,7 @@ export default async function Home() {
                 Top score
               </div>
               <div className="mt-1 text-2xl font-semibold text-gray-900">
-                {tenders[0]?.final_score ?? "-"}
+                {tenders[0] ? getDisplayedScore(tenders[0]) : "-"}
               </div>
             </div>
           </div>
@@ -127,7 +165,9 @@ export default async function Home() {
         {!error && tenders.length > 0 && (
           <section className="space-y-5">
             {tenders.map((tender, index) => {
-              const summary = getSummary(tender.ai_summary)
+              const leman = getLemanData(tender)
+              const summary = getSummary(tender)
+              const displayedScore = getDisplayedScore(tender)
 
               return (
                 <article
@@ -140,6 +180,16 @@ export default async function Home() {
                         {index < 3 && (
                           <span className="rounded-full bg-black px-3 py-1 text-xs font-medium text-white">
                             Top opportunity
+                          </span>
+                        )}
+
+                        {leman.verdict && (
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${getVerdictBadge(
+                              leman.verdict
+                            )}`}
+                          >
+                            {leman.verdict}
                           </span>
                         )}
 
@@ -180,10 +230,39 @@ export default async function Home() {
                     <div className="shrink-0">
                       <div
                         className={`inline-flex min-w-20 items-center justify-center rounded-full px-4 py-2 text-sm font-semibold ${getScoreBadge(
-                          tender.final_score
+                          displayedScore
                         )}`}
                       >
-                        {tender.final_score}
+                        {displayedScore}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-5 grid gap-3 md:grid-cols-3">
+                    <div className="rounded-2xl bg-gray-50 px-4 py-3">
+                      <div className="text-xs uppercase tracking-wide text-gray-500">
+                        Estimated budget
+                      </div>
+                      <div className="mt-1 text-sm font-medium text-gray-900">
+                        {leman.estimated_budget || "Not available"}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-gray-50 px-4 py-3">
+                      <div className="text-xs uppercase tracking-wide text-gray-500">
+                        Required references
+                      </div>
+                      <div className="mt-1 text-sm font-medium text-gray-900">
+                        {leman.required_references || "Not specified"}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-gray-50 px-4 py-3">
+                      <div className="text-xs uppercase tracking-wide text-gray-500">
+                        Project type
+                      </div>
+                      <div className="mt-1 text-sm font-medium text-gray-900">
+                        {leman.project_type || "Not available"}
                       </div>
                     </div>
                   </div>
@@ -191,6 +270,15 @@ export default async function Home() {
                   <p className="mb-5 max-w-5xl text-[15px] leading-7 text-gray-700">
                     {summary}
                   </p>
+
+                  {leman.why_it_matters && (
+                    <div className="mb-5 rounded-2xl bg-black/5 px-4 py-3 text-sm text-gray-700">
+                      <span className="font-semibold text-gray-900">
+                        Why it matters:
+                      </span>{" "}
+                      {leman.why_it_matters}
+                    </div>
+                  )}
 
                   <div className="flex flex-wrap items-center gap-3">
                     <a
