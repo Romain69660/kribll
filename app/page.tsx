@@ -41,14 +41,74 @@ function getLemanData(tender: Tender): LemanData {
 
 function getSummary(tender: Tender) {
   const leman = getLemanData(tender)
-  return leman.summary || "Résumé non disponible."
+  if (!leman.summary) return "Résumé non disponible."
+
+  const text = leman.summary.trim()
+  if (text.length <= 260) return text
+  return text.slice(0, 257).trim() + "..."
 }
 
-function formatDate(dateString?: string) {
-  if (!dateString) return null
-  const date = new Date(dateString)
-  if (isNaN(date.getTime())) return dateString
-  return date.toLocaleDateString("fr-FR")
+function getShortLocation(location?: string) {
+  if (!location) return "Non renseignée"
+  const parts = location.split(",").map((p) => p.trim())
+  return parts.slice(0, 2).join(", ")
+}
+
+function getShortScale(scale?: string) {
+  if (!scale) return "Non renseignée"
+  const text = scale.trim()
+  if (text.length <= 90) return text
+  return text.slice(0, 87).trim() + "..."
+}
+
+function getShortDiscipline(discipline?: string) {
+  if (!discipline) return "Non renseignée"
+  const text = discipline.trim()
+  if (text.length <= 85) return text
+  return text.slice(0, 82).trim() + "..."
+}
+
+function getShortProcedure(procedure?: string) {
+  if (!procedure) return "Non renseignée"
+  const text = procedure.trim()
+  if (text.length <= 90) return text
+  return text.slice(0, 87).trim() + "..."
+}
+
+function getShortProjectType(projectType?: string) {
+  if (!projectType) return "Non renseigné"
+  const text = projectType.trim()
+  if (text.length <= 90) return text
+  return text.slice(0, 87).trim() + "..."
+}
+
+function getCompactProgram(program?: string) {
+  if (!program) return null
+  const text = program.trim()
+  if (text.length <= 220) return text
+  return text.slice(0, 217).trim() + "..."
+}
+
+function splitWhyItMatters(text?: string) {
+  if (!text) return []
+
+  const cleaned = text
+    .replace(/\s+/g, " ")
+    .replace(/^\s+|\s+$/g, "")
+
+  const numbered = cleaned
+    .split(/\s(?=\d+\))/)
+    .map((item) => item.replace(/^\d+\)\s*/, "").trim())
+    .filter(Boolean)
+
+  if (numbered.length > 1) return numbered.slice(0, 4)
+
+  const bySentence = cleaned
+    .split(/(?<=\.)\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+
+  return bySentence.slice(0, 4)
 }
 
 function getScoreBadge(score: number) {
@@ -56,6 +116,27 @@ function getScoreBadge(score: number) {
   if (score >= 85) return "bg-gray-900 text-white"
   if (score >= 70) return "bg-gray-200 text-gray-900"
   return "bg-gray-100 text-gray-700"
+}
+
+function getOpportunityLabel(score: number) {
+  if (score >= 100) return "Excellente opportunité"
+  if (score >= 85) return "Très pertinent"
+  if (score >= 70) return "À regarder"
+  return "Pertinence modérée"
+}
+
+function getOpportunityPill(score: number) {
+  if (score >= 100) return "bg-black text-white"
+  if (score >= 85) return "bg-green-100 text-green-700"
+  if (score >= 70) return "bg-orange-100 text-orange-700"
+  return "bg-gray-100 text-gray-700"
+}
+
+function formatDate(dateString?: string) {
+  if (!dateString) return null
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return dateString
+  return date.toLocaleDateString("fr-FR")
 }
 
 export default async function Home() {
@@ -68,7 +149,7 @@ export default async function Home() {
   const tenders = (data as Tender[]) || []
 
   return (
-    <main className="min-h-screen bg-[#f6f6f3]">
+    <main className="min-h-screen bg-[#f5f5f2]">
       <div className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
         <header className="mb-10">
           <div className="mb-5 flex items-center justify-between gap-4">
@@ -86,19 +167,19 @@ export default async function Home() {
             </button>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-[1.4fr_0.8fr]">
-            <div className="rounded-[2rem] bg-[#d8f7b8] px-8 py-8 shadow-sm md:px-10 md:py-10">
-              <h1 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight text-black md:text-6xl">
+          <div className="grid gap-6 md:grid-cols-[1.45fr_0.8fr]">
+            <div className="rounded-[2rem] bg-[#d9f3bf] px-8 py-8 shadow-sm md:px-10 md:py-10">
+              <h1 className="max-w-4xl text-4xl font-bold leading-[0.95] tracking-tight text-black md:text-6xl">
                 Trouvez les appels d’offres les plus pertinents pour votre agence
               </h1>
 
-              <p className="mt-4 max-w-2xl text-base text-gray-700 md:text-lg">
+              <p className="mt-5 max-w-2xl text-base text-gray-700 md:text-lg">
                 Kribll vous aide à repérer, comprendre et filtrer rapidement les
                 opportunités vraiment intéressantes.
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
                   <div className="text-xs uppercase tracking-wide text-gray-500">
                     Résultats affichés
                   </div>
@@ -107,7 +188,7 @@ export default async function Home() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
+                <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
                   <div className="text-xs uppercase tracking-wide text-gray-500">
                     Tri
                   </div>
@@ -116,7 +197,7 @@ export default async function Home() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
+                <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
                   <div className="text-xs uppercase tracking-wide text-gray-500">
                     Meilleur score
                   </div>
@@ -142,7 +223,7 @@ export default async function Home() {
                     📅 Date de publication
                   </div>
                   <div className="mt-1 text-sm text-gray-600">
-                    Pour savoir si l’opportunité est récente.
+                    Pour repérer immédiatement les annonces récentes.
                   </div>
                 </div>
 
@@ -160,7 +241,7 @@ export default async function Home() {
                     ⭐ Pertinence
                   </div>
                   <div className="mt-1 text-sm text-gray-600">
-                    Pour comprendre rapidement si ça vaut votre temps.
+                    Pour savoir rapidement si ça mérite votre attention.
                   </div>
                 </div>
               </div>
@@ -185,13 +266,14 @@ export default async function Home() {
             {tenders.map((tender, index) => {
               const leman = getLemanData(tender)
               const summary = getSummary(tender)
+              const whyPoints = splitWhyItMatters(leman.why_it_matters)
 
               return (
                 <article
                   key={tender.id}
                   className="rounded-[2rem] bg-white p-6 shadow-sm transition hover:shadow-md md:p-8"
                 >
-                  <div className="mb-6 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                  <div className="mb-5 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                     <div className="max-w-5xl">
                       <div className="mb-4 flex flex-wrap items-center gap-2">
                         {index < 3 && (
@@ -200,9 +282,17 @@ export default async function Home() {
                           </span>
                         )}
 
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-medium ${getOpportunityPill(
+                            tender.final_score
+                          )}`}
+                        >
+                          ⭐ {getOpportunityLabel(tender.final_score)}
+                        </span>
+
                         {tender.publication_date && (
                           <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                            📅 Publié le {formatDate(tender.publication_date)}
+                            📅 {formatDate(tender.publication_date)}
                           </span>
                         )}
 
@@ -212,15 +302,9 @@ export default async function Home() {
                           </span>
                         )}
 
-                        {tender.source && (
-                          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                            🧾 {tender.source}
-                          </span>
-                        )}
-
                         {tender.deadline && (
                           <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
-                            ⏳ Échéance {formatDate(tender.deadline)}
+                            ⏳ {formatDate(tender.deadline)}
                           </span>
                         )}
                       </div>
@@ -245,71 +329,69 @@ export default async function Home() {
                     </div>
                   </div>
 
-                  <div className="mb-6 grid gap-3 md:grid-cols-3">
-                    <div className="rounded-3xl bg-[#f4f5f6] px-5 py-5">
+                  <div className="mb-5 grid gap-3 md:grid-cols-4">
+                    <div className="rounded-3xl bg-[#f4f5f6] px-5 py-4">
                       <div className="text-xs uppercase tracking-wide text-gray-500">
                         📍 Localisation
                       </div>
-                      <div className="mt-2 text-base font-medium leading-6 text-gray-900">
-                        {leman.location || "Non renseignée"}
+                      <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
+                        {getShortLocation(leman.location)}
                       </div>
                     </div>
 
-                    <div className="rounded-3xl bg-[#f4f5f6] px-5 py-5">
+                    <div className="rounded-3xl bg-[#f4f5f6] px-5 py-4">
                       <div className="text-xs uppercase tracking-wide text-gray-500">
-                        🏗 Échelle du projet
+                        🏗 Échelle
                       </div>
-                      <div className="mt-2 text-base font-medium leading-6 text-gray-900">
-                        {leman.estimated_scale || "Non renseignée"}
+                      <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
+                        {getShortScale(leman.estimated_scale)}
                       </div>
                     </div>
 
-                    <div className="rounded-3xl bg-[#f4f5f6] px-5 py-5">
+                    <div className="rounded-3xl bg-[#f4f5f6] px-5 py-4">
                       <div className="text-xs uppercase tracking-wide text-gray-500">
                         🧠 Discipline
                       </div>
-                      <div className="mt-2 text-base font-medium leading-6 text-gray-900">
-                        {leman.main_discipline || "Non renseignée"}
+                      <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
+                        {getShortDiscipline(leman.main_discipline)}
+                      </div>
+                    </div>
+
+                    <div className="rounded-3xl bg-[#eef4ff] px-5 py-4">
+                      <div className="text-xs uppercase tracking-wide text-blue-500">
+                        🎯 Mission
+                      </div>
+                      <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
+                        {getShortProjectType(leman.project_type)}
                       </div>
                     </div>
                   </div>
 
                   <div className="mb-4 grid gap-3 md:grid-cols-2">
-                    {leman.project_type && (
-                      <div className="rounded-3xl bg-[#eef4ff] px-5 py-5">
-                        <div className="text-xs uppercase tracking-wide text-blue-500">
-                          Type de mission
+                    {leman.procedure_type && (
+                      <div className="rounded-3xl bg-[#f8f8f8] px-5 py-4">
+                        <div className="text-xs uppercase tracking-wide text-gray-500">
+                          🧾 Procédure
                         </div>
-                        <div className="mt-2 text-base font-medium leading-6 text-gray-900">
-                          {leman.project_type}
+                        <div className="mt-2 text-sm leading-6 text-gray-800">
+                          {getShortProcedure(leman.procedure_type)}
                         </div>
                       </div>
                     )}
 
-                    {leman.procedure_type && (
-                      <div className="rounded-3xl bg-[#f8f8f8] px-5 py-5">
+                    {leman.program && (
+                      <div className="rounded-3xl bg-[#f8f8f8] px-5 py-4">
                         <div className="text-xs uppercase tracking-wide text-gray-500">
-                          Procédure
+                          📦 Programme
                         </div>
-                        <div className="mt-2 text-base font-medium leading-6 text-gray-900">
-                          {leman.procedure_type}
+                        <div className="mt-2 text-sm leading-6 text-gray-800">
+                          {getCompactProgram(leman.program)}
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {leman.program && (
-                    <div className="mb-4 rounded-3xl bg-[#f8f8f8] px-5 py-5">
-                      <div className="text-xs uppercase tracking-wide text-gray-500">
-                        Programme
-                      </div>
-                      <div className="mt-2 text-base leading-7 text-gray-800">
-                        {leman.program}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="mb-4 rounded-3xl bg-white border border-gray-200 px-5 py-5">
+                  <div className="mb-4 rounded-3xl border border-gray-200 bg-white px-5 py-5">
                     <div className="text-xs uppercase tracking-wide text-gray-500">
                       Résumé du projet
                     </div>
@@ -329,14 +411,19 @@ export default async function Home() {
                     </div>
                   )}
 
-                  {leman.why_it_matters && (
+                  {whyPoints.length > 0 && (
                     <div className="mb-6 rounded-3xl bg-[#f4f5f6] px-5 py-5">
                       <div className="text-xs uppercase tracking-wide text-gray-500">
                         💡 Pourquoi c’est intéressant
                       </div>
-                      <div className="mt-2 text-base leading-7 text-gray-800">
-                        {leman.why_it_matters}
-                      </div>
+                      <ul className="mt-3 space-y-2 text-base leading-7 text-gray-800">
+                        {whyPoints.map((point, idx) => (
+                          <li key={idx} className="flex gap-3">
+                            <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-black" />
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
 
