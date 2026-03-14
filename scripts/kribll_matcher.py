@@ -311,8 +311,21 @@ def upload_to_supabase():
 
     # Send in chunks to avoid overly large requests
     chunk_size = 200
+    import math
+
+    def clean_value(v):
+        if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+            return None
+        return v
+
+    # Send in chunks to avoid overly large requests
+    chunk_size = 200
     for i in range(0, len(records), chunk_size):
         batch = records[i : i + chunk_size]
+        batch = [
+            {k: clean_value(v) for k, v in row.items()}
+            for row in batch
+        ]
         resp = requests.post(url, json=batch, headers=headers)
         resp.raise_for_status()
         print(f"Uploaded {len(batch)} rows (batch {i//chunk_size + 1})")
