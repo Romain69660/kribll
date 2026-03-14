@@ -1,28 +1,27 @@
-import { exec } from "child_process"
-import { promisify } from "util"
-import fs from "fs"
-import path from "path"
-
-const execAsync = promisify(exec)
+import { createClient } from "@supabase/supabase-js";
 
 export async function GET() {
-  try {
-    const scriptPath = path.join(process.cwd(), "scripts", "kribll_master.py")
 
-    await execAsync(`python "${scriptPath}"`)
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
-    const dataPath = path.join(process.cwd(), "data", "kribll_results.csv")
+  const { data, error } = await supabase
+    .from("tenders")
+    .select("*")
+    .order("final_score", { ascending: false })
+    .limit(50);
 
-    const csv = fs.readFileSync(dataPath, "utf8")
-
-    return new Response(csv, {
-      status: 200,
-      headers: { "Content-Type": "text/plain" }
-    })
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: "Pipeline failed" }),
-      { status: 500 }
-    )
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
+
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }
