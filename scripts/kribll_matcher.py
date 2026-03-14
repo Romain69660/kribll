@@ -297,6 +297,8 @@ def upload_to_supabase():
 
     df = pd.read_csv(csv_path, low_memory=False)
 
+    print("UPLOAD DF COLUMNS:", list(df.columns))
+
     # Replace non-serializable numeric values (NaN, inf, -inf) with None
     df = df.replace([np.inf, -np.inf], None)
     records = df.where(pd.notnull(df), None).to_dict(orient="records")
@@ -336,7 +338,18 @@ def upload_to_supabase():
         batch = [
             {
                 k: clean_value(v)
-                for k, v in row.items()
+                for k, v in {
+                    "url": row.get("url"),
+                    "title": row.get("title") or row.get("titre"),
+                    "publication_date": row.get("publication_date"),
+                    "buyer_name": row.get("buyer_name"),
+                    "country": row.get("country"),
+                    "category": row.get("category"),
+                    "summary": row.get("summary") or row.get("why"),
+                    "verdict": row.get("verdict"),
+                    "fit_score": row.get("final_score") or row.get("score"),
+                    "relevance_score": row.get("relevance_score"),
+                }.items()
                 if k in allowed_fields
             }
             for row in batch
