@@ -32,4 +32,4 @@ jobs:
           python scripts/kribll_master.py
           python scripts/kribll_ai_summary.py
           python scripts/kribll_top_feed.py
-          python scripts/kribll_matcher.py
+          python scripts/upload_top_50_ai_to_supabase.py
