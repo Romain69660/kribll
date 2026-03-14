@@ -242,29 +242,65 @@ def main():
 
     out = pd.DataFrame(results)
 
+    # Ensure we preserve real tender fields coming from the input feed
+    # (e.g., titre / acheteur / date_publication) while still applying fit/score/why.
+    if "titre" in out.columns:
+        out["title"] = out["titre"]
+    if "acheteur" in out.columns:
+        out["buyer_name"] = out["acheteur"]
+    if "date_publication" in out.columns:
+        out["publication_date"] = out["date_publication"]
+
+    # Prefer AI summary if present
+    if "ai_summary" in out.columns:
+        out["summary"] = out["ai_summary"]
+
+    # Ensure normalized columns exist so they are exported consistently
+    for col in [
+        "title",
+        "buyer_name",
+        "publication_date",
+        "summary",
+        "verdict",
+        "relevance_score",
+        "url",
+        "category",
+        "why",
+    ]:
+        if col not in out.columns:
+            out[col] = None
+
+    # Keep fit score aligned with the computed score
+    out["fit_score"] = out.get("score")
+
+    # Sort for readability
     fit_order = {
         "EXCELLENT_FIT": 0,
         "GOOD_FIT": 1
     }
 
-    if not out.empty:
-        out["fit_order"] = out["fit"].map(fit_order)
-        out = out.sort_values(
+    final = out.copy()
+    if not final.empty:
+        final["fit_order"] = final["fit"].map(fit_order)
+        final = final.sort_values(
             by=["fit_order", "score", "publication_date"],
             ascending=[True, False, False]
         ).drop(columns=["fit_order"])
 
-    out.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+    print("FINAL CLEAN SAMPLE:")
+    print(final.head(3).to_dict(orient="records"))
+
+    final.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
 
     print()
-    print("Selected rows:", len(out))
+    print("Selected rows:", len(final))
     print()
-    if not out.empty:
+    if not final.empty:
         print("By fit:")
-        print(out["fit"].value_counts(dropna=False))
+        print(final["fit"].value_counts(dropna=False))
         print()
         print("Top 20:")
-        print(out.head(20).to_string(index=False))
+        print(final.head(20).to_string(index=False))
     else:
         print("No matching opportunities found.")
 
