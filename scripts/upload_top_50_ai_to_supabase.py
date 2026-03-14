@@ -28,9 +28,9 @@ rows = []
 
 for _, row in df.iterrows():
     payload = {
-        "title": clean_value(row.get("title")),
-        "buyer_name": clean_value(row.get("buyer_name")),
-        "publication_date": clean_value(row.get("publication_date")),
+        "title": clean_value(row.get("titre")),
+        "buyer_name": clean_value(row.get("acheteur")),
+        "publication_date": clean_value(row.get("publication_date") or row.get("date_publication")),
         "country": clean_value(row.get("country")),
         "category": clean_value(row.get("category")),
         "priority_bucket": clean_value(row.get("priority_bucket")),
@@ -38,7 +38,7 @@ for _, row in df.iterrows():
         "url": clean_value(row.get("url")),
         "why": clean_value(row.get("why")),
         "relevance_score": clean_value(row.get("relevance_score")),
-        "fit_score": clean_value(row.get("final_score")),
+        "fit_score": clean_value(row.get("score")),
         "summary": clean_value(row.get("summary")),
         "verdict": clean_value(row.get("verdict")),
     }
