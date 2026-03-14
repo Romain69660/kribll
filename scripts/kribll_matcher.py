@@ -309,8 +309,6 @@ def upload_to_supabase():
         "Prefer": "return=minimal"
     }
 
-    # Send in chunks to avoid overly large requests
-    chunk_size = 200
     import math
 
     def clean_value(v):
@@ -318,12 +316,29 @@ def upload_to_supabase():
             return None
         return v
 
+    allowed_fields = {
+        "url",
+        "title",
+        "publication_date",
+        "buyer_name",
+        "country",
+        "category",
+        "summary",
+        "verdict",
+        "relevance_score",
+        "fit_score",
+    }
+
     # Send in chunks to avoid overly large requests
     chunk_size = 200
     for i in range(0, len(records), chunk_size):
         batch = records[i : i + chunk_size]
         batch = [
-            {k: clean_value(v) for k, v in row.items()}
+            {
+                k: clean_value(v)
+                for k, v in row.items()
+                if k in allowed_fields
+            }
             for row in batch
         ]
         resp = requests.post(url, json=batch, headers=headers)
