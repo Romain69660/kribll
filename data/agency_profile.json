@@ -1,0 +1,81 @@
+{
+  "name": "Agence Exemple",
+  "country": "FR",
+  "city": "Paris",
+
+  "team_size": 12,
+  "annual_revenue": 1500000,
+
+  "preferred_countries": ["FR", "BE", "CH"],
+
+  "project_types": [
+    "housing",
+    "school",
+    "heritage",
+    "rehabilitation",
+    "museum",
+    "public_building",
+    "urbanism",
+    "landscape"
+  ],
+
+  "references": [
+    {
+      "name": "Rehabilitation of a housing block",
+      "type": "housing",
+      "location": "Lyon",
+      "year": 2022
+    },
+    {
+      "name": "Public school extension",
+      "type": "school",
+      "location": "Paris",
+      "year": 2021
+    }
+  ],
+
+  "preferred_categories": [
+    "ARCHITECTURE_BUILDING",
+    "ARCHITECTURE_GENERAL",
+    "URBANISM_LANDSCAPE",
+    "AMO_PROGRAMMING",
+    "COMPETITIONS"
+  ],
+
+  "excluded_categories": [
+    "ENGINEERING",
+    "SURVEY_TOPO"
+  ],
+
+  "keywords_positive": [
+    "logement",
+    "housing",
+    "école",
+    "school",
+    "patrimoine",
+    "heritage",
+    "réhabilitation",
+    "rehabilitation",
+    "museum",
+    "musée",
+    "public",
+    "culture",
+    "urbanisme",
+    "urban",
+    "landscape",
+    "paysage"
+  ],
+
+  "keywords_negative": [
+    "hydraulique",
+    "hydraulic",
+    "géotechnique",
+    "geotechnical",
+    "waste",
+    "déchets",
+    "network",
+    "pipeline",
+    "water",
+    "assainissement"
+  ]
+}
