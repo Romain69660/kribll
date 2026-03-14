@@ -293,7 +293,12 @@ def upload_to_supabase():
     print()
     print("Uploading results to Supabase...")
 
+    import numpy as np
+
     df = pd.read_csv(csv_path, low_memory=False)
+
+    # Replace non-serializable numeric values (NaN, inf, -inf) with None
+    df = df.replace([np.inf, -np.inf], None)
     records = df.where(pd.notnull(df), None).to_dict(orient="records")
 
     url = SUPABASE_URL.rstrip("/") + "/rest/v1/tenders"
