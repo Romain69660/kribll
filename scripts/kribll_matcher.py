@@ -276,3 +276,44 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def upload_to_supabase():
+    import os
+    import requests
+
+    SUPABASE_URL = os.getenv("SUPABASE_URL")
+    SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        raise RuntimeError("SUPABASE_URL and SUPABASE_KEY environment variables are required")
+
+    csv_path = OUTPUT_FILE
+
+    print()
+    print("Uploading results to Supabase...")
+
+    df = pd.read_csv(csv_path, low_memory=False)
+    records = df.where(pd.notnull(df), None).to_dict(orient="records")
+
+    url = SUPABASE_URL.rstrip("/") + "/rest/v1/tenders"
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+    }
+
+    # Send in chunks to avoid overly large requests
+    chunk_size = 200
+    for i in range(0, len(records), chunk_size):
+        batch = records[i : i + chunk_size]
+        resp = requests.post(url, json=batch, headers=headers)
+        resp.raise_for_status()
+        print(f"Uploaded {len(batch)} rows (batch {i//chunk_size + 1})")
+
+    print("Supabase upload complete.")
+
+
+if __name__ == "__main__":
+    upload_to_supabase()
