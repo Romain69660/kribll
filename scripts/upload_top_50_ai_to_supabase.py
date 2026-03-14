@@ -6,60 +6,76 @@ import requests
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 
-CSV_FILE = "kribll_top_50.csv"
+# Le pipeline génère CE fichier, pas kribll_top_50.csv
+CSV_FILE = "data/kribll_top_feed.csv"
 
 headers = {
     "apikey": SUPABASE_KEY,
     "Authorization": f"Bearer {SUPABASE_KEY}",
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "Prefer": "return=representation",
 }
 
-def clean(v):
+def clean_value(v):
+    if v is None:
+        return None
     if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+        return None
+    if pd.isna(v):
         return None
     return v
 
+print("====================================")
+print("UPLOAD TO SUPABASE — KRIBLL TOP FEED")
+print("====================================")
 print("Loading final shortlist:", CSV_FILE)
 
 df = pd.read_csv(CSV_FILE, low_memory=False)
 
-print("Columns:", list(df.columns))
-print("Rows:", len(df))
+print("SOURCE COLUMNS:", list(df.columns))
+print("ROWS:", len(df))
+print("SOURCE SAMPLE:")
+print(df.head(3).to_dict(orient="records"))
 
 rows = []
 
 for _, row in df.iterrows():
-
     payload = {
-        "rank": clean(row.get("rank")),
-        "fit": clean(row.get("fit")),
-        "fit_score": clean(row.get("final_score") or row.get("score")),
-        "score": clean(row.get("score")),
-        "source": clean(row.get("source")),
-        "publication_number": clean(row.get("publication_number")),
-        "publication_date": clean(row.get("publication_date")),
-        "title": clean(row.get("title")),
-        "buyer_name": clean(row.get("buyer_name")),
-        "country": clean(row.get("country") or "FR"),
-        "category": clean(row.get("category")),
-        "priority_bucket": clean(row.get("priority_bucket")),
-        "cpv_code": clean(row.get("cpv_code")),
-        "url": clean(row.get("url")),
-        "why": clean(row.get("why"))
+        "rank": clean_value(row.get("rank")),
+        "fit": clean_value(row.get("fit")),
+        "final_score": clean_value(row.get("final_score")),
+        "score": clean_value(row.get("score")),
+        "source": clean_value(row.get("source")),
+        "publication_number": clean_value(row.get("publication_number")),
+        "publication_date": clean_value(row.get("publication_date")),
+        "title": clean_value(row.get("title") or row.get("titre")),
+        "buyer_name": clean_value(row.get("buyer_name") or row.get("acheteur")),
+        "country": clean_value(row.get("country") or "FR"),
+        "category": clean_value(row.get("category")),
+        "priority_bucket": clean_value(row.get("priority_bucket")),
+        "cpv_code": clean_value(row.get("cpv_code")),
+        "url": clean_value(row.get("url")),
+        "why": clean_value(row.get("why")),
     }
+
+    if not payload["url"]:
+        continue
 
     rows.append(payload)
 
-print("Uploading rows:", len(rows))
+print("ROWS TO UPLOAD:", len(rows))
+print("PAYLOAD SAMPLE:")
+for sample in rows[:3]:
+    print(sample)
 
 resp = requests.post(
     f"{SUPABASE_URL}/rest/v1/tenders",
     headers=headers,
-    json=rows
+    json=rows,
 )
 
-print("STATUS:", resp.status_code)
-print(resp.text)
+print("SUPABASE STATUS:", resp.status_code)
+print("SUPABASE RESPONSE:", resp.text)
 resp.raise_for_status()
 
 print("Upload complete.")
