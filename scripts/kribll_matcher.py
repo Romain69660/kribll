@@ -342,7 +342,11 @@ def upload_to_supabase():
             for row in batch
         ]
         resp = requests.post(url, json=batch, headers=headers)
-        resp.raise_for_status()
+        if resp.status_code >= 400:
+            print("Supabase error:")
+            print("Status:", resp.status_code)
+            print(resp.text)
+            raise RuntimeError("Supabase insert failed")
         print(f"Uploaded {len(batch)} rows (batch {i//chunk_size + 1})")
 
     print("Supabase upload complete.")
