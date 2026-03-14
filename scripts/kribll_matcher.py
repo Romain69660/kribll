@@ -331,29 +331,47 @@ def upload_to_supabase():
         "relevance_score",
     }
 
+    def pick(row, *keys):
+        for key in keys:
+            if key in row and row[key] is not None:
+                try:
+                    import pandas as pd
+
+                    if pd.isna(row[key]):
+                        continue
+                except Exception:
+                    pass
+                return row[key]
+        return None
+
     # Send in chunks to avoid overly large requests
     chunk_size = 200
     for i in range(0, len(records), chunk_size):
-        batch = records[i : i + chunk_size]
-        batch = [
-            {
-                k: clean_value(v)
-                for k, v in {
-                    "url": row.get("url"),
-                    "title": row.get("title") or row.get("titre"),
-                    "publication_date": row.get("publication_date"),
-                    "buyer_name": row.get("buyer_name"),
-                    "country": row.get("country"),
-                    "category": row.get("category"),
-                    "summary": row.get("summary") or row.get("why"),
-                    "verdict": row.get("verdict"),
-                    "fit_score": row.get("final_score") or row.get("score"),
-                    "relevance_score": row.get("relevance_score"),
-                }.items()
-                if k in allowed_fields
+        batch_rows = records[i : i + chunk_size]
+        batch = []
+
+        for row in batch_rows:
+            payload = {
+                "url": pick(row, "url"),
+                "title": pick(row, "title", "titre"),
+                "publication_date": pick(row, "publication_date", "date_publication", "publication_date_raw"),
+                "buyer_name": pick(row, "buyer_name", "buyer", "acheteur"),
+                "country": pick(row, "country", "pays"),
+                "category": pick(row, "category"),
+                "summary": pick(row, "summary", "ai_summary", "why"),
+                "verdict": pick(row, "verdict"),
+                "fit_score": pick(row, "fit_score", "final_score", "score"),
+                "relevance_score": pick(row, "relevance_score", "score"),
             }
-            for row in batch
-        ]
+
+            if not payload["url"]:
+                continue
+
+            if len(batch) < 3:
+                print("PAYLOAD SAMPLE:", payload)
+
+            batch.append({k: clean_value(v) for k, v in payload.items() if k in allowed_fields})
+
         resp = requests.post(url, json=batch, headers=headers)
         if resp.status_code >= 400:
             print("Supabase error:")
