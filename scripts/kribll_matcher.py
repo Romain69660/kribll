@@ -277,6 +277,11 @@ def main():
 if __name__ == "__main__":
     main()
 
+    df_final = pd.read_csv(OUTPUT_FILE, low_memory=False)
+    print("FINAL DF COLUMNS:", list(df_final.columns))
+    print("FINAL DF SAMPLE:")
+    print(df_final.head(3).to_dict(orient="records"))
+
 
 def upload_to_supabase():
     import os
@@ -346,11 +351,16 @@ def upload_to_supabase():
 
     # Send in chunks to avoid overly large requests
     chunk_size = 200
+    debug_row_count = 0
     for i in range(0, len(records), chunk_size):
         batch_rows = records[i : i + chunk_size]
         batch = []
 
         for row in batch_rows:
+            if debug_row_count < 3:
+                print("ROW SAMPLE:", row)
+                debug_row_count += 1
+
             payload = {
                 "url": pick(row, "url"),
                 "title": pick(row, "title", "titre"),
@@ -383,5 +393,4 @@ def upload_to_supabase():
     print("Supabase upload complete.")
 
 
-if __name__ == "__main__":
-    upload_to_supabase()
+upload_to_supabase()
