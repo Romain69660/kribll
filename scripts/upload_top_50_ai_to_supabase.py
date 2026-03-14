@@ -28,10 +28,26 @@ rows = []
 
 for _, row in df.iterrows():
     payload = {
-        "title": clean_value(row.get("titre")),
-        "buyer_name": clean_value(row.get("acheteur")),
-        "publication_date": clean_value(row.get("publication_date") or row.get("date_publication")),
-        "country": clean_value(row.get("country")),
+        "title": clean_value(
+            row.get("title")
+            or row.get("titre")
+        ),
+        "buyer_name": clean_value(
+            row.get("buyer_name")
+            or row.get("acheteur")
+            or row.get("buyer")
+            or row.get("authority")
+        ),
+        "publication_date": clean_value(
+            row.get("publication_date")
+            or row.get("date_publication")
+            or row.get("date")
+        ),
+        "country": clean_value(
+            row.get("country")
+            or row.get("pays")
+            or "FR"
+        ),
         "category": clean_value(row.get("category")),
         "priority_bucket": clean_value(row.get("priority_bucket")),
         "cpv_code": clean_value(row.get("cpv_code")),
