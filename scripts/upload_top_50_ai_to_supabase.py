@@ -6,7 +6,8 @@ import requests
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 
-CSV_FILE = "data/kribll_agency_feed.csv"
+TOP_FEED_FILE = "data/kribll_top_feed.csv"
+AGENCY_FEED_FILE = "data/kribll_agency_feed.csv"
 
 headers = {
     "apikey": SUPABASE_KEY,
@@ -14,24 +15,28 @@ headers = {
     "Content-Type": "application/json"
 }
 
+
 def clean_value(v):
     if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
         return None
     return v
 
-df = pd.read_csv(CSV_FILE)
 
-print("UPLOAD SOURCE COLUMNS:", list(df.columns))
-print("UPLOAD SAMPLE:", df.head(3).to_dict(orient="records"))
+# Load both feeds and merge on URL to restore the full tender context
+top_df = pd.read_csv(TOP_FEED_FILE, low_memory=False)
+agency_df = pd.read_csv(AGENCY_FEED_FILE, low_memory=False)
+
+merged = pd.merge(top_df, agency_df, on="url", how="inner", suffixes=("_top", "_ai"))
+
+print("MERGED DF COLUMNS:", list(merged.columns))
+print("MERGED DF SAMPLE:")
+print(merged.head(3).to_dict(orient="records"))
 
 rows = []
 
-for _, row in df.iterrows():
+for _, row in merged.iterrows():
     payload = {
-        "title": clean_value(
-            row.get("title")
-            or row.get("titre")
-        ),
+        "title": clean_value(row.get("title") or row.get("titre") or row.get("title_top")),
         "buyer_name": clean_value(
             row.get("buyer_name")
             or row.get("acheteur")
@@ -42,30 +47,39 @@ for _, row in df.iterrows():
             row.get("publication_date")
             or row.get("date_publication")
             or row.get("date")
+            or row.get("publication_date_top")
         ),
-        "country": clean_value(
-            row.get("country")
-            or row.get("pays")
-            or "FR"
+        "source": clean_value(row.get("source") or row.get("source_top")),
+        "publication_number": clean_value(
+            row.get("publication_number") or row.get("publication_number_top")
         ),
-        "category": clean_value(row.get("category")),
-        "priority_bucket": clean_value(row.get("priority_bucket")),
-        "cpv_code": clean_value(row.get("cpv_code")),
+        "category": clean_value(row.get("category") or row.get("category_top")),
+        "priority_bucket": clean_value(
+            row.get("priority_bucket") or row.get("priority_bucket_top")
+        ),
+        "cpv_code": clean_value(row.get("cpv_code") or row.get("cpv_code_top")),
         "url": clean_value(row.get("url")),
-        "why": clean_value(row.get("why")),
-        "relevance_score": clean_value(row.get("relevance_score")),
-        "fit_score": clean_value(row.get("score")),
-        "summary": clean_value(row.get("summary")),
-        "verdict": clean_value(row.get("verdict")),
+        "why": clean_value(row.get("why") or row.get("why_top")),
+        "summary": clean_value(row.get("summary") or row.get("summary_ai")),
+        "verdict": clean_value(row.get("verdict") or row.get("verdict_ai")),
+        "relevance_score": clean_value(
+            row.get("relevance_score") or row.get("relevance_score_ai")
+        ),
+        "fit_score": clean_value(
+            row.get("final_score") or row.get("score") or row.get("score_top")
+        ),
+        "country": clean_value(row.get("country") or "FR"),
     }
 
     if not payload["url"]:
         continue
 
+    if len(rows) < 3:
+        print("PAYLOAD SAMPLE:", payload)
+
     rows.append(payload)
 
 print("ROWS TO UPLOAD:", len(rows))
-print("PAYLOAD SAMPLE:", rows[:3])
 
 resp = requests.post(
     f"{SUPABASE_URL}/rest/v1/tenders",
