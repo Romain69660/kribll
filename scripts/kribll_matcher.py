@@ -325,8 +325,8 @@ def upload_to_supabase():
         "category",
         "summary",
         "verdict",
-        "relevance_score",
         "fit_score",
+        "relevance_score",
     }
 
     # Send in chunks to avoid overly large requests
