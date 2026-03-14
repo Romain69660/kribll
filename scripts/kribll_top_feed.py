@@ -4,8 +4,8 @@ print("====================================")
 print("KRIBLL TOP FEED — SELLABLE SHORTLIST")
 print("====================================")
 
-INPUT_FILE = "data/kribll_agency_feed.csv"
-OUTPUT_FILE = "data/kribll_top_feed.csv"
+INPUT_FILE = "kribll_agency_feed.csv"
+OUTPUT_FILE = "kribll_top_feed.csv"
 
 TOP_EXCELLENT = 20
 TOP_GOOD = 30
@@ -20,64 +20,94 @@ df = pd.read_csv(INPUT_FILE, low_memory=False)
 
 print("Rows loaded:", len(df))
 
-# Determine title column (English or French)
-TITLE_COL = None
-if "title" in df.columns:
-    TITLE_COL = "title"
-elif "titre" in df.columns:
-    TITLE_COL = "titre"
+# Clean string columns if they exist
+string_cols = [
+    "fit",
+    "source",
+    "publication_number",
+    "publication_date",
+    "title",
+    "buyer_name",
+    "country",
+    "category",
+    "priority_bucket",
+    "cpv_code",
+    "url",
+    "why",
+    # AI fields to preserve
+    "summary",
+    "verdict",
+    "location",
+    "procedure_type",
+    "main_discipline",
+    "estimated_budget",
+    "why_it_matters",
+    "project_type",
+    "program",
+    "estimated_scale",
+    "required_references",
+    "required_certifications",
+]
 
-# Clean columns
-for col in ["fit", "verdict", "source", "publication_number", "publication_date", "buyer_name", "country", "category", "priority_bucket", "cpv_code", "url", "why"]:
+for col in string_cols:
     if col in df.columns:
         df[col] = safe_str(df[col])
 
-if TITLE_COL in df.columns:
-    df[TITLE_COL] = safe_str(df[TITLE_COL])
+# Numeric columns
+numeric_cols = [
+    "score",
+    "final_score",
+    "relevance_score",
+    "required_references_count",
+    "minimum_revenue_required",
+]
 
-if "score" in df.columns:
-    df["score"] = pd.to_numeric(df["score"], errors="coerce").fillna(0)
+for col in numeric_cols:
+    if col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
 
 # Remove obvious weak / noisy rows
 if "category" in df.columns:
     df = df[df["category"] != "ENGINEERING"]
 
-# Map verdict to fit levels (for compatibility with existing logic)
-if "verdict" in df.columns:
-    df["fit"] = df["verdict"].map({
-        "GO": "EXCELLENT_FIT",
-        "MAYBE": "GOOD_FIT"
-    })
-
 # Keep only good levels
 if "fit" in df.columns:
-    df = df[df["fit"].isin(["EXCELLENT_FIT", "GOOD_FIT"]) ]
+    df = df[df["fit"].isin(["EXCELLENT_FIT", "GOOD_FIT"])]
 
 # Extra scoring tweaks
+if "score" not in df.columns:
+    df["score"] = 0
+
+df["score"] = df["score"].fillna(0)
 df["final_score"] = df["score"]
 
 # Bonus for competitions
-df.loc[df["category"] == "COMPETITIONS", "final_score"] += 8
+if "category" in df.columns:
+    df.loc[df["category"] == "COMPETITIONS", "final_score"] += 8
 
-# Bonus for architecture core
-df.loc[df["category"].isin(["ARCHITECTURE_BUILDING", "ARCHITECTURE_GENERAL"]), "final_score"] += 5
+    # Bonus for architecture core
+    df.loc[df["category"].isin(["ARCHITECTURE_BUILDING", "ARCHITECTURE_GENERAL"]), "final_score"] += 5
 
-# Bonus for urbanism / amo
-df.loc[df["category"].isin(["URBANISM_LANDSCAPE", "AMO_PROGRAMMING"]), "final_score"] += 3
+    # Bonus for urbanism / amo
+    df.loc[df["category"].isin(["URBANISM_LANDSCAPE", "AMO_PROGRAMMING"]), "final_score"] += 3
 
 # Penalty if title is empty
-if TITLE_COL and TITLE_COL in df.columns:
-    df.loc[df[TITLE_COL] == "", "final_score"] -= 15
+if "title" in df.columns:
+    df.loc[df["title"] == "", "final_score"] -= 15
 
 # Prefer BOAMP a bit for now because titles are richer
-df.loc[df["source"] == "BOAMP", "final_score"] += 4
+if "source" in df.columns:
+    df.loc[df["source"] == "BOAMP", "final_score"] += 4
 
 # Parse date for sorting
-df["publication_date_sort"] = pd.to_datetime(df["publication_date"], errors="coerce")
+if "publication_date" in df.columns:
+    df["publication_date_sort"] = pd.to_datetime(df["publication_date"], errors="coerce")
+else:
+    df["publication_date_sort"] = pd.NaT
 
 # Split
-excellent = df[df["fit"] == "EXCELLENT_FIT"].copy()
-good = df[df["fit"] == "GOOD_FIT"].copy()
+excellent = df[df["fit"] == "EXCELLENT_FIT"].copy() if "fit" in df.columns else df.copy()
+good = df[df["fit"] == "GOOD_FIT"].copy() if "fit" in df.columns else pd.DataFrame(columns=df.columns)
 
 excellent = excellent.sort_values(
     by=["final_score", "publication_date_sort"],
@@ -112,7 +142,7 @@ top = top.sort_values(
 # Add shortlist rank
 top.insert(0, "rank", range(1, len(top) + 1))
 
-# Keep only useful columns
+# Keep existing shortlist columns + AI fields
 final_cols = [
     "rank",
     "fit",
@@ -121,7 +151,7 @@ final_cols = [
     "source",
     "publication_number",
     "publication_date",
-    TITLE_COL if TITLE_COL else None,
+    "title",
     "buyer_name",
     "country",
     "category",
@@ -129,6 +159,24 @@ final_cols = [
     "cpv_code",
     "url",
     "why",
+    # AI fields preserved
+    "summary",
+    "verdict",
+    "relevance_score",
+    "location",
+    "procedure_type",
+    "main_discipline",
+    "estimated_budget",
+    "why_it_matters",
+    "project_type",
+    "program",
+    "estimated_scale",
+    "required_references",
+    "required_references_count",
+    "minimum_revenue_required",
+    "required_certifications",
+    "consortium_required",
+    "architect_mandatory",
 ]
 
 final_cols = [c for c in final_cols if c in top.columns]
@@ -143,12 +191,11 @@ if "fit" in top.columns:
     print("By fit:")
     print(top["fit"].value_counts(dropna=False))
     print()
-print("By category:")
-print(top["category"].value_counts(dropna=False))
-print()
+if "category" in top.columns:
+    print("By category:")
+    print(top["category"].value_counts(dropna=False))
+    print()
 print("Top 20 preview:")
 print(top.head(20).to_string(index=False))
 print()
 print("Export completed ->", OUTPUT_FILE)
-
-print("Step 3 completed: kribll_top_feed.csv generated")
