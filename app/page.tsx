@@ -6,13 +6,11 @@ type Tender = {
   buyer_name: string
   final_score: number
   url: string
-
   source?: string
   country?: string
   publication_date?: string
   deadline?: string
   category?: string
-
   summary?: string
   verdict?: string
   relevance_score?: number
@@ -23,6 +21,33 @@ type Tender = {
   why_it_matters?: string
   project_type?: string
   program?: string
+}
+
+function formatDate(dateString?: string) {
+  if (!dateString) return null
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return dateString
+  return date.toLocaleDateString("fr-FR")
+}
+
+function splitWhyItMatters(text?: string) {
+  if (!text) return []
+
+  const cleaned = text.replace(/\s+/g, " ").trim()
+
+  const numbered = cleaned
+    .split(/\s(?=\d+\))/)
+    .map((item) => item.replace(/^\d+\)\s*/, "").trim())
+    .filter(Boolean)
+
+  if (numbered.length > 1) return numbered.slice(0, 4)
+
+  const bySentence = cleaned
+    .split(/(?<=\.)\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+
+  return bySentence.slice(0, 4)
 }
 
 function getSummary(tender: Tender) {
@@ -73,28 +98,6 @@ function getCompactProgram(program?: string) {
   return text.slice(0, 217).trim() + "..."
 }
 
-function splitWhyItMatters(text?: string) {
-  if (!text) return []
-
-  const cleaned = text
-    .replace(/\s+/g, " ")
-    .replace(/^\s+|\s+$/g, "")
-
-  const numbered = cleaned
-    .split(/\s(?=\d+\))/)
-    .map((item) => item.replace(/^\d+\)\s*/, "").trim())
-    .filter(Boolean)
-
-  if (numbered.length > 1) return numbered.slice(0, 4)
-
-  const bySentence = cleaned
-    .split(/(?<=\.)\s+/)
-    .map((item) => item.trim())
-    .filter(Boolean)
-
-  return bySentence.slice(0, 4)
-}
-
 function getScoreBadge(score: number) {
   if (score >= 100) return "bg-black text-white"
   if (score >= 85) return "bg-gray-900 text-white"
@@ -116,322 +119,424 @@ function getOpportunityPill(score: number) {
   return "bg-gray-100 text-gray-700"
 }
 
-function formatDate(dateString?: string) {
-  if (!dateString) return null
-  const date = new Date(dateString)
-  if (isNaN(date.getTime())) return dateString
-  return date.toLocaleDateString("fr-FR")
-}
-
 export default async function Home() {
-  const { data, error } = await supabase
-    .from("tenders")
-    .select("*")
-    .order("final_score", { ascending: false })
-    .limit(20)
+  const [tendersRes, countRes] = await Promise.all([
+    supabase
+      .from("tenders")
+      .select("*")
+      .order("final_score", { ascending: false })
+      .limit(6),
+    supabase.from("tenders").select("*", { count: "exact", head: true }),
+  ])
 
-  const tenders = (data as Tender[]) || []
+  const tenders = (tendersRes.data as Tender[]) || []
+  const totalTenders = countRes.count ?? tenders.length
+  const bestScore = tenders[0]?.final_score ?? "-"
+  const featured = tenders[0]
+  const hasError = Boolean(tendersRes.error || countRes.error)
 
   return (
-    <main className="min-h-screen bg-[#f5f5f2]">
-      <div className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
-        <header className="mb-10">
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-black px-4 py-2 text-sm font-semibold text-white">
-                Kribll
-              </div>
-              <div className="rounded-full bg-white px-3 py-1 text-sm text-gray-600 shadow-sm">
-                Marchés publics architecture
-              </div>
+    <main className="min-h-screen bg-[#f5f5f2] text-gray-900">
+      <header className="border-b border-black/5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 md:px-8">
+          <div className="text-2xl font-semibold tracking-tight">kribbl</div>
+
+          <nav className="hidden items-center gap-8 text-sm text-gray-500 md:flex">
+            <a href="#discover" className="hover:text-gray-900">
+              Découvrir
+            </a>
+            <a href="#how" className="hover:text-gray-900">
+              Fonctionnement
+            </a>
+            <a href="#pricing" className="hover:text-gray-900">
+              Tarifs
+            </a>
+          </nav>
+
+          <a
+            href="#discover"
+            className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white"
+          >
+            Commencer
+          </a>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-12">
+        <section
+          id="discover"
+          className="grid items-start gap-10 md:grid-cols-[1.25fr_0.9fr]"
+        >
+          <div>
+            <div className="inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">
+              ✨ Propulsé par Leman AI
             </div>
 
-            <button className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm">
-              FR
-            </button>
-          </div>
+            <h1 className="mt-6 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-tight md:text-7xl">
+              Les appels d'offres qui comptent vraiment.
+            </h1>
 
-          <div className="grid gap-6 md:grid-cols-[1.45fr_0.8fr]">
-            <div className="rounded-[2rem] bg-[#d9f3bf] px-8 py-8 shadow-sm md:px-10 md:py-10">
-              <h1 className="max-w-4xl text-4xl font-bold leading-[0.95] tracking-tight text-black md:text-6xl">
-                Trouvez les appels d’offres les plus pertinents pour votre agence
-              </h1>
+            <p className="mt-6 max-w-2xl text-xl leading-10 text-gray-500">
+              Kribbl filtre des milliers d’appels d’offres et ne vous montre que
+              ceux qui correspondent à votre agence. Architecture, urbanisme,
+              paysage.
+            </p>
 
-              <p className="mt-5 max-w-2xl text-base text-gray-700 md:text-lg">
-                Kribll vous aide à repérer, comprendre et filtrer rapidement les
-                opportunités vraiment intéressantes.
-              </p>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
-                  <div className="text-xs uppercase tracking-wide text-gray-500">
-                    Résultats affichés
-                  </div>
-                  <div className="mt-1 text-2xl font-semibold text-gray-900">
-                    {tenders.length}
-                  </div>
-                </div>
-
-                <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
-                  <div className="text-xs uppercase tracking-wide text-gray-500">
-                    Tri
-                  </div>
-                  <div className="mt-1 text-2xl font-semibold text-gray-900">
-                    Score IA
-                  </div>
-                </div>
-
-                <div className="rounded-2xl bg-white px-4 py-4 shadow-sm">
-                  <div className="text-xs uppercase tracking-wide text-gray-500">
-                    Meilleur score
-                  </div>
-                  <div className="mt-1 text-2xl font-semibold text-gray-900">
-                    {tenders[0]?.final_score ?? "-"}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] bg-white p-6 shadow-sm">
-              <div className="mb-4 inline-flex rounded-full bg-black px-3 py-1 text-xs font-medium text-white">
-                Vue rapide
-              </div>
-
-              <h2 className="text-2xl font-semibold text-gray-950">
-                Ce que Kribll vous montre
-              </h2>
-
-              <div className="mt-6 space-y-3">
-                <div className="rounded-2xl bg-gray-50 px-4 py-4">
-                  <div className="text-sm font-semibold text-gray-900">
-                    📅 Date de publication
-                  </div>
-                  <div className="mt-1 text-sm text-gray-600">
-                    Pour repérer immédiatement les annonces récentes.
-                  </div>
-                </div>
-
-                <div className="rounded-2xl bg-gray-50 px-4 py-4">
-                  <div className="text-sm font-semibold text-gray-900">
-                    📍 Localisation
-                  </div>
-                  <div className="mt-1 text-sm text-gray-600">
-                    Pour filtrer les projets adaptés à votre zone.
-                  </div>
-                </div>
-
-                <div className="rounded-2xl bg-gray-50 px-4 py-4">
-                  <div className="text-sm font-semibold text-gray-900">
-                    ⭐ Pertinence
-                  </div>
-                  <div className="mt-1 text-sm text-gray-600">
-                    Pour savoir rapidement si ça mérite votre attention.
-                  </div>
-                </div>
-              </div>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <a
+                href="#opportunities"
+                className="rounded-full border border-black/10 bg-white px-7 py-4 text-base font-medium shadow-sm"
+              >
+                Accès anticipé →
+              </a>
+              <a
+                href="#how"
+                className="text-base font-medium text-gray-500 hover:text-gray-900"
+              >
+                En savoir plus →
+              </a>
             </div>
           </div>
-        </header>
 
-        {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
-            Erreur Supabase : {JSON.stringify(error)}
+          <div className="rounded-[2rem] border border-black/5 bg-white p-7 shadow-sm">
+            <div className="mb-5 flex items-center justify-between">
+              <div className="text-sm font-medium text-orange-500">
+                🏆 Opportunité du jour
+              </div>
+              {typeof featured?.final_score === "number" && (
+                <div className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-green-500 text-lg font-semibold text-gray-900">
+                  {featured.final_score}
+                </div>
+              )}
+            </div>
+
+            <div className="mb-4 flex flex-wrap gap-2">
+              {featured?.source && (
+                <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
+                  {featured.source}
+                </span>
+              )}
+              {featured?.category && (
+                <span className="rounded-full bg-pink-50 px-3 py-1 text-sm font-medium text-pink-500">
+                  {featured.category}
+                </span>
+              )}
+            </div>
+
+            <h2 className="max-w-xl text-3xl font-medium leading-tight">
+              {featured?.title || "Aucune opportunité mise en avant"}
+            </h2>
+
+            <p className="mt-4 text-lg text-gray-500">
+              {featured?.location || featured?.country || "Localisation inconnue"}
+            </p>
+
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              {featured?.verdict && (
+                <span className="rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-700">
+                  {featured.verdict}
+                </span>
+              )}
+              {typeof featured?.relevance_score === "number" && (
+                <span className="text-base text-gray-500">
+                  Score Leman : {featured.relevance_score}
+                </span>
+              )}
+            </div>
+
+            <div className="mt-5 rounded-full bg-gray-100 px-4 py-3 text-sm text-gray-600">
+              {featured?.why_it_matters || "Match pertinent selon vos références et votre profil."}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-10 border-y border-black/5 py-6">
+          <div className="grid gap-4 text-center md:grid-cols-4 md:text-left">
+            <div>
+              <div className="text-4xl font-semibold">{totalTenders}+</div>
+              <div className="mt-2 text-gray-500">AOP analysés / jour</div>
+            </div>
+            <div>
+              <div className="text-4xl font-semibold">94%</div>
+              <div className="mt-2 text-gray-500">précision du scoring</div>
+            </div>
+            <div>
+              <div className="text-4xl font-semibold">10s</div>
+              <div className="mt-2 text-gray-500">pour comprendre un appel</div>
+            </div>
+            <div>
+              <div className="text-4xl font-semibold">{bestScore}</div>
+              <div className="mt-2 text-gray-500">meilleur score observé</div>
+            </div>
+          </div>
+        </section>
+
+        {hasError && (
+          <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
+            Erreur Supabase : {JSON.stringify(tendersRes.error || countRes.error)}
           </div>
         )}
 
-        {!error && tenders.length === 0 && (
-          <div className="rounded-2xl bg-white p-6 text-gray-600 shadow-sm">
+        {!hasError && tenders.length === 0 && (
+          <div className="mt-8 rounded-2xl bg-white p-6 text-gray-600 shadow-sm">
             Aucun appel d’offres trouvé.
           </div>
         )}
 
-        {!error && tenders.length > 0 && (
-          <section className="space-y-6">
-            {tenders.map((tender, index) => {
-              const summary = getSummary(tender)
-              const whyPoints = splitWhyItMatters(tender.why_it_matters)
+        {!hasError && tenders.length > 0 && (
+          <section id="opportunities" className="mt-20">
+            <div className="mb-10 text-center">
+              <div className="inline-flex rounded-full bg-white px-4 py-2 text-sm text-gray-500 shadow-sm">
+                Aperçu live
+              </div>
+              <h2 className="mt-5 text-5xl font-semibold tracking-tight">
+                Vos opportunités du jour
+              </h2>
+              <p className="mt-4 text-2xl text-gray-500">
+                Triées et scorées en temps réel par Leman.
+              </p>
+            </div>
 
-              return (
-                <article
-                  key={tender.id}
-                  className="rounded-[2rem] bg-white p-6 shadow-sm transition hover:shadow-md md:p-8"
-                >
-                  <div className="mb-5 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-                    <div className="max-w-5xl">
-                      <div className="mb-4 flex flex-wrap items-center gap-2">
-                        {index < 3 && (
-                          <span className="rounded-full bg-black px-3 py-1 text-xs font-medium text-white">
-                            Opportunité prioritaire
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {tenders.map((tender, index) => {
+                const summary = getSummary(tender)
+
+                return (
+                  <article
+                    key={tender.id ?? index}
+                    className="rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm transition hover:shadow-md"
+                  >
+                    <div className="mb-5 flex items-start justify-between gap-4">
+                      <div className="flex flex-wrap gap-2">
+                        {tender.source && (
+                          <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
+                            {tender.source}
                           </span>
                         )}
+                        {tender.category && (
+                          <span className="rounded-full border border-black/10 px-3 py-1 text-sm text-gray-500">
+                            {tender.category}
+                          </span>
+                        )}
+                      </div>
 
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-medium ${getOpportunityPill(
+                      {typeof tender.final_score === "number" && (
+                        <div
+                          className={`inline-flex min-w-14 items-center justify-center rounded-full px-4 py-2 text-sm font-semibold ${getScoreBadge(
                             tender.final_score
                           )}`}
                         >
-                          ⭐ {getOpportunityLabel(tender.final_score)}
+                          {tender.final_score}
+                        </div>
+                      )}
+                    </div>
+
+                    <h3 className="text-3xl font-medium leading-tight">
+                      {tender.title}
+                    </h3>
+
+                    <p className="mt-3 text-lg text-gray-500">{summary}</p>
+
+                    <div className="mt-5">
+                      {tender.verdict && (
+                        <span
+                          className={`rounded-full px-4 py-2 text-sm font-semibold ${getOpportunityPill(
+                            tender.final_score
+                          )}`}
+                        >
+                          {tender.verdict}
                         </span>
-
-                        {tender.publication_date && (
-                          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                            📅 {formatDate(tender.publication_date)}
-                          </span>
-                        )}
-
-                        {tender.country && (
-                          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                            🌍 {tender.country}
-                          </span>
-                        )}
-
-                        {tender.deadline && (
-                          <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
-                            ⏳ {formatDate(tender.deadline)}
-                          </span>
-                        )}
-                      </div>
-
-                      <h2 className="max-w-5xl text-3xl font-semibold leading-tight text-gray-950">
-                        {tender.title}
-                      </h2>
-
-                      <p className="mt-4 text-sm text-gray-500">
-                        Maître d’ouvrage : {tender.buyer_name || "Inconnu"}
-                      </p>
+                      )}
                     </div>
 
-                    <div className="shrink-0">
-                      <div
-                        className={`inline-flex min-w-24 items-center justify-center rounded-full px-4 py-2.5 text-base font-semibold ${getScoreBadge(
-                          tender.final_score
-                        )}`}
-                      >
-                        {tender.final_score}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-5 grid gap-3 md:grid-cols-4">
-                    <div className="rounded-3xl bg-[#f4f5f6] px-5 py-4">
-                      <div className="text-xs uppercase tracking-wide text-gray-500">
-                        📍 Localisation
-                      </div>
-                      <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
-                        {getShortLocation(tender.location)}
-                      </div>
-                    </div>
-
-                    <div className="rounded-3xl bg-[#f4f5f6] px-5 py-4">
-                      <div className="text-xs uppercase tracking-wide text-gray-500">
-                        🏗 Échelle
-                      </div>
-                      <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
-                        {getShortScale(tender.estimated_scale)}
-                      </div>
-                    </div>
-
-                    <div className="rounded-3xl bg-[#f4f5f6] px-5 py-4">
-                      <div className="text-xs uppercase tracking-wide text-gray-500">
-                        🧠 Discipline
-                      </div>
-                      <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
-                        {getShortDiscipline(tender.main_discipline)}
-                      </div>
-                    </div>
-
-                    <div className="rounded-3xl bg-[#eef4ff] px-5 py-4">
-                      <div className="text-xs uppercase tracking-wide text-blue-500">
-                        🎯 Mission
-                      </div>
-                      <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
-                        {getShortProjectType(tender.project_type)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-4 grid gap-3 md:grid-cols-2">
-                    {tender.procedure_type && (
-                      <div className="rounded-3xl bg-[#f8f8f8] px-5 py-4">
-                        <div className="text-xs uppercase tracking-wide text-gray-500">
-                          🧾 Procédure
-                        </div>
-                        <div className="mt-2 text-sm leading-6 text-gray-800">
-                          {getShortProcedure(tender.procedure_type)}
-                        </div>
-                      </div>
-                    )}
-
-                    {tender.program && (
-                      <div className="rounded-3xl bg-[#f8f8f8] px-5 py-4">
-                        <div className="text-xs uppercase tracking-wide text-gray-500">
-                          📦 Programme
-                        </div>
-                        <div className="mt-2 text-sm leading-6 text-gray-800">
-                          {getCompactProgram(tender.program)}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mb-4 rounded-3xl border border-gray-200 bg-white px-5 py-5">
-                    <div className="text-xs uppercase tracking-wide text-gray-500">
-                      Résumé du projet
-                    </div>
-                    <div className="mt-2 text-base leading-7 text-gray-800">
-                      {summary}
-                    </div>
-                  </div>
-
-                  {typeof tender.relevance_score === "number" && (
-                    <div className="mb-4 rounded-3xl bg-[#eef9ef] px-5 py-5">
-                      <div className="text-xs uppercase tracking-wide text-green-600">
-                        ⭐ Pertinence pour votre agence
-                      </div>
-                      <div className="mt-2 text-base leading-7 text-gray-800">
-                        Score IA : {tender.relevance_score}/100
-                      </div>
-                    </div>
-                  )}
-
-                  {whyPoints.length > 0 && (
-                    <div className="mb-6 rounded-3xl bg-[#f4f5f6] px-5 py-5">
-                      <div className="text-xs uppercase tracking-wide text-gray-500">
-                        💡 Pourquoi c’est intéressant
-                      </div>
-                      <ul className="mt-3 space-y-2 text-base leading-7 text-gray-800">
-                        {whyPoints.map((point, idx) => (
-                          <li key={idx} className="flex gap-3">
-                            <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-black" />
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  <div className="flex flex-wrap items-center gap-4">
-                    <a
-                      href={tender.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-85"
-                    >
-                      Voir l’avis
-                    </a>
-
-                    {tender.category && (
-                      <span className="text-sm text-gray-500">
-                        Catégorie : {tender.category}
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-black/10 px-3 py-2 text-sm text-gray-500">
+                        📍 {getShortLocation(tender.location)}
                       </span>
-                    )}
-                  </div>
-                </article>
-              )
-            })}
+
+                      {tender.publication_date && (
+                        <span className="rounded-full border border-black/10 px-3 py-2 text-sm text-gray-500">
+                          📅 {formatDate(tender.publication_date)}
+                        </span>
+                      )}
+
+                      <span className="rounded-full border border-black/10 px-3 py-2 text-sm text-gray-500">
+                        🧠 {getShortDiscipline(tender.main_discipline)}
+                      </span>
+                    </div>
+
+                    <div className="mt-6">
+                      <a
+                        href={tender.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center text-sm font-medium text-gray-900 hover:opacity-70"
+                      >
+                        Voir l’avis →
+                      </a>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+
+            <div className="mt-10 text-center">
+              <a
+                href="#"
+                className="inline-flex rounded-full border border-black/10 bg-white px-8 py-4 text-base font-medium shadow-sm"
+              >
+                Voir toutes les opportunités →
+              </a>
+            </div>
           </section>
         )}
+
+        <section className="mt-24">
+          <div className="mb-10 text-center">
+            <div className="inline-flex rounded-full bg-white px-4 py-2 text-sm text-gray-500 shadow-sm">
+              Fonctionnalités
+            </div>
+            <h2 className="mt-5 text-5xl font-semibold tracking-tight">
+              Tout ce qu'il faut pour décider vite.
+            </h2>
+            <p className="mt-4 text-2xl text-gray-500">
+              De la collecte à la décision, Kribbl automatise votre veille.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
+              <div className="text-2xl">⏃</div>
+              <h3 className="mt-8 text-3xl font-medium">Filtrage intelligent</h3>
+              <p className="mt-4 text-xl leading-9 text-gray-500">
+                Analyse chaque publication et ne garde que celles qui correspondent à votre profil.
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
+              <div className="text-2xl">📊</div>
+              <h3 className="mt-8 text-3xl font-medium">Scoring automatique</h3>
+              <p className="mt-4 text-xl leading-9 text-gray-500">
+                Score basé sur vos références, compétences et localisation.
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
+              <div className="text-2xl">✦</div>
+              <h3 className="mt-8 text-3xl font-medium">Résumé en 10s</h3>
+              <p className="mt-4 text-xl leading-9 text-gray-500">
+                Leman résume les AAPC et donne un verdict clair : GO, MAYBE ou NO.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="how" className="mt-24 rounded-[2.5rem] bg-[#f2f2ef] px-6 py-14 md:px-10">
+          <div className="text-center">
+            <div className="inline-flex rounded-full bg-white px-4 py-2 text-sm text-gray-500 shadow-sm">
+              Processus
+            </div>
+            <h2 className="mt-5 text-5xl font-semibold tracking-tight">
+              Comment ça marche
+            </h2>
+            <p className="mt-4 text-2xl text-gray-500">
+              3 étapes pour ne plus jamais rater une opportunité.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
+              <div className="text-6xl font-semibold text-gray-100">01</div>
+              <h3 className="mt-8 text-3xl font-medium">Kribbl collecte</h3>
+              <p className="mt-4 text-xl leading-9 text-gray-500">
+                Des milliers d'appels d'offres récupérés chaque jour depuis BOAMP et TED.
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
+              <div className="text-6xl font-semibold text-gray-100">02</div>
+              <h3 className="mt-8 text-3xl font-medium">Leman analyse</h3>
+              <p className="mt-4 text-xl leading-9 text-gray-500">
+                Notre IA filtre, résume et score chaque opportunité selon votre profil.
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
+              <div className="text-6xl font-semibold text-gray-100">03</div>
+              <h3 className="mt-8 text-3xl font-medium">Vous décidez</h3>
+              <p className="mt-4 text-xl leading-9 text-gray-500">
+                GO, MAYBE ou NO : identifiez en quelques minutes ce qui vaut le coup.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 grid gap-6 md:grid-cols-4">
+            <div className="rounded-[2rem] border border-black/5 bg-white p-6 text-center shadow-sm">
+              <div className="text-5xl font-semibold">5h</div>
+              <div className="mt-2 text-lg text-gray-500">gagnées / semaine</div>
+            </div>
+            <div className="rounded-[2rem] border border-black/5 bg-white p-6 text-center shadow-sm">
+              <div className="text-5xl font-semibold">84%</div>
+              <div className="mt-2 text-lg text-gray-500">de bruit en moins</div>
+            </div>
+            <div className="rounded-[2rem] border border-black/5 bg-white p-6 text-center shadow-sm">
+              <div className="text-5xl font-semibold">10s</div>
+              <div className="mt-2 text-lg text-gray-500">pour tout comprendre</div>
+            </div>
+            <div className="rounded-[2rem] border border-black/5 bg-white p-6 text-center shadow-sm">
+              <div className="text-5xl font-semibold">3×</div>
+              <div className="mt-2 text-lg text-gray-500">plus de réponses</div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-24 rounded-[2.5rem] bg-[#0f1728] px-6 py-16 text-center text-white shadow-sm md:px-10">
+          <h2 className="text-5xl font-semibold tracking-tight">
+            Prêt à transformer votre veille ?
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-2xl leading-10 text-white/70">
+            Rejoignez les agences qui ne ratent plus une opportunité.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <a
+              href="#"
+              className="rounded-full border border-white/15 bg-white/10 px-8 py-4 text-lg font-medium text-white"
+            >
+              Demander une démo
+            </a>
+            <a href="#" className="text-lg font-medium text-white/80">
+              Commencer gratuitement →
+            </a>
+          </div>
+        </section>
       </div>
+
+      <footer className="border-t border-black/5">
+        <div className="mx-auto max-w-7xl px-5 py-12 md:px-8">
+          <div className="flex flex-col gap-10 md:flex-row md:justify-between">
+            <div>
+              <div className="text-3xl font-semibold">kribbl</div>
+              <p className="mt-3 text-xl text-gray-500">
+                Veille intelligente pour agences d’architecture.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-x-16 gap-y-4 text-lg text-gray-500">
+              <a href="#">Fonctionnalités</a>
+              <a href="#">Confidentialité</a>
+              <a href="#">Tarifs</a>
+              <a href="#">CGU</a>
+              <a href="#">Blog</a>
+              <a href="#">Support</a>
+            </div>
+          </div>
+
+          <div className="mt-10 border-t border-black/5 pt-8 text-lg text-gray-400">
+            © 2026 Kribbl
+          </div>
+        </div>
+      </footer>
     </main>
   )
 }
