@@ -4,7 +4,7 @@ print("====================================")
 print("KRIBLL TOP FEED — SELLABLE SHORTLIST")
 print("====================================")
 
-INPUT_FILE = "kribll_agency_feed.csv"
+INPUT_FILE = "data/kribll_agency_feed.csv"
 OUTPUT_FILE = "kribll_top_feed.csv"
 
 TOP_EXCELLENT = 20
