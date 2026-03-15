@@ -21,7 +21,7 @@ INPUT_FILE = "data/kribll_results.csv"
 OUTPUT_FILE = "data/kribll_agency_feed.csv"
 
 # GitHub Actions friendly settings
-MAX_ROWS = 80
+MAX_ROWS = 10
 MODEL_NAME = "gpt-5-mini"
 
 # -----------------------------------
