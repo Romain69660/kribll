@@ -29,7 +29,9 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
-          python scripts/kribll_master.py
-          python scripts/kribll_ai_summary.py
-          python scripts/kribll_top_feed.py
-          python scripts/upload_top_50_ai_to_supabase.py
+          python scripts/01_boamp_scraper.py
+          python scripts/02_ted_scraper.py
+          python scripts/03_master_pipeline.py
+          python scripts/04_ai_summary.py
+          python scripts/05_top_feed.py
+          python scripts/06_upload_supabase.py
