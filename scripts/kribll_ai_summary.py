@@ -214,5 +214,5 @@ def main():
     print("Step 2 completed: kribll_agency_feed.csv generated")
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()
