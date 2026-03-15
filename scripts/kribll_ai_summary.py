@@ -1,5 +1,4 @@
 import os
-
 import pandas as pd
 import json
 import time
@@ -21,6 +20,28 @@ OUTPUT_FILE = "data/kribll_agency_feed.csv"
 MAX_ROWS = 10
 
 
+def clean_value(v):
+    if pd.isna(v):
+        return ""
+    return str(v).strip()
+
+
+def normalize_row(row):
+    data = row.to_dict()
+
+    data["title"] = clean_value(data.get("title")) or clean_value(data.get("titre"))
+    data["buyer_name"] = clean_value(data.get("buyer_name")) or clean_value(data.get("acheteur"))
+    data["publication_date"] = clean_value(data.get("publication_date")) or clean_value(data.get("date_publication"))
+    data["publication_number"] = clean_value(data.get("publication_number")) or clean_value(data.get("idweb"))
+    data["country"] = clean_value(data.get("country")) or "FR"
+    data["cpv_code"] = clean_value(data.get("cpv_code")) or clean_value(data.get("cpv_codes"))
+    data["category"] = clean_value(data.get("category"))
+    data["url"] = clean_value(data.get("url"))
+    data["why"] = clean_value(data.get("why"))
+
+    return data
+
+
 def build_prompt(row):
     return f"""
 Tu es Leman, une IA qui analyse les appels d'offres pour les agences d'architecture.
@@ -36,6 +57,7 @@ Pays : {row.get("country", "")}
 Catégorie : {row.get("category", "")}
 CPV : {row.get("cpv_code", "")}
 URL : {row.get("url", "")}
+Raison du scoring : {row.get("why", "")}
 
 Retourne STRICTEMENT un JSON avec les champs suivants :
 
@@ -67,6 +89,7 @@ Règles :
 - verdict = GO, MAYBE ou NO
 - estimated_budget = nombre uniquement si détectable, sinon null
 - estimated_scale = small, medium, large ou null
+- Si l'information n'est pas présente, retourne null au lieu d'inventer
 - Retourne uniquement du JSON brut, sans texte avant ni après
 """
 
@@ -74,8 +97,8 @@ Règles :
 def extract_json(text):
     text = text.strip()
 
-    if text.startswith("```"):
-        text = text.replace("```json", "").replace("```", "").strip()
+    if text.startswith(""):
+        text = text.replace("json", "").replace("```", "").strip()
 
     start = text.find("{")
     end = text.rfind("}")
@@ -99,8 +122,7 @@ def summarize(row):
 
 def main():
     print("Loading CSV...")
-    df = pd.read_csv(INPUT_FILE)
-
+    df = pd.read_csv(INPUT_FILE, low_memory=False)
     df = df.head(MAX_ROWS)
 
     results = []
@@ -108,8 +130,10 @@ def main():
     for i, row in df.iterrows():
         print(f"Analyzing {i + 1}/{len(df)}")
 
+        normalized = normalize_row(row)
+
         try:
-            analysis_text = summarize(row)
+            analysis_text = summarize(normalized)
             analysis_json = extract_json(analysis_text)
         except Exception as e:
             print("Error:", e)
@@ -117,6 +141,14 @@ def main():
             analysis_json = {}
 
         new_row = row.to_dict()
+
+        # normalized fields kept explicitly
+        new_row["title"] = normalized["title"]
+        new_row["buyer_name"] = normalized["buyer_name"]
+        new_row["publication_date"] = normalized["publication_date"]
+        new_row["publication_number"] = normalized["publication_number"]
+        new_row["country"] = normalized["country"]
+        new_row["cpv_code"] = normalized["cpv_code"]
 
         new_row["leman_analysis"] = analysis_text
         new_row["project_type"] = analysis_json.get("project_type")
@@ -126,7 +158,10 @@ def main():
         new_row["main_discipline"] = analysis_json.get("main_discipline")
         new_row["estimated_scale"] = analysis_json.get("estimated_scale")
         new_row["estimated_budget"] = analysis_json.get("estimated_budget")
-        new_row["required_references"] = analysis_json.get("required_references")
+        new_row["required_references"] = json.dumps(
+            analysis_json.get("required_references", []),
+            ensure_ascii=False
+        )
         new_row["required_references_count"] = analysis_json.get("required_references_count")
         new_row["minimum_revenue_required"] = analysis_json.get("minimum_revenue_required")
         new_row["required_certifications"] = json.dumps(
@@ -141,7 +176,6 @@ def main():
         new_row["why_it_matters"] = analysis_json.get("why_it_matters")
 
         results.append(new_row)
-
         time.sleep(1)
 
     out = pd.DataFrame(results)
@@ -152,6 +186,12 @@ def main():
     print("Rows exported :", len(out))
     print("Columns added :")
     print([
+        "title",
+        "buyer_name",
+        "publication_date",
+        "publication_number",
+        "country",
+        "cpv_code",
         "project_type",
         "program",
         "location",
@@ -174,5 +214,5 @@ def main():
     print("Step 2 completed: kribll_agency_feed.csv generated")
 
 
-if __name__ == "__main__":
+if _name_ == "_main_":
     main()
