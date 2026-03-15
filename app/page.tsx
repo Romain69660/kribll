@@ -4,46 +4,30 @@ type Tender = {
   id: number
   title: string
   buyer_name: string
-  ai_summary: string
   final_score: number
   url: string
+
   source?: string
   country?: string
   publication_date?: string
   deadline?: string
   category?: string
-}
 
-type LemanData = {
-  project_type?: string
-  program?: string
+  summary?: string
+  verdict?: string
+  relevance_score?: number
   location?: string
   procedure_type?: string
   main_discipline?: string
   estimated_scale?: string
-  relevance?: string
-  summary?: string
   why_it_matters?: string
-}
-
-function parseJson(value?: string): LemanData {
-  if (!value) return {}
-  try {
-    return JSON.parse(value)
-  } catch {
-    return {}
-  }
-}
-
-function getLemanData(tender: Tender): LemanData {
-  return parseJson(tender.ai_summary)
+  project_type?: string
+  program?: string
 }
 
 function getSummary(tender: Tender) {
-  const leman = getLemanData(tender)
-  if (!leman.summary) return "Résumé non disponible."
-
-  const text = leman.summary.trim()
+  const text = tender.summary?.trim()
+  if (!text) return "Résumé non disponible."
   if (text.length <= 260) return text
   return text.slice(0, 257).trim() + "..."
 }
@@ -264,9 +248,8 @@ export default async function Home() {
         {!error && tenders.length > 0 && (
           <section className="space-y-6">
             {tenders.map((tender, index) => {
-              const leman = getLemanData(tender)
               const summary = getSummary(tender)
-              const whyPoints = splitWhyItMatters(leman.why_it_matters)
+              const whyPoints = splitWhyItMatters(tender.why_it_matters)
 
               return (
                 <article
@@ -335,7 +318,7 @@ export default async function Home() {
                         📍 Localisation
                       </div>
                       <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
-                        {getShortLocation(leman.location)}
+                        {getShortLocation(tender.location)}
                       </div>
                     </div>
 
@@ -344,7 +327,7 @@ export default async function Home() {
                         🏗 Échelle
                       </div>
                       <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
-                        {getShortScale(leman.estimated_scale)}
+                        {getShortScale(tender.estimated_scale)}
                       </div>
                     </div>
 
@@ -353,7 +336,7 @@ export default async function Home() {
                         🧠 Discipline
                       </div>
                       <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
-                        {getShortDiscipline(leman.main_discipline)}
+                        {getShortDiscipline(tender.main_discipline)}
                       </div>
                     </div>
 
@@ -362,30 +345,30 @@ export default async function Home() {
                         🎯 Mission
                       </div>
                       <div className="mt-2 text-sm font-medium leading-6 text-gray-900">
-                        {getShortProjectType(leman.project_type)}
+                        {getShortProjectType(tender.project_type)}
                       </div>
                     </div>
                   </div>
 
                   <div className="mb-4 grid gap-3 md:grid-cols-2">
-                    {leman.procedure_type && (
+                    {tender.procedure_type && (
                       <div className="rounded-3xl bg-[#f8f8f8] px-5 py-4">
                         <div className="text-xs uppercase tracking-wide text-gray-500">
                           🧾 Procédure
                         </div>
                         <div className="mt-2 text-sm leading-6 text-gray-800">
-                          {getShortProcedure(leman.procedure_type)}
+                          {getShortProcedure(tender.procedure_type)}
                         </div>
                       </div>
                     )}
 
-                    {leman.program && (
+                    {tender.program && (
                       <div className="rounded-3xl bg-[#f8f8f8] px-5 py-4">
                         <div className="text-xs uppercase tracking-wide text-gray-500">
                           📦 Programme
                         </div>
                         <div className="mt-2 text-sm leading-6 text-gray-800">
-                          {getCompactProgram(leman.program)}
+                          {getCompactProgram(tender.program)}
                         </div>
                       </div>
                     )}
@@ -400,13 +383,13 @@ export default async function Home() {
                     </div>
                   </div>
 
-                  {leman.relevance && (
+                  {typeof tender.relevance_score === "number" && (
                     <div className="mb-4 rounded-3xl bg-[#eef9ef] px-5 py-5">
                       <div className="text-xs uppercase tracking-wide text-green-600">
                         ⭐ Pertinence pour votre agence
                       </div>
                       <div className="mt-2 text-base leading-7 text-gray-800">
-                        {leman.relevance}
+                        Score IA : {tender.relevance_score}/100
                       </div>
                     </div>
                   )}
