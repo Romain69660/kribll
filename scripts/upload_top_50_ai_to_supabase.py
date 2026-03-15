@@ -6,7 +6,6 @@ import requests
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_KEY"]
 
-# Le pipeline génère CE fichier, pas kribll_top_50.csv
 CSV_FILE = "data/kribll_top_feed.csv"
 
 headers = {
@@ -23,10 +22,12 @@ def clean_value(v):
         return None
     if pd.isna(v):
         return None
+    if isinstance(v, str) and v.strip() == "":
+        return None
     return v
 
 print("====================================")
-print("UPLOAD TO SUPABASE — KRIBLL TOP FEED")
+print("UPLOAD TO SUPABASE — KRIBBL TOP FEED")
 print("====================================")
 print("Loading final shortlist:", CSV_FILE)
 
@@ -41,6 +42,7 @@ rows = []
 
 for _, row in df.iterrows():
     payload = {
+        # existing fields
         "rank": clean_value(row.get("rank")),
         "fit": clean_value(row.get("fit")),
         "final_score": clean_value(row.get("final_score")),
@@ -56,6 +58,25 @@ for _, row in df.iterrows():
         "cpv_code": clean_value(row.get("cpv_code")),
         "url": clean_value(row.get("url")),
         "why": clean_value(row.get("why")),
+
+        # AI fields
+        "summary": clean_value(row.get("summary")),
+        "verdict": clean_value(row.get("verdict")),
+        "relevance_score": clean_value(row.get("relevance_score")),
+        "location": clean_value(row.get("location")),
+        "procedure_type": clean_value(row.get("procedure_type")),
+        "main_discipline": clean_value(row.get("main_discipline")),
+        "estimated_budget": clean_value(row.get("estimated_budget")),
+        "why_it_matters": clean_value(row.get("why_it_matters")),
+        "project_type": clean_value(row.get("project_type")),
+        "program": clean_value(row.get("program")),
+        "estimated_scale": clean_value(row.get("estimated_scale")),
+        "required_references": clean_value(row.get("required_references")),
+        "required_references_count": clean_value(row.get("required_references_count")),
+        "minimum_revenue_required": clean_value(row.get("minimum_revenue_required")),
+        "required_certifications": clean_value(row.get("required_certifications")),
+        "consortium_required": clean_value(row.get("consortium_required")),
+        "architect_mandatory": clean_value(row.get("architect_mandatory")),
     }
 
     if not payload["url"]:
