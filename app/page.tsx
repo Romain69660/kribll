@@ -1,22 +1,8 @@
 import { supabase } from "../lib/supabase"
 import {
-  ArrowRight,
-  Sparkles,
-  Trophy,
-  MapPin,
-  Calendar,
-  Building2,
-  Filter,
-  BarChart3,
-  Search,
-  Target,
-  Clock,
-  Eye,
-  Zap,
-  User,
-  Heart,
-  Bell,
-  ArrowUpRight,
+  ArrowRight, Sparkles, Trophy, MapPin, Calendar, Building2,
+  Filter, BarChart3, Search, Target, Clock, Eye, Zap,
+  User, Heart, Bell, ArrowUpRight,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -46,355 +32,354 @@ type Tender = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatDate(dateString?: string) {
-  if (!dateString) return null
-  const date = new Date(dateString)
-  if (isNaN(date.getTime())) return dateString
-  return date.toLocaleDateString("fr-FR")
+function formatDate(d?: string) {
+  if (!d) return null
+  const dt = new Date(d)
+  if (isNaN(dt.getTime())) return d
+  return dt.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })
 }
 
-function getSummary(tender: Tender) {
-  const text = tender.summary?.trim()
-  if (!text) return "Résumé non disponible."
-  if (text.length <= 200) return text
-  return text.slice(0, 197).trim() + "..."
+function getSummary(t: Tender) {
+  const s = t.summary?.trim()
+  if (!s) return "Résumé non disponible."
+  return s.length <= 120 ? s : s.slice(0, 117) + "..."
 }
 
-function getVerdictClass(verdict?: string) {
-  if (verdict === "GO") return "pill-green"
-  if (verdict === "MAYBE") return "pill-gold"
-  return "pill-outline"
+function verdictPill(v?: string) {
+  const up = v?.toUpperCase()
+  if (up === "GO")    return { cls: "bg-[hsl(145_60%_94%)] text-[hsl(145_70%_38%)]", label: "GO" }
+  if (up === "MAYBE") return { cls: "bg-[hsl(48_90%_93%)]  text-[hsl(40_80%_42%)]",  label: "MAYBE" }
+  return { cls: "bg-[hsl(220_8%_95%)] text-[hsl(220_8%_52%)]", label: up ?? "—" }
 }
 
-// ─── Sub-components (server-safe, no framer-motion) ───────────────────────────
+// ─── ScoreGauge ───────────────────────────────────────────────────────────────
 
-function ScoreGauge({ score, size = 38 }: { score: number; size?: number }) {
-  const r = (size - 5) / 2
-  const c = 2 * Math.PI * r
+function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
+  const r   = (size - 6) / 2
+  const c   = 2 * Math.PI * r
   const off = c - (score / 100) * c
-  const col =
-    score >= 80
-      ? "hsl(145 70% 42%)"
-      : score >= 50
-        ? "hsl(25 95% 52%)"
-        : "hsl(220 8% 52%)"
+  const col = score >= 80 ? "hsl(145,70%,42%)" : score >= 50 ? "hsl(25,95%,52%)" : "hsl(220,8%,70%)"
   return (
-    <div
-      className="relative inline-flex items-center justify-center"
-      style={{ width: size, height: size }}
-    >
+    <div className="relative inline-flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke="hsl(220 8% 91%)"
-          strokeWidth={1.5}
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke={col}
-          strokeWidth={2}
-          strokeDasharray={c}
-          strokeDashoffset={off}
-          strokeLinecap="round"
-        />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="hsl(220,8%,91%)" strokeWidth={2} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={col} strokeWidth={2.5}
+          strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
       </svg>
-      <span className="absolute text-[0.6rem] font-semibold tabular-nums text-foreground">
+      <span className="absolute text-[0.62rem] font-semibold tabular-nums" style={{ color: "hsl(220,20%,12%)" }}>
         {score}
       </span>
     </div>
   )
 }
 
+// ─── LemanBadge ───────────────────────────────────────────────────────────────
+
 function LemanBadge({ text }: { text: string }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bg-muted">
-      <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-foreground">
-        <span className="text-background text-[0.5rem] font-bold leading-none">L</span>
+    <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5"
+      style={{ background: "hsl(220,8%,95%)" }}>
+      <span className="w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0"
+        style={{ background: "hsl(220,20%,12%)" }}>
+        <span className="text-white text-[0.52rem] font-bold leading-none">L</span>
       </span>
-      <span className="text-[0.68rem] text-foreground font-light leading-snug">{text}</span>
+      <span className="text-[0.72rem] leading-snug" style={{ color: "hsl(220,20%,12%)", fontWeight: 400 }}>
+        {text}
+      </span>
     </div>
   )
 }
 
-function OpportunityCard({ tender, index }: { tender: Tender; index: number }) {
+// ─── OpportunityCard ──────────────────────────────────────────────────────────
+
+function OpportunityCard({ tender }: { tender: Tender }) {
   const summary = getSummary(tender)
-  const verdict = tender.verdict?.toUpperCase() as "GO" | "MAYBE" | "NO" | undefined
+  const vp      = verdictPill(tender.verdict)
+
   return (
-    <article className="card-bordered p-4 flex flex-col gap-2">
-      {/* Top row : source + category + score */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-1.5 flex-wrap">
+    <article style={{
+      background: "white",
+      border: "1px solid hsl(220,8%,91%)",
+      borderRadius: 20,
+      padding: "1.25rem 1.25rem 1.1rem",
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.55rem",
+      boxShadow: "0 1px 3px hsl(220 20% 12%/0.04)",
+      transition: "box-shadow .3s ease, transform .3s ease",
+    }}>
+      {/* Source + category + score */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
           {tender.source && (
-            <span className="pill pill-blue text-[0.55rem]">{tender.source}</span>
+            <span style={{
+              fontSize: "0.62rem", fontWeight: 500, padding: "3px 10px", borderRadius: 999,
+              background: "hsl(220,85%,96%)", color: "hsl(220,90%,56%)",
+            }}>{tender.source}</span>
           )}
           {tender.category && (
-            <span className="pill pill-outline text-[0.55rem]">{tender.category}</span>
+            <span style={{
+              fontSize: "0.62rem", fontWeight: 400, padding: "3px 10px", borderRadius: 999,
+              background: "transparent", color: "hsl(220,8%,52%)",
+              border: "1px solid hsl(220,8%,91%)",
+            }}>{tender.category}</span>
           )}
         </div>
-        {typeof tender.final_score === "number" && (
-          <ScoreGauge score={tender.final_score} size={34} />
-        )}
+        {typeof tender.final_score === "number" && <ScoreGauge score={tender.final_score} size={40} />}
       </div>
 
       {/* Title */}
-      <h3 className="font-medium text-foreground leading-snug text-[0.82rem]">
-        {tender.title}
-      </h3>
+      <h3 style={{
+        fontSize: "0.95rem", fontWeight: 500, lineHeight: 1.35,
+        color: "hsl(220,20%,12%)", margin: 0,
+      }}>{tender.title}</h3>
 
       {/* Summary */}
-      {summary && (
-        <p className="text-[0.68rem] text-muted-foreground leading-relaxed">{summary}</p>
-      )}
+      <p style={{ fontSize: "0.78rem", color: "hsl(220,8%,52%)", lineHeight: 1.55, margin: 0, fontWeight: 400 }}>
+        {summary}
+      </p>
 
-      {/* Verdict */}
-      {verdict && (
+      {/* Verdict pill */}
+      {tender.verdict && (
         <div>
-          <span className={`pill ${getVerdictClass(verdict)} text-[0.6rem]`}>{verdict}</span>
+          <span style={{
+            fontSize: "0.68rem", fontWeight: 500, padding: "4px 12px", borderRadius: 999,
+            ...Object.fromEntries(
+              vp.cls.split(" ").map(c => {
+                if (c.startsWith("bg-[")) return ["background", c.slice(4, -1)]
+                if (c.startsWith("text-[")) return ["color", c.slice(6, -1)]
+                return [c, true]
+              })
+            ),
+          }}>{vp.label}</span>
         </div>
       )}
 
       {/* Meta pills */}
-      <div className="flex flex-wrap gap-1 mt-auto pt-1">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
         {(tender.location || tender.country) && (
-          <span className="pill pill-outline text-[0.55rem] gap-1">
-            <MapPin className="w-2.5 h-2.5" />
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 4,
+            fontSize: "0.62rem", fontWeight: 400, padding: "4px 10px", borderRadius: 999,
+            background: "transparent", color: "hsl(220,8%,52%)", border: "1px solid hsl(220,8%,91%)",
+          }}>
+            <MapPin style={{ width: 10, height: 10 }} />
             {tender.location || tender.country}
           </span>
         )}
         {tender.publication_date && (
-          <span className="pill pill-outline text-[0.55rem] gap-1">
-            <Calendar className="w-2.5 h-2.5" />
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 4,
+            fontSize: "0.62rem", fontWeight: 400, padding: "4px 10px", borderRadius: 999,
+            background: "transparent", color: "hsl(220,8%,52%)", border: "1px solid hsl(220,8%,91%)",
+          }}>
+            <Calendar style={{ width: 10, height: 10 }} />
             {formatDate(tender.publication_date)}
           </span>
         )}
         {tender.main_discipline && (
-          <span className="pill pill-outline text-[0.55rem] gap-1">
-            <Building2 className="w-2.5 h-2.5" />
-            {tender.main_discipline.slice(0, 22)}
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 4,
+            fontSize: "0.62rem", fontWeight: 400, padding: "4px 10px", borderRadius: 999,
+            background: "transparent", color: "hsl(220,8%,52%)", border: "1px solid hsl(220,8%,91%)",
+          }}>
+            <Building2 style={{ width: 10, height: 10 }} />
+            {tender.main_discipline}
           </span>
         )}
       </div>
-
-      {/* Link */}
-      <a
-        href={tender.url}
-        target="_blank"
-        rel="noreferrer"
-        className="inline-flex items-center gap-1 text-[0.72rem] font-medium text-foreground hover:opacity-60 transition-opacity mt-1"
-      >
-        Voir l'avis <ArrowRight className="w-3 h-3" strokeWidth={1.5} />
-      </a>
     </article>
   )
 }
 
-// ─── Page (Server Component) ──────────────────────────────────────────────────
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function Home() {
   const [tendersRes, countRes] = await Promise.all([
-    supabase
-      .from("tenders")
-      .select("*")
-      .order("final_score", { ascending: false })
-      .limit(6),
+    supabase.from("tenders").select("*").order("final_score", { ascending: false }).limit(6),
     supabase.from("tenders").select("*", { count: "exact", head: true }),
   ])
-
-  const tenders = (tendersRes.data as Tender[]) || []
+  const tenders      = (tendersRes.data as Tender[]) || []
   const totalTenders = countRes.count ?? tenders.length
-  const featured = tenders[0]
+  const featured     = tenders[0]
+
+  const hl = "'Outfit', 'Inter', sans-serif"  // heading font shorthand
 
   return (
-    <div className="min-h-screen bg-background">
+    <div style={{ minHeight: "100vh", background: "white", fontFamily: "'Inter', sans-serif" }}>
 
-      {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <header className="fixed top-0 left-0 right-0 z-50 pt-4">
-        <div className="wrap">
-          <div className="flex items-center h-11 px-5 bg-white/80 backdrop-blur-xl border border-border/60 rounded-full shadow-sm">
-            <span
-              className="font-heading text-[0.95rem] text-foreground mr-8"
-              style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}
-            >
+      {/* ══════════════════════════════════════════════════════════════════════
+          HEADER — glassmorphism pill fixé en haut
+      ══════════════════════════════════════════════════════════════════════ */}
+      <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, paddingTop: 16 }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
+          <div style={{
+            display: "flex", alignItems: "center", height: 44, padding: "0 20px",
+            background: "rgba(255,255,255,0.82)", backdropFilter: "blur(20px)",
+            border: "1px solid hsl(220,8%,91%)", borderRadius: 999,
+            boxShadow: "0 1px 3px hsl(220 20% 12%/0.04)",
+          }}>
+            {/* Logo */}
+            <span style={{ fontFamily: hl, fontWeight: 700, fontSize: "0.98rem", color: "hsl(220,20%,12%)", marginRight: 36, letterSpacing: "-0.02em" }}>
               kribbl
             </span>
-            <nav className="hidden md:flex items-center gap-6">
-              {["Découvrir", "Fonctionnement", "Tarifs"].map((l) => (
-                <a
-                  key={l}
-                  href="#"
-                  className="text-[0.82rem] text-muted-foreground font-light hover:text-foreground transition-colors"
-                >
+            {/* Nav */}
+            <nav style={{ display: "flex", alignItems: "center", gap: 24 }}>
+              {["Découvrir", "Fonctionnement", "Tarifs"].map(l => (
+                <a key={l} href="#" style={{ fontSize: "0.82rem", color: "hsl(220,8%,52%)", textDecoration: "none", fontWeight: 400, transition: "color .2s" }}>
                   {l}
                 </a>
               ))}
             </nav>
-            <div className="flex items-center gap-1 ml-auto">
-              <button className="p-1.5 rounded-full hover:bg-muted transition-colors">
-                <Heart className="w-[0.9rem] h-[0.9rem] text-muted-foreground" strokeWidth={1.5} />
-              </button>
-              <button className="p-1.5 rounded-full hover:bg-muted transition-colors">
-                <Bell className="w-[0.9rem] h-[0.9rem] text-muted-foreground" strokeWidth={1.5} />
-              </button>
-              <button className="p-1.5 rounded-full hover:bg-muted transition-colors">
-                <User className="w-[0.9rem] h-[0.9rem] text-muted-foreground" strokeWidth={1.5} />
-              </button>
-              <button className="ml-2 text-[0.78rem] font-normal text-foreground bg-muted hover:bg-border transition-colors px-4 py-1.5 rounded-full">
-                Commencer
-              </button>
+            {/* Actions */}
+            <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: "auto" }}>
+              {[Heart, Bell, User].map((Icon, i) => (
+                <button key={i} style={{ padding: 6, borderRadius: 999, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center" }}>
+                  <Icon style={{ width: 15, height: 15, color: "hsl(220,8%,62%)" }} strokeWidth={1.5} />
+                </button>
+              ))}
+              <button style={{
+                marginLeft: 8, fontSize: "0.78rem", fontWeight: 500,
+                color: "hsl(220,20%,12%)", background: "hsl(220,8%,95%)",
+                border: "none", padding: "6px 16px", borderRadius: 999, cursor: "pointer",
+              }}>Commencer</button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* ── Hero ────────────────────────────────────────────────────────────── */}
-      <section className="pt-28 pb-0 overflow-hidden">
-        <div className="wrap">
-          <div className="grid md:grid-cols-[1fr_400px] gap-8 items-center mb-10">
+      {/* ══════════════════════════════════════════════════════════════════════
+          HERO
+      ══════════════════════════════════════════════════════════════════════ */}
+      <section style={{ paddingTop: 100, paddingBottom: 0, overflow: "hidden" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 48, alignItems: "center", marginBottom: 40 }}>
 
-            {/* Left — Copy */}
+            {/* Left — copy */}
             <div>
-              <span
-                className="pill text-[0.72rem] gap-1.5 font-normal mb-5 inline-flex"
-                style={{
-                  background: "hsl(220 85% 96%)",
-                  color: "hsl(220 90% 56%)",
-                }}
-              >
-                <Sparkles className="w-3 h-3" strokeWidth={1.5} />
+              {/* Leman badge */}
+              <span style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                fontSize: "0.75rem", fontWeight: 500, padding: "6px 14px", borderRadius: 999,
+                background: "hsl(220,85%,96%)", color: "hsl(220,90%,56%)", marginBottom: 24,
+              }}>
+                <Sparkles style={{ width: 12, height: 12 }} strokeWidth={1.5} />
                 Propulsé par Leman AI
               </span>
 
-              <h1
-                className="text-[2.2rem] md:text-[3.2rem] text-foreground leading-[1.05] mb-5"
-                style={{
-                  fontFamily: "'Outfit', sans-serif",
-                  fontWeight: 600,
-                  letterSpacing: "-0.025em",
-                }}
-              >
-                <span className="block">Les appels d'offres</span>
-                <span className="block">qui comptent vraiment.</span>
+              {/* H1 */}
+              <h1 style={{
+                fontFamily: hl, fontWeight: 700, fontSize: "clamp(2rem, 4vw, 3.4rem)",
+                lineHeight: 1.05, letterSpacing: "-0.03em", color: "hsl(220,20%,12%)",
+                margin: "0 0 20px",
+              }}>
+                Les appels d'offres<br />qui comptent vraiment.
               </h1>
 
-              <p className="text-[1.05rem] md:text-[1.15rem] text-muted-foreground font-light leading-[1.7] max-w-[42ch] mb-7">
-                Kribbl filtre des milliers d'AAPC et ne vous montre que ceux qui
-                correspondent à votre agence. Architecture, urbanisme, paysage.
+              {/* Subtitle */}
+              <p style={{
+                fontSize: "1rem", color: "hsl(220,8%,52%)", fontWeight: 400,
+                lineHeight: 1.7, maxWidth: "42ch", margin: "0 0 28px",
+              }}>
+                Kribbl filtre des milliers d'AAPC et ne vous montre que ceux qui correspondent à votre agence. Architecture, urbanisme, paysage.
               </p>
 
-              <div className="flex items-center gap-4">
-                <button className="btn-outline font-normal group">
-                  Accès anticipé
-                  <ArrowRight
-                    className="inline w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-0.5"
-                    strokeWidth={1.5}
-                  />
+              {/* CTAs */}
+              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                <button style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  fontSize: "0.85rem", fontWeight: 400, padding: "10px 22px", borderRadius: 999,
+                  background: "white", border: "1px solid hsl(220,8%,88%)", cursor: "pointer",
+                  boxShadow: "0 1px 3px hsl(220 20%12%/0.05)",
+                }}>
+                  Accès anticipé <ArrowRight style={{ width: 14, height: 14 }} strokeWidth={1.5} />
                 </button>
-                <span className="flex items-center gap-1 text-[0.88rem] text-muted-foreground font-light cursor-pointer hover:text-foreground transition-colors">
-                  En savoir plus <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "0.88rem", color: "hsl(220,8%,52%)", cursor: "pointer", fontWeight: 400 }}>
+                  En savoir plus <ArrowRight style={{ width: 14, height: 14 }} strokeWidth={1.5} />
                 </span>
               </div>
             </div>
 
-            {/* Right — Featured card (live data) */}
-            <div
-              className="card-bordered p-5 md:p-6"
-              style={{ boxShadow: "var(--shadow-lg)" }}
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Trophy
-                  className="w-3.5 h-3.5"
-                  strokeWidth={1.5}
-                  style={{ color: "hsl(25 95% 52%)" }}
-                />
-                <span
-                  className="text-[0.72rem] font-medium"
-                  style={{ color: "hsl(25 95% 52%)" }}
-                >
+            {/* Right — featured card */}
+            <div style={{
+              background: "white", border: "1px solid hsl(220,8%,91%)", borderRadius: 20,
+              padding: "22px 24px", boxShadow: "0 10px 36px hsl(220 20%12%/0.08), 0 3px 10px hsl(220 20%12%/0.03)",
+            }}>
+              {/* Label opportunité */}
+              <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 16 }}>
+                <Trophy style={{ width: 14, height: 14, color: "hsl(25,95%,52%)" }} strokeWidth={1.5} />
+                <span style={{ fontSize: "0.72rem", fontWeight: 500, color: "hsl(25,95%,52%)" }}>
                   Opportunité du jour
                 </span>
               </div>
 
               {featured ? (
                 <>
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex gap-1.5 flex-wrap">
+                  {/* Source + score */}
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                       {featured.source && (
-                        <span className="pill pill-blue text-[0.64rem]">
+                        <span style={{ fontSize: "0.68rem", fontWeight: 500, padding: "4px 12px", borderRadius: 999, background: "hsl(220,85%,96%)", color: "hsl(220,90%,56%)" }}>
                           {featured.source}
                         </span>
                       )}
                       {featured.category && (
-                        <span className="pill pill-pink text-[0.64rem]">
+                        <span style={{ fontSize: "0.68rem", fontWeight: 500, padding: "4px 12px", borderRadius: 999, background: "hsl(330,80%,96%)", color: "hsl(330,85%,58%)" }}>
                           {featured.category}
                         </span>
                       )}
                     </div>
-                    <ScoreGauge score={featured.final_score} size={36} />
+                    <ScoreGauge score={featured.final_score} size={40} />
                   </div>
 
-                  <h3 className="font-medium text-[0.92rem] leading-snug mb-1 text-foreground">
+                  {/* Title */}
+                  <h3 style={{ fontSize: "0.95rem", fontWeight: 500, lineHeight: 1.4, color: "hsl(220,20%,12%)", margin: "0 0 6px" }}>
                     {featured.title}
                   </h3>
-                  <p className="text-[0.78rem] text-muted-foreground font-light mb-3">
+                  <p style={{ fontSize: "0.78rem", color: "hsl(220,8%,52%)", fontWeight: 400, margin: "0 0 14px" }}>
                     {featured.location || featured.country || "Localisation inconnue"}
                   </p>
 
-                  <div className="flex items-center gap-2 mb-3">
-                    {featured.verdict && (
-                      <span
-                        className={`pill ${getVerdictClass(featured.verdict)} text-[0.64rem]`}
-                      >
-                        {featured.verdict.toUpperCase()}
-                      </span>
-                    )}
+                  {/* Verdict + score Leman */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                    {featured.verdict && (() => {
+                      const vp = verdictPill(featured.verdict)
+                      return (
+                        <span style={{
+                          fontSize: "0.68rem", fontWeight: 500, padding: "4px 12px", borderRadius: 999,
+                          background: vp.cls.includes("145") ? "hsl(145,60%,94%)" : vp.cls.includes("48") ? "hsl(48,90%,93%)" : "hsl(220,8%,95%)",
+                          color: vp.cls.includes("145") ? "hsl(145,70%,38%)" : vp.cls.includes("48") ? "hsl(40,80%,42%)" : "hsl(220,8%,52%)",
+                        }}>{vp.label}</span>
+                      )
+                    })()}
                     {typeof featured.relevance_score === "number" && (
-                      <span className="text-[0.72rem] text-muted-foreground font-light">
+                      <span style={{ fontSize: "0.72rem", color: "hsl(220,8%,52%)", fontWeight: 400 }}>
                         Score Leman : {featured.relevance_score}
                       </span>
                     )}
                   </div>
 
-                  <LemanBadge
-                    text={
-                      featured.why_it_matters ||
-                      "Match pertinent selon votre profil et vos références."
-                    }
-                  />
+                  <LemanBadge text={featured.why_it_matters || "Match pertinent selon votre profil et vos références."} />
                 </>
               ) : (
-                <p className="text-[0.82rem] text-muted-foreground font-light">
-                  Aucune opportunité disponible pour le moment.
-                </p>
+                <p style={{ fontSize: "0.82rem", color: "hsl(220,8%,52%)" }}>Aucune opportunité disponible.</p>
               )}
             </div>
           </div>
 
           {/* Stats strip */}
-          <div className="flex flex-wrap items-center justify-between border-t border-b border-border py-4 gap-4">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, borderTop: "1px solid hsl(220,8%,91%)", borderBottom: "1px solid hsl(220,8%,91%)", padding: "16px 0" }}>
             {[
               { value: `${totalTenders}+`, label: "AAPC analysés / jour" },
-              { value: "94%", label: "précision du scoring" },
-              { value: "10s", label: "pour comprendre un appel" },
-              { value: "3×", label: "plus de réponses ciblées" },
+              { value: "94%",              label: "précision du scoring" },
+              { value: "10s",              label: "pour comprendre un appel" },
+              { value: "3×",               label: "plus de réponses ciblées" },
             ].map((s, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <span
-                  className="text-[1.1rem] text-foreground"
-                  style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontWeight: 600,
-                    letterSpacing: "-0.025em",
-                  }}
-                >
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontFamily: hl, fontWeight: 700, fontSize: "1.1rem", letterSpacing: "-0.025em", color: "hsl(220,20%,12%)" }}>
                   {s.value}
                 </span>
-                <span className="text-[0.78rem] text-muted-foreground font-light">
+                <span style={{ fontSize: "0.78rem", color: "hsl(220,8%,52%)", fontWeight: 400 }}>
                   {s.label}
                 </span>
               </div>
@@ -403,104 +388,88 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── Dashboard Preview ────────────────────────────────────────────────── */}
-      <section className="pt-10 pb-6">
-        <div className="wrap">
-          <div className="text-center mb-7">
-            <span className="pill pill-muted text-[0.72rem] font-normal">Aperçu live</span>
-            <h2
-              className="text-[1.5rem] md:text-[2rem] mt-2.5 text-foreground"
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: 600,
-                letterSpacing: "-0.025em",
-              }}
-            >
+      {/* ══════════════════════════════════════════════════════════════════════
+          DASHBOARD PREVIEW — données Supabase live
+      ══════════════════════════════════════════════════════════════════════ */}
+      <section style={{ paddingTop: 56, paddingBottom: 24 }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
+
+          {/* Header section */}
+          <div style={{ textAlign: "center", marginBottom: 36 }}>
+            <span style={{
+              display: "inline-block", fontSize: "0.72rem", fontWeight: 400,
+              padding: "5px 14px", borderRadius: 999, background: "hsl(220,8%,95%)",
+              color: "hsl(220,8%,52%)", marginBottom: 12,
+            }}>Aperçu live</span>
+            <h2 style={{ fontFamily: hl, fontWeight: 700, fontSize: "clamp(1.4rem, 3vw, 2rem)", letterSpacing: "-0.025em", color: "hsl(220,20%,12%)", margin: "0 0 10px" }}>
               Vos opportunités du jour
             </h2>
-            <p className="text-[1rem] text-muted-foreground font-light mt-2.5 max-w-[42ch] mx-auto leading-relaxed">
+            <p style={{ fontSize: "0.95rem", color: "hsl(220,8%,52%)", fontWeight: 400, maxWidth: "42ch", margin: "0 auto", lineHeight: 1.65 }}>
               Triées et scorées en temps réel par Leman.
             </p>
           </div>
 
+          {/* Grid */}
           {tenders.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {tenders.map((tender, i) => (
-                <OpportunityCard key={tender.id ?? i} tender={tender} index={i} />
-              ))}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+              {tenders.map((t, i) => <OpportunityCard key={t.id ?? i} tender={t} />)}
             </div>
           ) : (
-            <div className="card-bordered p-8 text-center text-muted-foreground text-[0.88rem]">
+            <div style={{ textAlign: "center", padding: "48px 0", color: "hsl(220,8%,52%)", fontSize: "0.88rem" }}>
               Aucune opportunité disponible pour le moment.
             </div>
           )}
 
-          <div className="flex justify-center mt-6">
-            <button className="btn-outline text-[0.88rem] font-normal group">
-              Voir toutes les opportunités
-              <ArrowRight
-                className="inline w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-0.5"
-                strokeWidth={1.5}
-              />
+          {/* CTA */}
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 28 }}>
+            <button style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              fontSize: "0.88rem", fontWeight: 400, padding: "10px 22px", borderRadius: 999,
+              background: "white", border: "1px solid hsl(220,8%,88%)", cursor: "pointer",
+              boxShadow: "0 1px 3px hsl(220 20%12%/0.05)",
+            }}>
+              Voir toutes les opportunités <ArrowRight style={{ width: 14, height: 14 }} strokeWidth={1.5} />
             </button>
           </div>
         </div>
       </section>
 
-      {/* ── Features ─────────────────────────────────────────────────────────── */}
-      <section className="py-16">
-        <div className="wrap">
-          <div className="text-center mb-9">
-            <span className="pill pill-muted text-[0.72rem] font-normal">Fonctionnalités</span>
-            <h2
-              className="text-[1.5rem] md:text-[2rem] mt-2.5 text-foreground"
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: 600,
-                letterSpacing: "-0.025em",
-              }}
-            >
+      {/* ══════════════════════════════════════════════════════════════════════
+          FEATURES — 3 cartes
+      ══════════════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: "56px 0 56px" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <span style={{ display: "inline-block", fontSize: "0.72rem", fontWeight: 400, padding: "5px 14px", borderRadius: 999, background: "hsl(220,8%,95%)", color: "hsl(220,8%,52%)", marginBottom: 12 }}>
+              Fonctionnalités
+            </span>
+            <h2 style={{ fontFamily: hl, fontWeight: 700, fontSize: "clamp(1.4rem, 3vw, 2rem)", letterSpacing: "-0.025em", color: "hsl(220,20%,12%)", margin: "0 0 10px" }}>
               Tout ce qu'il faut pour décider vite.
             </h2>
-            <p className="text-[1rem] text-muted-foreground font-light mt-2.5 max-w-[44ch] mx-auto leading-relaxed">
+            <p style={{ fontSize: "0.95rem", color: "hsl(220,8%,52%)", fontWeight: 400, maxWidth: "44ch", margin: "0 auto", lineHeight: 1.65 }}>
               De la collecte à la décision, Kribbl automatise votre veille.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
             {[
-              {
-                Icon: Filter,
-                title: "Filtrage intelligent",
-                desc: "Analyse chaque publication et ne garde que celles qui correspondent à votre profil.",
-              },
-              {
-                Icon: BarChart3,
-                title: "Scoring automatique",
-                desc: "Score basé sur vos références, compétences et localisation.",
-              },
-              {
-                Icon: Sparkles,
-                title: "Résumé en 10s",
-                desc: "Leman résume les AAPC et donne un verdict : GO, MAYBE ou NO.",
-              },
+              { Icon: Filter,   title: "Filtrage intelligent",   desc: "Analyse chaque publication et ne garde que celles qui correspondent à votre profil." },
+              { Icon: BarChart3, title: "Scoring automatique",   desc: "Score basé sur vos références, compétences et localisation." },
+              { Icon: Sparkles, title: "Résumé en 10s",          desc: "Leman résume les AAPC et donne un verdict : GO, MAYBE ou NO." },
             ].map(({ Icon, title, desc }, i) => (
-              <div
-                key={i}
-                className="card-bordered p-6 flex flex-col justify-between min-h-[180px] group cursor-pointer"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <Icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
-                  <ArrowUpRight
-                    className="w-4 h-4 text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-all"
-                    strokeWidth={1.5}
-                  />
+              <div key={i} style={{
+                background: "white", border: "1px solid hsl(220,8%,91%)", borderRadius: 20,
+                padding: "24px", minHeight: 200, display: "flex", flexDirection: "column",
+                justifyContent: "space-between", boxShadow: "0 1px 3px hsl(220 20%12%/0.04)",
+                transition: "box-shadow .3s, transform .3s", cursor: "pointer",
+              }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+                  <Icon style={{ width: 20, height: 20, color: "hsl(220,8%,62%)" }} strokeWidth={1.5} />
+                  <ArrowUpRight style={{ width: 16, height: 16, color: "hsl(220,8%,80%)" }} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h3 className="font-medium text-foreground text-[1rem] mb-1.5">{title}</h3>
-                  <p className="text-[0.88rem] text-muted-foreground font-light leading-[1.65]">
-                    {desc}
-                  </p>
+                  <h3 style={{ fontSize: "1rem", fontWeight: 500, color: "hsl(220,20%,12%)", margin: "0 0 8px" }}>{title}</h3>
+                  <p style={{ fontSize: "0.88rem", color: "hsl(220,8%,52%)", lineHeight: 1.65, fontWeight: 400, margin: 0 }}>{desc}</p>
                 </div>
               </div>
             ))}
@@ -508,69 +477,43 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── How it works ─────────────────────────────────────────────────────── */}
-      <section className="py-4">
-        <div
-          className="rounded-[1.5rem] py-10 mx-4 md:mx-8"
-          style={{ background: "var(--gradient-cool)" }}
-        >
-          <div className="wrap">
-            <div className="text-center mb-9">
-              <span className="pill pill-muted text-[0.72rem] font-normal">Processus</span>
-              <h2
-                className="text-[1.5rem] md:text-[2rem] mt-2.5 text-foreground"
-                style={{
-                  fontFamily: "'Outfit', sans-serif",
-                  fontWeight: 600,
-                  letterSpacing: "-0.025em",
-                }}
-              >
+      {/* ══════════════════════════════════════════════════════════════════════
+          HOW IT WORKS — fond gris froid
+      ══════════════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: "8px 0" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
+          <div style={{ background: "hsl(220,6%,97.5%)", borderRadius: 28, padding: "48px 40px" }}>
+
+            <div style={{ textAlign: "center", marginBottom: 40 }}>
+              <span style={{ display: "inline-block", fontSize: "0.72rem", fontWeight: 400, padding: "5px 14px", borderRadius: 999, background: "white", color: "hsl(220,8%,52%)", marginBottom: 12, boxShadow: "0 1px 3px hsl(220 20%12%/0.05)" }}>
+                Processus
+              </span>
+              <h2 style={{ fontFamily: hl, fontWeight: 700, fontSize: "clamp(1.4rem, 3vw, 2rem)", letterSpacing: "-0.025em", color: "hsl(220,20%,12%)", margin: "0 0 10px" }}>
                 Comment ça marche
               </h2>
-              <p className="text-[1rem] text-muted-foreground font-light mt-2.5 max-w-[40ch] mx-auto leading-relaxed">
+              <p style={{ fontSize: "0.95rem", color: "hsl(220,8%,52%)", fontWeight: 400, maxWidth: "40ch", margin: "0 auto", lineHeight: 1.65 }}>
                 3 étapes pour ne plus jamais rater une opportunité.
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-4">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
               {[
-                {
-                  Icon: Search,
-                  n: "01",
-                  title: "Kribbl collecte",
-                  desc: "Des milliers d'appels d'offres récupérés chaque jour depuis BOAMP et TED.",
-                },
-                {
-                  Icon: Sparkles,
-                  n: "02",
-                  title: "Leman analyse",
-                  desc: "Notre IA filtre, résume et score chaque opportunité selon votre profil.",
-                },
-                {
-                  Icon: Target,
-                  n: "03",
-                  title: "Vous décidez",
-                  desc: "GO, MAYBE ou NO — identifiez en quelques minutes ce qui vaut le coup.",
-                },
+                { Icon: Search,   n: "01", title: "Kribbl collecte", desc: "Des milliers d'appels d'offres récupérés chaque jour depuis BOAMP et TED." },
+                { Icon: Sparkles, n: "02", title: "Leman analyse",   desc: "Notre IA filtre, résume et score chaque opportunité selon votre profil." },
+                { Icon: Target,   n: "03", title: "Vous décidez",     desc: "GO, MAYBE ou NO — identifiez en quelques minutes ce qui vaut le coup." },
               ].map(({ Icon, n, title, desc }, i) => (
-                <div key={i} className="card-bordered p-6 flex flex-col min-h-[170px]">
-                  <div className="flex items-center justify-between mb-4">
-                    <span
-                      className="text-[2rem] text-muted-foreground/10"
-                      style={{
-                        fontFamily: "'Outfit', sans-serif",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {n}
-                    </span>
-                    <Icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                <div key={i} style={{
+                  background: "white", border: "1px solid hsl(220,8%,91%)", borderRadius: 20,
+                  padding: "24px", minHeight: 185, display: "flex", flexDirection: "column",
+                  boxShadow: "0 1px 3px hsl(220 20%12%/0.04)",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                    <span style={{ fontFamily: hl, fontWeight: 700, fontSize: "2rem", color: "hsl(220,8%,88%)", lineHeight: 1 }}>{n}</span>
+                    <Icon style={{ width: 20, height: 20, color: "hsl(220,8%,62%)" }} strokeWidth={1.5} />
                   </div>
-                  <div className="mt-auto">
-                    <h3 className="font-medium text-foreground text-[1rem] mb-1">{title}</h3>
-                    <p className="text-[0.88rem] text-muted-foreground font-light leading-[1.65]">
-                      {desc}
-                    </p>
+                  <div style={{ marginTop: "auto" }}>
+                    <h3 style={{ fontSize: "1rem", fontWeight: 500, color: "hsl(220,20%,12%)", margin: "0 0 6px" }}>{title}</h3>
+                    <p style={{ fontSize: "0.88rem", color: "hsl(220,8%,52%)", lineHeight: 1.65, fontWeight: 400, margin: 0 }}>{desc}</p>
                   </div>
                 </div>
               ))}
@@ -579,123 +522,94 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── Benefits ─────────────────────────────────────────────────────────── */}
-      <section className="py-12">
-        <div className="wrap">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ══════════════════════════════════════════════════════════════════════
+          BENEFITS — 4 chiffres
+      ══════════════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: "48px 0" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
             {[
-              { Icon: Clock, value: "5h", label: "gagnées / semaine" },
+              { Icon: Clock,  value: "5h",  label: "gagnées / semaine" },
               { Icon: Filter, value: "84%", label: "de bruit en moins" },
-              { Icon: Eye, value: "10s", label: "pour tout comprendre" },
-              { Icon: Zap, value: "3×", label: "plus de réponses" },
+              { Icon: Eye,    value: "10s", label: "pour tout comprendre" },
+              { Icon: Zap,    value: "3×",  label: "plus de réponses" },
             ].map(({ Icon, value, label }, i) => (
-              <div key={i} className="card-bordered p-5 text-center">
-                <Icon
-                  className="w-5 h-5 text-muted-foreground mx-auto mb-3"
-                  strokeWidth={1.5}
-                />
-                <span
-                  className="text-[1.5rem] text-foreground tabular-nums block"
-                  style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontWeight: 600,
-                    letterSpacing: "-0.025em",
-                  }}
-                >
+              <div key={i} style={{
+                background: "white", border: "1px solid hsl(220,8%,91%)", borderRadius: 20,
+                padding: "24px 20px", textAlign: "center",
+                boxShadow: "0 1px 3px hsl(220 20%12%/0.04)",
+              }}>
+                <Icon style={{ width: 20, height: 20, color: "hsl(220,8%,62%)", margin: "0 auto 14px" }} strokeWidth={1.5} />
+                <div style={{ fontFamily: hl, fontWeight: 700, fontSize: "1.6rem", letterSpacing: "-0.025em", color: "hsl(220,20%,12%)", lineHeight: 1 }}>
                   {value}
-                </span>
-                <p className="text-[0.82rem] text-muted-foreground font-light mt-1">
-                  {label}
-                </p>
+                </div>
+                <p style={{ fontSize: "0.82rem", color: "hsl(220,8%,52%)", fontWeight: 400, margin: "6px 0 0" }}>{label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────────────────────── */}
-      <section className="pb-12">
-        <div className="wrap">
-          <div
-            className="rounded-[2rem] p-10 md:p-14 text-center"
-            style={{ background: "var(--gradient-dark)", color: "white" }}
-          >
-            <h2
-              className="text-[1.5rem] md:text-[2.2rem] leading-tight mb-3"
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: 600,
-                letterSpacing: "-0.025em",
-                color: "white",
-              }}
-            >
+      {/* ══════════════════════════════════════════════════════════════════════
+          CTA — section dark
+      ══════════════════════════════════════════════════════════════════════ */}
+      <section style={{ padding: "0 0 48px" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
+          <div style={{
+            borderRadius: 28, padding: "56px 48px", textAlign: "center",
+            background: "linear-gradient(160deg, hsl(220,18%,10%), hsl(220,22%,14%))",
+          }}>
+            <h2 style={{ fontFamily: hl, fontWeight: 700, fontSize: "clamp(1.4rem, 3vw, 2.2rem)", letterSpacing: "-0.025em", color: "white", margin: "0 0 12px", lineHeight: 1.15 }}>
               Prêt à transformer votre veille ?
             </h2>
-            <p className="text-[1rem] font-light max-w-[36ch] mx-auto mb-6 leading-relaxed opacity-50">
+            <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.5)", fontWeight: 400, maxWidth: "36ch", margin: "0 auto 28px", lineHeight: 1.65 }}>
               Rejoignez les agences qui ne ratent plus une opportunité.
             </p>
-            <div className="flex justify-center gap-4 flex-wrap">
-              <button className="btn-ghost text-[0.88rem] font-normal">
-                Demander une démo
-              </button>
-              <span className="text-[0.88rem] font-light flex items-center gap-1 cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
-                Commencer gratuitement{" "}
-                <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+              <button style={{
+                fontSize: "0.88rem", fontWeight: 500, padding: "11px 24px", borderRadius: 999, cursor: "pointer",
+                background: "rgba(255,255,255,0.1)", color: "white",
+                border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(8px)",
+              }}>Demander une démo</button>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "0.88rem", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontWeight: 400 }}>
+                Commencer gratuitement <ArrowRight style={{ width: 16, height: 16 }} strokeWidth={1.5} />
               </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Footer ───────────────────────────────────────────────────────────── */}
-      <footer className="pb-8">
-        <div className="wrap">
-          <div className="border-t border-border pt-8">
-            <div className="flex flex-col md:flex-row items-start justify-between gap-6">
+      {/* ══════════════════════════════════════════════════════════════════════
+          FOOTER
+      ══════════════════════════════════════════════════════════════════════ */}
+      <footer style={{ paddingBottom: 32 }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
+          <div style={{ borderTop: "1px solid hsl(220,8%,91%)", paddingTop: 32 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 24, flexWrap: "wrap" }}>
               <div>
-                <span
-                  className="text-[1rem] text-foreground"
-                  style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}
-                >
-                  kribbl
-                </span>
-                <p className="text-[0.85rem] text-muted-foreground font-light mt-1">
-                  Smooth sailing.
-                </p>
+                <div style={{ fontFamily: hl, fontWeight: 700, fontSize: "1rem", color: "hsl(220,20%,12%)", letterSpacing: "-0.02em" }}>kribbl</div>
+                <p style={{ fontSize: "0.85rem", color: "hsl(220,8%,62%)", fontWeight: 400, margin: "4px 0 0" }}>Smooth sailing.</p>
               </div>
-              <div className="flex gap-12">
-                <div className="flex flex-col gap-2.5">
-                  {["Fonctionnalités", "Tarifs", "Blog"].map((l) => (
-                    <a
-                      key={l}
-                      href="#"
-                      className="text-[0.82rem] text-muted-foreground font-light hover:text-foreground transition-colors"
-                    >
-                      {l}
-                    </a>
+              <div style={{ display: "flex", gap: 56 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {["Fonctionnalités", "Tarifs", "Blog"].map(l => (
+                    <a key={l} href="#" style={{ fontSize: "0.82rem", color: "hsl(220,8%,52%)", textDecoration: "none", fontWeight: 400 }}>{l}</a>
                   ))}
                 </div>
-                <div className="flex flex-col gap-2.5">
-                  {["Confidentialité", "CGU", "Support"].map((l) => (
-                    <a
-                      key={l}
-                      href="#"
-                      className="text-[0.82rem] text-muted-foreground font-light hover:text-foreground transition-colors"
-                    >
-                      {l}
-                    </a>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {["Confidentialité", "CGU", "Support"].map(l => (
+                    <a key={l} href="#" style={{ fontSize: "0.82rem", color: "hsl(220,8%,52%)", textDecoration: "none", fontWeight: 400 }}>{l}</a>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="mt-8 pt-6 border-t border-border flex justify-between items-center">
-              <span className="text-[0.78rem] text-muted-foreground font-light">
-                © 2026 Kribbl
-              </span>
+            <div style={{ marginTop: 32, paddingTop: 24, borderTop: "1px solid hsl(220,8%,91%)" }}>
+              <span style={{ fontSize: "0.78rem", color: "hsl(220,8%,62%)", fontWeight: 400 }}>© 2026 Kribbl</span>
             </div>
           </div>
         </div>
       </footer>
+
     </div>
   )
 }
