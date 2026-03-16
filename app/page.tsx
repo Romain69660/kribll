@@ -1,4 +1,25 @@
 import { supabase } from "../lib/supabase"
+import {
+  ArrowRight,
+  Sparkles,
+  Trophy,
+  MapPin,
+  Calendar,
+  Building2,
+  Filter,
+  BarChart3,
+  Search,
+  Target,
+  Clock,
+  Eye,
+  Zap,
+  User,
+  Heart,
+  Bell,
+  ArrowUpRight,
+} from "lucide-react"
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Tender = {
   id: number
@@ -23,6 +44,8 @@ type Tender = {
   program?: string
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 function formatDate(dateString?: string) {
   if (!dateString) return null
   const date = new Date(dateString)
@@ -30,94 +53,148 @@ function formatDate(dateString?: string) {
   return date.toLocaleDateString("fr-FR")
 }
 
-function splitWhyItMatters(text?: string) {
-  if (!text) return []
-
-  const cleaned = text.replace(/\s+/g, " ").trim()
-
-  const numbered = cleaned
-    .split(/\s(?=\d+\))/)
-    .map((item) => item.replace(/^\d+\)\s*/, "").trim())
-    .filter(Boolean)
-
-  if (numbered.length > 1) return numbered.slice(0, 4)
-
-  const bySentence = cleaned
-    .split(/(?<=\.)\s+/)
-    .map((item) => item.trim())
-    .filter(Boolean)
-
-  return bySentence.slice(0, 4)
-}
-
 function getSummary(tender: Tender) {
   const text = tender.summary?.trim()
   if (!text) return "Résumé non disponible."
-  if (text.length <= 260) return text
-  return text.slice(0, 257).trim() + "..."
+  if (text.length <= 200) return text
+  return text.slice(0, 197).trim() + "..."
 }
 
-function getShortLocation(location?: string) {
-  if (!location) return "Non renseignée"
-  const parts = location.split(",").map((p) => p.trim())
-  return parts.slice(0, 2).join(", ")
+function getVerdictClass(verdict?: string) {
+  if (verdict === "GO") return "pill-green"
+  if (verdict === "MAYBE") return "pill-gold"
+  return "pill-outline"
 }
 
-function getShortScale(scale?: string) {
-  if (!scale) return "Non renseignée"
-  const text = scale.trim()
-  if (text.length <= 90) return text
-  return text.slice(0, 87).trim() + "..."
+// ─── Sub-components (server-safe, no framer-motion) ───────────────────────────
+
+function ScoreGauge({ score, size = 38 }: { score: number; size?: number }) {
+  const r = (size - 5) / 2
+  const c = 2 * Math.PI * r
+  const off = c - (score / 100) * c
+  const col =
+    score >= 80
+      ? "hsl(145 70% 42%)"
+      : score >= 50
+        ? "hsl(25 95% 52%)"
+        : "hsl(220 8% 52%)"
+  return (
+    <div
+      className="relative inline-flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="hsl(220 8% 91%)"
+          strokeWidth={1.5}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={col}
+          strokeWidth={2}
+          strokeDasharray={c}
+          strokeDashoffset={off}
+          strokeLinecap="round"
+        />
+      </svg>
+      <span className="absolute text-[0.6rem] font-semibold tabular-nums text-foreground">
+        {score}
+      </span>
+    </div>
+  )
 }
 
-function getShortDiscipline(discipline?: string) {
-  if (!discipline) return "Non renseignée"
-  const text = discipline.trim()
-  if (text.length <= 85) return text
-  return text.slice(0, 82).trim() + "..."
+function LemanBadge({ text }: { text: string }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bg-muted">
+      <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-foreground">
+        <span className="text-background text-[0.5rem] font-bold leading-none">L</span>
+      </span>
+      <span className="text-[0.68rem] text-foreground font-light leading-snug">{text}</span>
+    </div>
+  )
 }
 
-function getShortProcedure(procedure?: string) {
-  if (!procedure) return "Non renseignée"
-  const text = procedure.trim()
-  if (text.length <= 90) return text
-  return text.slice(0, 87).trim() + "..."
+function OpportunityCard({ tender, index }: { tender: Tender; index: number }) {
+  const summary = getSummary(tender)
+  const verdict = tender.verdict?.toUpperCase() as "GO" | "MAYBE" | "NO" | undefined
+  return (
+    <article className="card-bordered p-4 flex flex-col gap-2">
+      {/* Top row : source + category + score */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {tender.source && (
+            <span className="pill pill-blue text-[0.55rem]">{tender.source}</span>
+          )}
+          {tender.category && (
+            <span className="pill pill-outline text-[0.55rem]">{tender.category}</span>
+          )}
+        </div>
+        {typeof tender.final_score === "number" && (
+          <ScoreGauge score={tender.final_score} size={34} />
+        )}
+      </div>
+
+      {/* Title */}
+      <h3 className="font-medium text-foreground leading-snug text-[0.82rem]">
+        {tender.title}
+      </h3>
+
+      {/* Summary */}
+      {summary && (
+        <p className="text-[0.68rem] text-muted-foreground leading-relaxed">{summary}</p>
+      )}
+
+      {/* Verdict */}
+      {verdict && (
+        <div>
+          <span className={`pill ${getVerdictClass(verdict)} text-[0.6rem]`}>{verdict}</span>
+        </div>
+      )}
+
+      {/* Meta pills */}
+      <div className="flex flex-wrap gap-1 mt-auto pt-1">
+        {(tender.location || tender.country) && (
+          <span className="pill pill-outline text-[0.55rem] gap-1">
+            <MapPin className="w-2.5 h-2.5" />
+            {tender.location || tender.country}
+          </span>
+        )}
+        {tender.publication_date && (
+          <span className="pill pill-outline text-[0.55rem] gap-1">
+            <Calendar className="w-2.5 h-2.5" />
+            {formatDate(tender.publication_date)}
+          </span>
+        )}
+        {tender.main_discipline && (
+          <span className="pill pill-outline text-[0.55rem] gap-1">
+            <Building2 className="w-2.5 h-2.5" />
+            {tender.main_discipline.slice(0, 22)}
+          </span>
+        )}
+      </div>
+
+      {/* Link */}
+      <a
+        href={tender.url}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1 text-[0.72rem] font-medium text-foreground hover:opacity-60 transition-opacity mt-1"
+      >
+        Voir l'avis <ArrowRight className="w-3 h-3" strokeWidth={1.5} />
+      </a>
+    </article>
+  )
 }
 
-function getShortProjectType(projectType?: string) {
-  if (!projectType) return "Non renseigné"
-  const text = projectType.trim()
-  if (text.length <= 90) return text
-  return text.slice(0, 87).trim() + "..."
-}
-
-function getCompactProgram(program?: string) {
-  if (!program) return null
-  const text = program.trim()
-  if (text.length <= 220) return text
-  return text.slice(0, 217).trim() + "..."
-}
-
-function getScoreBadge(score: number) {
-  if (score >= 100) return "bg-black text-white"
-  if (score >= 85) return "bg-gray-900 text-white"
-  if (score >= 70) return "bg-gray-200 text-gray-900"
-  return "bg-gray-100 text-gray-700"
-}
-
-function getOpportunityLabel(score: number) {
-  if (score >= 100) return "Excellente opportunité"
-  if (score >= 85) return "Très pertinent"
-  if (score >= 70) return "À regarder"
-  return "Pertinence modérée"
-}
-
-function getOpportunityPill(score: number) {
-  if (score >= 100) return "bg-black text-white"
-  if (score >= 85) return "bg-green-100 text-green-700"
-  if (score >= 70) return "bg-orange-100 text-orange-700"
-  return "bg-gray-100 text-gray-700"
-}
+// ─── Page (Server Component) ──────────────────────────────────────────────────
 
 export default async function Home() {
   const [tendersRes, countRes] = await Promise.all([
@@ -131,412 +208,494 @@ export default async function Home() {
 
   const tenders = (tendersRes.data as Tender[]) || []
   const totalTenders = countRes.count ?? tenders.length
-  const bestScore = tenders[0]?.final_score ?? "-"
   const featured = tenders[0]
-  const hasError = Boolean(tendersRes.error || countRes.error)
 
   return (
-    <main className="min-h-screen bg-[#f5f5f2] text-gray-900">
-      <header className="border-b border-black/5">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 md:px-8">
-          <div className="text-2xl font-semibold tracking-tight">kribbl</div>
+    <div className="min-h-screen bg-background">
 
-          <nav className="hidden items-center gap-8 text-sm text-gray-500 md:flex">
-            <a href="#discover" className="hover:text-gray-900">
-              Découvrir
-            </a>
-            <a href="#how" className="hover:text-gray-900">
-              Fonctionnement
-            </a>
-            <a href="#pricing" className="hover:text-gray-900">
-              Tarifs
-            </a>
-          </nav>
-
-          <a
-            href="#discover"
-            className="rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white"
-          >
-            Commencer
-          </a>
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
+      <header className="fixed top-0 left-0 right-0 z-50 pt-4">
+        <div className="wrap">
+          <div className="flex items-center h-11 px-5 bg-white/80 backdrop-blur-xl border border-border/60 rounded-full shadow-sm">
+            <span
+              className="font-heading text-[0.95rem] text-foreground mr-8"
+              style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}
+            >
+              kribbl
+            </span>
+            <nav className="hidden md:flex items-center gap-6">
+              {["Découvrir", "Fonctionnement", "Tarifs"].map((l) => (
+                <a
+                  key={l}
+                  href="#"
+                  className="text-[0.82rem] text-muted-foreground font-light hover:text-foreground transition-colors"
+                >
+                  {l}
+                </a>
+              ))}
+            </nav>
+            <div className="flex items-center gap-1 ml-auto">
+              <button className="p-1.5 rounded-full hover:bg-muted transition-colors">
+                <Heart className="w-[0.9rem] h-[0.9rem] text-muted-foreground" strokeWidth={1.5} />
+              </button>
+              <button className="p-1.5 rounded-full hover:bg-muted transition-colors">
+                <Bell className="w-[0.9rem] h-[0.9rem] text-muted-foreground" strokeWidth={1.5} />
+              </button>
+              <button className="p-1.5 rounded-full hover:bg-muted transition-colors">
+                <User className="w-[0.9rem] h-[0.9rem] text-muted-foreground" strokeWidth={1.5} />
+              </button>
+              <button className="ml-2 text-[0.78rem] font-normal text-foreground bg-muted hover:bg-border transition-colors px-4 py-1.5 rounded-full">
+                Commencer
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-12">
-        <section
-          id="discover"
-          className="grid items-start gap-10 md:grid-cols-[1.25fr_0.9fr]"
-        >
-          <div>
-            <div className="inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">
-              ✨ Propulsé par Leman AI
-            </div>
+      {/* ── Hero ────────────────────────────────────────────────────────────── */}
+      <section className="pt-28 pb-0 overflow-hidden">
+        <div className="wrap">
+          <div className="grid md:grid-cols-[1fr_400px] gap-8 items-center mb-10">
 
-            <h1 className="mt-6 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-tight md:text-7xl">
-              Les appels d'offres qui comptent vraiment.
-            </h1>
-
-            <p className="mt-6 max-w-2xl text-xl leading-10 text-gray-500">
-              Kribbl filtre des milliers d’appels d’offres et ne vous montre que
-              ceux qui correspondent à votre agence. Architecture, urbanisme,
-              paysage.
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <a
-                href="#opportunities"
-                className="rounded-full border border-black/10 bg-white px-7 py-4 text-base font-medium shadow-sm"
+            {/* Left — Copy */}
+            <div>
+              <span
+                className="pill text-[0.72rem] gap-1.5 font-normal mb-5 inline-flex"
+                style={{
+                  background: "hsl(220 85% 96%)",
+                  color: "hsl(220 90% 56%)",
+                }}
               >
-                Accès anticipé →
-              </a>
-              <a
-                href="#how"
-                className="text-base font-medium text-gray-500 hover:text-gray-900"
+                <Sparkles className="w-3 h-3" strokeWidth={1.5} />
+                Propulsé par Leman AI
+              </span>
+
+              <h1
+                className="text-[2.2rem] md:text-[3.2rem] text-foreground leading-[1.05] mb-5"
+                style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontWeight: 600,
+                  letterSpacing: "-0.025em",
+                }}
               >
-                En savoir plus →
-              </a>
-            </div>
-          </div>
+                <span className="block">Les appels d'offres</span>
+                <span className="block">qui comptent vraiment.</span>
+              </h1>
 
-          <div className="rounded-[2rem] border border-black/5 bg-white p-7 shadow-sm">
-            <div className="mb-5 flex items-center justify-between">
-              <div className="text-sm font-medium text-orange-500">
-                🏆 Opportunité du jour
-              </div>
-              {typeof featured?.final_score === "number" && (
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-green-500 text-lg font-semibold text-gray-900">
-                  {featured.final_score}
-                </div>
-              )}
-            </div>
-
-            <div className="mb-4 flex flex-wrap gap-2">
-              {featured?.source && (
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
-                  {featured.source}
-                </span>
-              )}
-              {featured?.category && (
-                <span className="rounded-full bg-pink-50 px-3 py-1 text-sm font-medium text-pink-500">
-                  {featured.category}
-                </span>
-              )}
-            </div>
-
-            <h2 className="max-w-xl text-3xl font-medium leading-tight">
-              {featured?.title || "Aucune opportunité mise en avant"}
-            </h2>
-
-            <p className="mt-4 text-lg text-gray-500">
-              {featured?.location || featured?.country || "Localisation inconnue"}
-            </p>
-
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              {featured?.verdict && (
-                <span className="rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-700">
-                  {featured.verdict}
-                </span>
-              )}
-              {typeof featured?.relevance_score === "number" && (
-                <span className="text-base text-gray-500">
-                  Score Leman : {featured.relevance_score}
-                </span>
-              )}
-            </div>
-
-            <div className="mt-5 rounded-full bg-gray-100 px-4 py-3 text-sm text-gray-600">
-              {featured?.why_it_matters || "Match pertinent selon vos références et votre profil."}
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-10 border-y border-black/5 py-6">
-          <div className="grid gap-4 text-center md:grid-cols-4 md:text-left">
-            <div>
-              <div className="text-4xl font-semibold">{totalTenders}+</div>
-              <div className="mt-2 text-gray-500">AOP analysés / jour</div>
-            </div>
-            <div>
-              <div className="text-4xl font-semibold">94%</div>
-              <div className="mt-2 text-gray-500">précision du scoring</div>
-            </div>
-            <div>
-              <div className="text-4xl font-semibold">10s</div>
-              <div className="mt-2 text-gray-500">pour comprendre un appel</div>
-            </div>
-            <div>
-              <div className="text-4xl font-semibold">{bestScore}</div>
-              <div className="mt-2 text-gray-500">meilleur score observé</div>
-            </div>
-          </div>
-        </section>
-
-        {hasError && (
-          <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-sm">
-            Erreur Supabase : {JSON.stringify(tendersRes.error || countRes.error)}
-          </div>
-        )}
-
-        {!hasError && tenders.length === 0 && (
-          <div className="mt-8 rounded-2xl bg-white p-6 text-gray-600 shadow-sm">
-            Aucun appel d’offres trouvé.
-          </div>
-        )}
-
-        {!hasError && tenders.length > 0 && (
-          <section id="opportunities" className="mt-20">
-            <div className="mb-10 text-center">
-              <div className="inline-flex rounded-full bg-white px-4 py-2 text-sm text-gray-500 shadow-sm">
-                Aperçu live
-              </div>
-              <h2 className="mt-5 text-5xl font-semibold tracking-tight">
-                Vos opportunités du jour
-              </h2>
-              <p className="mt-4 text-2xl text-gray-500">
-                Triées et scorées en temps réel par Leman.
+              <p className="text-[1.05rem] md:text-[1.15rem] text-muted-foreground font-light leading-[1.7] max-w-[42ch] mb-7">
+                Kribbl filtre des milliers d'AAPC et ne vous montre que ceux qui
+                correspondent à votre agence. Architecture, urbanisme, paysage.
               </p>
+
+              <div className="flex items-center gap-4">
+                <button className="btn-outline font-normal group">
+                  Accès anticipé
+                  <ArrowRight
+                    className="inline w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-0.5"
+                    strokeWidth={1.5}
+                  />
+                </button>
+                <span className="flex items-center gap-1 text-[0.88rem] text-muted-foreground font-light cursor-pointer hover:text-foreground transition-colors">
+                  En savoir plus <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
+                </span>
+              </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {tenders.map((tender, index) => {
-                const summary = getSummary(tender)
+            {/* Right — Featured card (live data) */}
+            <div
+              className="card-bordered p-5 md:p-6"
+              style={{ boxShadow: "var(--shadow-lg)" }}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Trophy
+                  className="w-3.5 h-3.5"
+                  strokeWidth={1.5}
+                  style={{ color: "hsl(25 95% 52%)" }}
+                />
+                <span
+                  className="text-[0.72rem] font-medium"
+                  style={{ color: "hsl(25 95% 52%)" }}
+                >
+                  Opportunité du jour
+                </span>
+              </div>
 
-                return (
-                  <article
-                    key={tender.id ?? index}
-                    className="rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm transition hover:shadow-md"
-                  >
-                    <div className="mb-5 flex items-start justify-between gap-4">
-                      <div className="flex flex-wrap gap-2">
-                        {tender.source && (
-                          <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
-                            {tender.source}
-                          </span>
-                        )}
-                        {tender.category && (
-                          <span className="rounded-full border border-black/10 px-3 py-1 text-sm text-gray-500">
-                            {tender.category}
-                          </span>
-                        )}
-                      </div>
-
-                      {typeof tender.final_score === "number" && (
-                        <div
-                          className={`inline-flex min-w-14 items-center justify-center rounded-full px-4 py-2 text-sm font-semibold ${getScoreBadge(
-                            tender.final_score
-                          )}`}
-                        >
-                          {tender.final_score}
-                        </div>
+              {featured ? (
+                <>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex gap-1.5 flex-wrap">
+                      {featured.source && (
+                        <span className="pill pill-blue text-[0.64rem]">
+                          {featured.source}
+                        </span>
                       )}
-                    </div>
-
-                    <h3 className="text-3xl font-medium leading-tight">
-                      {tender.title}
-                    </h3>
-
-                    <p className="mt-3 text-lg text-gray-500">{summary}</p>
-
-                    <div className="mt-5">
-                      {tender.verdict && (
-                        <span
-                          className={`rounded-full px-4 py-2 text-sm font-semibold ${getOpportunityPill(
-                            tender.final_score
-                          )}`}
-                        >
-                          {tender.verdict}
+                      {featured.category && (
+                        <span className="pill pill-pink text-[0.64rem]">
+                          {featured.category}
                         </span>
                       )}
                     </div>
+                    <ScoreGauge score={featured.final_score} size={36} />
+                  </div>
 
-                    <div className="mt-6 flex flex-wrap gap-2">
-                      <span className="rounded-full border border-black/10 px-3 py-2 text-sm text-gray-500">
-                        📍 {getShortLocation(tender.location)}
-                      </span>
+                  <h3 className="font-medium text-[0.92rem] leading-snug mb-1 text-foreground">
+                    {featured.title}
+                  </h3>
+                  <p className="text-[0.78rem] text-muted-foreground font-light mb-3">
+                    {featured.location || featured.country || "Localisation inconnue"}
+                  </p>
 
-                      {tender.publication_date && (
-                        <span className="rounded-full border border-black/10 px-3 py-2 text-sm text-gray-500">
-                          📅 {formatDate(tender.publication_date)}
-                        </span>
-                      )}
-
-                      <span className="rounded-full border border-black/10 px-3 py-2 text-sm text-gray-500">
-                        🧠 {getShortDiscipline(tender.main_discipline)}
-                      </span>
-                    </div>
-
-                    <div className="mt-6">
-                      <a
-                        href={tender.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center text-sm font-medium text-gray-900 hover:opacity-70"
+                  <div className="flex items-center gap-2 mb-3">
+                    {featured.verdict && (
+                      <span
+                        className={`pill ${getVerdictClass(featured.verdict)} text-[0.64rem]`}
                       >
-                        Voir l’avis →
-                      </a>
-                    </div>
-                  </article>
-                )
-              })}
-            </div>
+                        {featured.verdict.toUpperCase()}
+                      </span>
+                    )}
+                    {typeof featured.relevance_score === "number" && (
+                      <span className="text-[0.72rem] text-muted-foreground font-light">
+                        Score Leman : {featured.relevance_score}
+                      </span>
+                    )}
+                  </div>
 
-            <div className="mt-10 text-center">
-              <a
-                href="#"
-                className="inline-flex rounded-full border border-black/10 bg-white px-8 py-4 text-base font-medium shadow-sm"
-              >
-                Voir toutes les opportunités →
-              </a>
+                  <LemanBadge
+                    text={
+                      featured.why_it_matters ||
+                      "Match pertinent selon votre profil et vos références."
+                    }
+                  />
+                </>
+              ) : (
+                <p className="text-[0.82rem] text-muted-foreground font-light">
+                  Aucune opportunité disponible pour le moment.
+                </p>
+              )}
             </div>
-          </section>
-        )}
+          </div>
 
-        <section className="mt-24">
-          <div className="mb-10 text-center">
-            <div className="inline-flex rounded-full bg-white px-4 py-2 text-sm text-gray-500 shadow-sm">
-              Fonctionnalités
+          {/* Stats strip */}
+          <div className="flex flex-wrap items-center justify-between border-t border-b border-border py-4 gap-4">
+            {[
+              { value: `${totalTenders}+`, label: "AAPC analysés / jour" },
+              { value: "94%", label: "précision du scoring" },
+              { value: "10s", label: "pour comprendre un appel" },
+              { value: "3×", label: "plus de réponses ciblées" },
+            ].map((s, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <span
+                  className="text-[1.1rem] text-foreground"
+                  style={{
+                    fontFamily: "'Outfit', sans-serif",
+                    fontWeight: 600,
+                    letterSpacing: "-0.025em",
+                  }}
+                >
+                  {s.value}
+                </span>
+                <span className="text-[0.78rem] text-muted-foreground font-light">
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Dashboard Preview ────────────────────────────────────────────────── */}
+      <section className="pt-10 pb-6">
+        <div className="wrap">
+          <div className="text-center mb-7">
+            <span className="pill pill-muted text-[0.72rem] font-normal">Aperçu live</span>
+            <h2
+              className="text-[1.5rem] md:text-[2rem] mt-2.5 text-foreground"
+              style={{
+                fontFamily: "'Outfit', sans-serif",
+                fontWeight: 600,
+                letterSpacing: "-0.025em",
+              }}
+            >
+              Vos opportunités du jour
+            </h2>
+            <p className="text-[1rem] text-muted-foreground font-light mt-2.5 max-w-[42ch] mx-auto leading-relaxed">
+              Triées et scorées en temps réel par Leman.
+            </p>
+          </div>
+
+          {tenders.length > 0 ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {tenders.map((tender, i) => (
+                <OpportunityCard key={tender.id ?? i} tender={tender} index={i} />
+              ))}
             </div>
-            <h2 className="mt-5 text-5xl font-semibold tracking-tight">
+          ) : (
+            <div className="card-bordered p-8 text-center text-muted-foreground text-[0.88rem]">
+              Aucune opportunité disponible pour le moment.
+            </div>
+          )}
+
+          <div className="flex justify-center mt-6">
+            <button className="btn-outline text-[0.88rem] font-normal group">
+              Voir toutes les opportunités
+              <ArrowRight
+                className="inline w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-0.5"
+                strokeWidth={1.5}
+              />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Features ─────────────────────────────────────────────────────────── */}
+      <section className="py-16">
+        <div className="wrap">
+          <div className="text-center mb-9">
+            <span className="pill pill-muted text-[0.72rem] font-normal">Fonctionnalités</span>
+            <h2
+              className="text-[1.5rem] md:text-[2rem] mt-2.5 text-foreground"
+              style={{
+                fontFamily: "'Outfit', sans-serif",
+                fontWeight: 600,
+                letterSpacing: "-0.025em",
+              }}
+            >
               Tout ce qu'il faut pour décider vite.
             </h2>
-            <p className="mt-4 text-2xl text-gray-500">
+            <p className="text-[1rem] text-muted-foreground font-light mt-2.5 max-w-[44ch] mx-auto leading-relaxed">
               De la collecte à la décision, Kribbl automatise votre veille.
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
-              <div className="text-2xl">⏃</div>
-              <h3 className="mt-8 text-3xl font-medium">Filtrage intelligent</h3>
-              <p className="mt-4 text-xl leading-9 text-gray-500">
-                Analyse chaque publication et ne garde que celles qui correspondent à votre profil.
+          <div className="grid sm:grid-cols-3 gap-4">
+            {[
+              {
+                Icon: Filter,
+                title: "Filtrage intelligent",
+                desc: "Analyse chaque publication et ne garde que celles qui correspondent à votre profil.",
+              },
+              {
+                Icon: BarChart3,
+                title: "Scoring automatique",
+                desc: "Score basé sur vos références, compétences et localisation.",
+              },
+              {
+                Icon: Sparkles,
+                title: "Résumé en 10s",
+                desc: "Leman résume les AAPC et donne un verdict : GO, MAYBE ou NO.",
+              },
+            ].map(({ Icon, title, desc }, i) => (
+              <div
+                key={i}
+                className="card-bordered p-6 flex flex-col justify-between min-h-[180px] group cursor-pointer"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <Icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                  <ArrowUpRight
+                    className="w-4 h-4 text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-all"
+                    strokeWidth={1.5}
+                  />
+                </div>
+                <div>
+                  <h3 className="font-medium text-foreground text-[1rem] mb-1.5">{title}</h3>
+                  <p className="text-[0.88rem] text-muted-foreground font-light leading-[1.65]">
+                    {desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── How it works ─────────────────────────────────────────────────────── */}
+      <section className="py-4">
+        <div
+          className="rounded-[1.5rem] py-10 mx-4 md:mx-8"
+          style={{ background: "var(--gradient-cool)" }}
+        >
+          <div className="wrap">
+            <div className="text-center mb-9">
+              <span className="pill pill-muted text-[0.72rem] font-normal">Processus</span>
+              <h2
+                className="text-[1.5rem] md:text-[2rem] mt-2.5 text-foreground"
+                style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontWeight: 600,
+                  letterSpacing: "-0.025em",
+                }}
+              >
+                Comment ça marche
+              </h2>
+              <p className="text-[1rem] text-muted-foreground font-light mt-2.5 max-w-[40ch] mx-auto leading-relaxed">
+                3 étapes pour ne plus jamais rater une opportunité.
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
-              <div className="text-2xl">📊</div>
-              <h3 className="mt-8 text-3xl font-medium">Scoring automatique</h3>
-              <p className="mt-4 text-xl leading-9 text-gray-500">
-                Score basé sur vos références, compétences et localisation.
-              </p>
-            </div>
-
-            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
-              <div className="text-2xl">✦</div>
-              <h3 className="mt-8 text-3xl font-medium">Résumé en 10s</h3>
-              <p className="mt-4 text-xl leading-9 text-gray-500">
-                Leman résume les AAPC et donne un verdict clair : GO, MAYBE ou NO.
-              </p>
+            <div className="grid sm:grid-cols-3 gap-4">
+              {[
+                {
+                  Icon: Search,
+                  n: "01",
+                  title: "Kribbl collecte",
+                  desc: "Des milliers d'appels d'offres récupérés chaque jour depuis BOAMP et TED.",
+                },
+                {
+                  Icon: Sparkles,
+                  n: "02",
+                  title: "Leman analyse",
+                  desc: "Notre IA filtre, résume et score chaque opportunité selon votre profil.",
+                },
+                {
+                  Icon: Target,
+                  n: "03",
+                  title: "Vous décidez",
+                  desc: "GO, MAYBE ou NO — identifiez en quelques minutes ce qui vaut le coup.",
+                },
+              ].map(({ Icon, n, title, desc }, i) => (
+                <div key={i} className="card-bordered p-6 flex flex-col min-h-[170px]">
+                  <div className="flex items-center justify-between mb-4">
+                    <span
+                      className="text-[2rem] text-muted-foreground/10"
+                      style={{
+                        fontFamily: "'Outfit', sans-serif",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {n}
+                    </span>
+                    <Icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                  </div>
+                  <div className="mt-auto">
+                    <h3 className="font-medium text-foreground text-[1rem] mb-1">{title}</h3>
+                    <p className="text-[0.88rem] text-muted-foreground font-light leading-[1.65]">
+                      {desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section id="how" className="mt-24 rounded-[2.5rem] bg-[#f2f2ef] px-6 py-14 md:px-10">
-          <div className="text-center">
-            <div className="inline-flex rounded-full bg-white px-4 py-2 text-sm text-gray-500 shadow-sm">
-              Processus
-            </div>
-            <h2 className="mt-5 text-5xl font-semibold tracking-tight">
-              Comment ça marche
-            </h2>
-            <p className="mt-4 text-2xl text-gray-500">
-              3 étapes pour ne plus jamais rater une opportunité.
-            </p>
+      {/* ── Benefits ─────────────────────────────────────────────────────────── */}
+      <section className="py-12">
+        <div className="wrap">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { Icon: Clock, value: "5h", label: "gagnées / semaine" },
+              { Icon: Filter, value: "84%", label: "de bruit en moins" },
+              { Icon: Eye, value: "10s", label: "pour tout comprendre" },
+              { Icon: Zap, value: "3×", label: "plus de réponses" },
+            ].map(({ Icon, value, label }, i) => (
+              <div key={i} className="card-bordered p-5 text-center">
+                <Icon
+                  className="w-5 h-5 text-muted-foreground mx-auto mb-3"
+                  strokeWidth={1.5}
+                />
+                <span
+                  className="text-[1.5rem] text-foreground tabular-nums block"
+                  style={{
+                    fontFamily: "'Outfit', sans-serif",
+                    fontWeight: 600,
+                    letterSpacing: "-0.025em",
+                  }}
+                >
+                  {value}
+                </span>
+                <p className="text-[0.82rem] text-muted-foreground font-light mt-1">
+                  {label}
+                </p>
+              </div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
-              <div className="text-6xl font-semibold text-gray-100">01</div>
-              <h3 className="mt-8 text-3xl font-medium">Kribbl collecte</h3>
-              <p className="mt-4 text-xl leading-9 text-gray-500">
-                Des milliers d'appels d'offres récupérés chaque jour depuis BOAMP et TED.
-              </p>
-            </div>
-
-            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
-              <div className="text-6xl font-semibold text-gray-100">02</div>
-              <h3 className="mt-8 text-3xl font-medium">Leman analyse</h3>
-              <p className="mt-4 text-xl leading-9 text-gray-500">
-                Notre IA filtre, résume et score chaque opportunité selon votre profil.
-              </p>
-            </div>
-
-            <div className="rounded-[2rem] border border-black/5 bg-white p-8 shadow-sm">
-              <div className="text-6xl font-semibold text-gray-100">03</div>
-              <h3 className="mt-8 text-3xl font-medium">Vous décidez</h3>
-              <p className="mt-4 text-xl leading-9 text-gray-500">
-                GO, MAYBE ou NO : identifiez en quelques minutes ce qui vaut le coup.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-10 grid gap-6 md:grid-cols-4">
-            <div className="rounded-[2rem] border border-black/5 bg-white p-6 text-center shadow-sm">
-              <div className="text-5xl font-semibold">5h</div>
-              <div className="mt-2 text-lg text-gray-500">gagnées / semaine</div>
-            </div>
-            <div className="rounded-[2rem] border border-black/5 bg-white p-6 text-center shadow-sm">
-              <div className="text-5xl font-semibold">84%</div>
-              <div className="mt-2 text-lg text-gray-500">de bruit en moins</div>
-            </div>
-            <div className="rounded-[2rem] border border-black/5 bg-white p-6 text-center shadow-sm">
-              <div className="text-5xl font-semibold">10s</div>
-              <div className="mt-2 text-lg text-gray-500">pour tout comprendre</div>
-            </div>
-            <div className="rounded-[2rem] border border-black/5 bg-white p-6 text-center shadow-sm">
-              <div className="text-5xl font-semibold">3×</div>
-              <div className="mt-2 text-lg text-gray-500">plus de réponses</div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-24 rounded-[2.5rem] bg-[#0f1728] px-6 py-16 text-center text-white shadow-sm md:px-10">
-          <h2 className="text-5xl font-semibold tracking-tight">
-            Prêt à transformer votre veille ?
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-2xl leading-10 text-white/70">
-            Rejoignez les agences qui ne ratent plus une opportunité.
-          </p>
-
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <a
-              href="#"
-              className="rounded-full border border-white/15 bg-white/10 px-8 py-4 text-lg font-medium text-white"
+      {/* ── CTA ──────────────────────────────────────────────────────────────── */}
+      <section className="pb-12">
+        <div className="wrap">
+          <div
+            className="rounded-[2rem] p-10 md:p-14 text-center"
+            style={{ background: "var(--gradient-dark)", color: "white" }}
+          >
+            <h2
+              className="text-[1.5rem] md:text-[2.2rem] leading-tight mb-3"
+              style={{
+                fontFamily: "'Outfit', sans-serif",
+                fontWeight: 600,
+                letterSpacing: "-0.025em",
+                color: "white",
+              }}
             >
-              Demander une démo
-            </a>
-            <a href="#" className="text-lg font-medium text-white/80">
-              Commencer gratuitement →
-            </a>
-          </div>
-        </section>
-      </div>
-
-      <footer className="border-t border-black/5">
-        <div className="mx-auto max-w-7xl px-5 py-12 md:px-8">
-          <div className="flex flex-col gap-10 md:flex-row md:justify-between">
-            <div>
-              <div className="text-3xl font-semibold">kribbl</div>
-              <p className="mt-3 text-xl text-gray-500">
-                Veille intelligente pour agences d’architecture.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-x-16 gap-y-4 text-lg text-gray-500">
-              <a href="#">Fonctionnalités</a>
-              <a href="#">Confidentialité</a>
-              <a href="#">Tarifs</a>
-              <a href="#">CGU</a>
-              <a href="#">Blog</a>
-              <a href="#">Support</a>
+              Prêt à transformer votre veille ?
+            </h2>
+            <p className="text-[1rem] font-light max-w-[36ch] mx-auto mb-6 leading-relaxed opacity-50">
+              Rejoignez les agences qui ne ratent plus une opportunité.
+            </p>
+            <div className="flex justify-center gap-4 flex-wrap">
+              <button className="btn-ghost text-[0.88rem] font-normal">
+                Demander une démo
+              </button>
+              <span className="text-[0.88rem] font-light flex items-center gap-1 cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
+                Commencer gratuitement{" "}
+                <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+              </span>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="mt-10 border-t border-black/5 pt-8 text-lg text-gray-400">
-            © 2026 Kribbl
+      {/* ── Footer ───────────────────────────────────────────────────────────── */}
+      <footer className="pb-8">
+        <div className="wrap">
+          <div className="border-t border-border pt-8">
+            <div className="flex flex-col md:flex-row items-start justify-between gap-6">
+              <div>
+                <span
+                  className="text-[1rem] text-foreground"
+                  style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}
+                >
+                  kribbl
+                </span>
+                <p className="text-[0.85rem] text-muted-foreground font-light mt-1">
+                  Smooth sailing.
+                </p>
+              </div>
+              <div className="flex gap-12">
+                <div className="flex flex-col gap-2.5">
+                  {["Fonctionnalités", "Tarifs", "Blog"].map((l) => (
+                    <a
+                      key={l}
+                      href="#"
+                      className="text-[0.82rem] text-muted-foreground font-light hover:text-foreground transition-colors"
+                    >
+                      {l}
+                    </a>
+                  ))}
+                </div>
+                <div className="flex flex-col gap-2.5">
+                  {["Confidentialité", "CGU", "Support"].map((l) => (
+                    <a
+                      key={l}
+                      href="#"
+                      className="text-[0.82rem] text-muted-foreground font-light hover:text-foreground transition-colors"
+                    >
+                      {l}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-8 pt-6 border-t border-border flex justify-between items-center">
+              <span className="text-[0.78rem] text-muted-foreground font-light">
+                © 2026 Kribbl
+              </span>
+            </div>
           </div>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }

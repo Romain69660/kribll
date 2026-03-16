@@ -24,3 +24,111 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* ─────────────────────────────────────────────────────────────────────────────
+   KRIBBL — tokens de design portés depuis le projet Lovable
+   Coller ce bloc DANS l'@layer components existant de globals.css
+   (ou à la fin du fichier si tu n'en as pas encore)
+───────────────────────────────────────────────────────────────────────────── */
+
+/* Fonts — ajouter dans <head> ou dans le layout.tsx :
+   https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Outfit:wght@600;700&display=swap
+*/
+
+:root {
+  --color-orange:       25 95% 52%;
+  --color-orange-light: 30 95% 95%;
+  --color-blue:         220 90% 56%;
+  --color-blue-light:   220 85% 96%;
+  --color-yellow:       48 95% 50%;
+  --color-yellow-light: 48 90% 93%;
+  --color-pink:         330 85% 58%;
+  --color-pink-light:   330 80% 96%;
+  --color-green:        145 70% 42%;
+  --color-green-light:  145 60% 94%;
+
+  --gradient-dark: linear-gradient(160deg, hsl(220 18% 10%), hsl(220 22% 14%));
+  --gradient-cool: linear-gradient(160deg, hsl(220 6% 97.5%), hsl(220 6% 97%));
+
+  --shadow-sm: 0 1px 3px hsl(220 20% 12% / 0.04);
+  --shadow-md: 0 4px 14px hsl(220 20% 12% / 0.06), 0 1px 3px hsl(220 20% 12% / 0.03);
+  --shadow-lg: 0 10px 36px hsl(220 20% 12% / 0.08), 0 3px 10px hsl(220 20% 12% / 0.03);
+}
+
+/* Cards */
+.card-bordered {
+  background: hsl(var(--card, 0 0% 100%));
+  border: 1px solid hsl(var(--border, 220 8% 91%));
+  border-radius: 20px;
+  overflow: hidden;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+  box-shadow: var(--shadow-sm);
+}
+.card-bordered:hover {
+  border-color: hsl(40 12% 85%);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Pills */
+.pill {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  letter-spacing: 0.01em;
+}
+.pill-blue    { background: hsl(var(--color-blue-light));   color: hsl(var(--color-blue));   }
+.pill-green   { background: hsl(var(--color-green-light));  color: hsl(var(--color-green));  }
+.pill-pink    { background: hsl(var(--color-pink-light));   color: hsl(var(--color-pink));   }
+.pill-gold    { background: hsl(var(--color-yellow-light)); color: hsl(var(--color-yellow)); }
+.pill-orange  { background: hsl(var(--color-orange-light)); color: hsl(var(--color-orange)); }
+.pill-muted   { background: hsl(var(--muted, 40 15% 95%));  color: hsl(var(--muted-foreground, 220 8% 52%)); }
+.pill-outline {
+  background: transparent;
+  color: hsl(var(--muted-foreground, 220 8% 52%));
+  border: 1px solid hsl(var(--border, 220 8% 91%));
+}
+
+/* Buttons */
+.btn-outline {
+  background: white;
+  color: hsl(var(--foreground, 220 20% 12%));
+  font-weight: 500;
+  padding: 0.7rem 1.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  border: 1px solid hsl(var(--border, 220 8% 91%));
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+.btn-outline:hover {
+  background: hsl(var(--muted, 40 15% 95%));
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: hsl(0 0% 100% / 0.08);
+  color: white;
+  font-weight: 500;
+  padding: 0.7rem 1.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  border: 1px solid hsl(0 0% 100% / 0.15);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+.btn-ghost:hover {
+  background: hsl(0 0% 100% / 0.15);
+  transform: translateY(-1px);
+}
+
+/* Layout */
+.wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
