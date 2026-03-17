@@ -2,7 +2,7 @@ import { supabase } from "../lib/supabase"
 import {
   ArrowRight, Sparkles, Trophy, MapPin, Calendar, Building2,
   Filter, BarChart3, Search, Target, Clock, Eye, Zap,
-  User, Heart, Bell, ArrowUpRight,
+  User, Heart, Bell, ArrowUpRight, Users, TrendingUp,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -28,9 +28,26 @@ type Tender = {
   why_it_matters?: string
   project_type?: string
   program?: string
+  required_references_count?: number | null
+  minimum_revenue_required?: number | null
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const CATEGORY_LABELS: Record<string, string> = {
+  ARCHITECTURE_BUILDING: "Architecture",
+  ARCHITECTURE_GENERAL:  "Architecture",
+  URBANISM_LANDSCAPE:    "Urbanisme / Paysage",
+  COMPETITIONS:          "Concours",
+  AMO_PROGRAMMING:       "AMO",
+  ENGINEERING:           "Ingénierie",
+  SURVEY_TOPO:           "Topographie",
+}
+
+function categoryLabel(cat?: string) {
+  if (!cat) return null
+  return CATEGORY_LABELS[cat] ?? cat
+}
 
 function formatDate(d?: string) {
   if (!d) return null
@@ -39,26 +56,35 @@ function formatDate(d?: string) {
   return dt.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })
 }
 
+function formatRevenue(v?: number | null) {
+  if (!v) return null
+  if (v >= 1_000_000) return `CA minimum : ${(v / 1_000_000).toFixed(1).replace(".0", "")}M€`
+  if (v >= 1_000) return `CA minimum : ${Math.round(v / 1_000)}k€`
+  return `CA minimum : ${v}€`
+}
+
 function getSummary(t: Tender) {
   const s = t.summary?.trim()
   if (!s) return "Résumé non disponible."
-  return s.length <= 120 ? s : s.slice(0, 117) + "..."
+  return s
 }
 
 function verdictPill(v?: string) {
   const up = v?.toUpperCase()
-  if (up === "GO")    return { cls: "bg-[hsl(145_60%_94%)] text-[hsl(145_70%_38%)]", label: "GO" }
-  if (up === "MAYBE") return { cls: "bg-[hsl(48_90%_93%)]  text-[hsl(40_80%_42%)]",  label: "MAYBE" }
-  return { cls: "bg-[hsl(220_8%_95%)] text-[hsl(220_8%_52%)]", label: up ?? "—" }
+  if (up === "GO")    return { background: "hsl(145,60%,94%)", color: "hsl(145,70%,38%)", label: "GO" }
+  if (up === "MAYBE") return { background: "hsl(48,90%,93%)",  color: "hsl(40,80%,42%)",  label: "MAYBE" }
+  if (up === "NO")    return { background: "hsl(0,80%,95%)",   color: "hsl(0,70%,45%)",   label: "NO" }
+  return { background: "hsl(220,8%,95%)", color: "hsl(220,8%,52%)", label: up ?? "—" }
 }
 
 // ─── ScoreGauge ───────────────────────────────────────────────────────────────
 
 function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
+  const capped = Math.min(score, 100)
   const r   = (size - 6) / 2
   const c   = 2 * Math.PI * r
-  const off = c - (score / 100) * c
-  const col = score >= 80 ? "hsl(145,70%,42%)" : score >= 50 ? "hsl(25,95%,52%)" : "hsl(220,8%,70%)"
+  const off = c - (capped / 100) * c
+  const col = capped >= 80 ? "hsl(145,70%,42%)" : capped >= 50 ? "hsl(25,95%,52%)" : "hsl(220,8%,70%)"
   return (
     <div className="relative inline-flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
@@ -67,7 +93,7 @@ function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
           strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
       </svg>
       <span className="absolute text-[0.62rem] font-semibold tabular-nums" style={{ color: "hsl(220,20%,12%)" }}>
-        {score}
+        {capped}
       </span>
     </div>
   )
@@ -90,24 +116,43 @@ function LemanBadge({ text }: { text: string }) {
   )
 }
 
+// ─── MetaPill ─────────────────────────────────────────────────────────────────
+
+function MetaPill({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 4,
+      fontSize: "0.62rem", fontWeight: 400, padding: "4px 10px", borderRadius: 999,
+      background: "transparent", color: "hsl(220,8%,52%)", border: "1px solid hsl(220,8%,91%)",
+      whiteSpace: "nowrap",
+    }}>
+      {icon}
+      {label}
+    </span>
+  )
+}
+
 // ─── OpportunityCard ──────────────────────────────────────────────────────────
 
 function OpportunityCard({ tender }: { tender: Tender }) {
-  const summary = getSummary(tender)
-  const vp      = verdictPill(tender.verdict)
+  const summary  = getSummary(tender)
+  const vp       = verdictPill(tender.verdict)
+  const catLabel = categoryLabel(tender.category)
+  const revenue  = formatRevenue(tender.minimum_revenue_required)
 
   return (
     <article style={{
       background: "white",
       border: "1px solid hsl(220,8%,91%)",
       borderRadius: 20,
-      padding: "1.25rem 1.25rem 1.1rem",
+      padding: "1.35rem 1.35rem 1.2rem",
       display: "flex",
       flexDirection: "column",
-      gap: "0.55rem",
+      gap: "0.65rem",
       boxShadow: "0 1px 3px hsl(220 20% 12%/0.04)",
       transition: "box-shadow .3s ease, transform .3s ease",
     }}>
+
       {/* Source + category + score */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
@@ -117,16 +162,26 @@ function OpportunityCard({ tender }: { tender: Tender }) {
               background: "hsl(220,85%,96%)", color: "hsl(220,90%,56%)",
             }}>{tender.source}</span>
           )}
-          {tender.category && (
+          {catLabel && (
             <span style={{
               fontSize: "0.62rem", fontWeight: 400, padding: "3px 10px", borderRadius: 999,
               background: "transparent", color: "hsl(220,8%,52%)",
               border: "1px solid hsl(220,8%,91%)",
-            }}>{tender.category}</span>
+            }}>{catLabel}</span>
           )}
         </div>
         {typeof tender.final_score === "number" && <ScoreGauge score={tender.final_score} size={40} />}
       </div>
+
+      {/* Verdict pill */}
+      {tender.verdict && (
+        <div>
+          <span style={{
+            fontSize: "0.68rem", fontWeight: 600, padding: "4px 12px", borderRadius: 999,
+            background: vp.background, color: vp.color,
+          }}>{vp.label}</span>
+        </div>
+      )}
 
       {/* Title */}
       <h3 style={{
@@ -134,58 +189,49 @@ function OpportunityCard({ tender }: { tender: Tender }) {
         color: "hsl(220,20%,12%)", margin: 0,
       }}>{tender.title}</h3>
 
-      {/* Summary */}
-      <p style={{ fontSize: "0.78rem", color: "hsl(220,8%,52%)", lineHeight: 1.55, margin: 0, fontWeight: 400 }}>
+      {/* Summary — full, no truncation */}
+      <p style={{ fontSize: "0.78rem", color: "hsl(220,8%,52%)", lineHeight: 1.6, margin: 0, fontWeight: 400 }}>
         {summary}
       </p>
 
-      {/* Verdict pill */}
-      {tender.verdict && (
-        <div>
-          <span style={{
-            fontSize: "0.68rem", fontWeight: 500, padding: "4px 12px", borderRadius: 999,
-            ...Object.fromEntries(
-              vp.cls.split(" ").map(c => {
-                if (c.startsWith("bg-[")) return ["background", c.slice(4, -1)]
-                if (c.startsWith("text-[")) return ["color", c.slice(6, -1)]
-                return [c, true]
-              })
-            ),
-          }}>{vp.label}</span>
-        </div>
+      {/* Why it matters */}
+      {tender.why_it_matters && (
+        <p style={{ fontSize: "0.78rem", color: "hsl(220,8%,45%)", lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
+          {tender.why_it_matters}
+        </p>
       )}
 
       {/* Meta pills */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
         {(tender.location || tender.country) && (
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 4,
-            fontSize: "0.62rem", fontWeight: 400, padding: "4px 10px", borderRadius: 999,
-            background: "transparent", color: "hsl(220,8%,52%)", border: "1px solid hsl(220,8%,91%)",
-          }}>
-            <MapPin style={{ width: 10, height: 10 }} />
-            {tender.location || tender.country}
-          </span>
+          <MetaPill
+            icon={<MapPin style={{ width: 10, height: 10 }} />}
+            label={tender.location || tender.country!}
+          />
         )}
         {tender.publication_date && (
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 4,
-            fontSize: "0.62rem", fontWeight: 400, padding: "4px 10px", borderRadius: 999,
-            background: "transparent", color: "hsl(220,8%,52%)", border: "1px solid hsl(220,8%,91%)",
-          }}>
-            <Calendar style={{ width: 10, height: 10 }} />
-            {formatDate(tender.publication_date)}
-          </span>
+          <MetaPill
+            icon={<Calendar style={{ width: 10, height: 10 }} />}
+            label={formatDate(tender.publication_date)!}
+          />
         )}
         {tender.main_discipline && (
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 4,
-            fontSize: "0.62rem", fontWeight: 400, padding: "4px 10px", borderRadius: 999,
-            background: "transparent", color: "hsl(220,8%,52%)", border: "1px solid hsl(220,8%,91%)",
-          }}>
-            <Building2 style={{ width: 10, height: 10 }} />
-            {tender.main_discipline}
-          </span>
+          <MetaPill
+            icon={<Building2 style={{ width: 10, height: 10 }} />}
+            label={categoryLabel(tender.main_discipline) ?? tender.main_discipline}
+          />
+        )}
+        {tender.required_references_count != null && tender.required_references_count > 0 && (
+          <MetaPill
+            icon={<Users style={{ width: 10, height: 10 }} />}
+            label={`Références requises : ${tender.required_references_count}`}
+          />
+        )}
+        {revenue && (
+          <MetaPill
+            icon={<TrendingUp style={{ width: 10, height: 10 }} />}
+            label={revenue}
+          />
         )}
       </div>
     </article>
@@ -196,7 +242,7 @@ function OpportunityCard({ tender }: { tender: Tender }) {
 
 export default async function Home() {
   const [tendersRes, countRes] = await Promise.all([
-    supabase.from("tenders").select("*").order("final_score", { ascending: false }).limit(6),
+    supabase.from("tenders").select("*").order("final_score", { ascending: false }).limit(50),
     supabase.from("tenders").select("*", { count: "exact", head: true }),
   ])
   const tenders      = (tendersRes.data as Tender[]) || []
@@ -325,7 +371,7 @@ export default async function Home() {
                       )}
                       {featured.category && (
                         <span style={{ fontSize: "0.68rem", fontWeight: 500, padding: "4px 12px", borderRadius: 999, background: "hsl(330,80%,96%)", color: "hsl(330,85%,58%)" }}>
-                          {featured.category}
+                          {categoryLabel(featured.category) ?? featured.category}
                         </span>
                       )}
                     </div>
@@ -346,9 +392,8 @@ export default async function Home() {
                       const vp = verdictPill(featured.verdict)
                       return (
                         <span style={{
-                          fontSize: "0.68rem", fontWeight: 500, padding: "4px 12px", borderRadius: 999,
-                          background: vp.cls.includes("145") ? "hsl(145,60%,94%)" : vp.cls.includes("48") ? "hsl(48,90%,93%)" : "hsl(220,8%,95%)",
-                          color: vp.cls.includes("145") ? "hsl(145,70%,38%)" : vp.cls.includes("48") ? "hsl(40,80%,42%)" : "hsl(220,8%,52%)",
+                          fontSize: "0.68rem", fontWeight: 600, padding: "4px 12px", borderRadius: 999,
+                          background: vp.background, color: vp.color,
                         }}>{vp.label}</span>
                       )
                     })()}
@@ -411,7 +456,7 @@ export default async function Home() {
 
           {/* Grid */}
           {tenders.length > 0 ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
               {tenders.map((t, i) => <OpportunityCard key={t.id ?? i} tender={t} />)}
             </div>
           ) : (
