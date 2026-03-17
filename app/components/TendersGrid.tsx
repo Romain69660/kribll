@@ -41,42 +41,28 @@ const CATEGORY_LABELS: Record<string, string> = {
   SURVEY_TOPO:           "Topographie",
 }
 
-const COUNTRY_FLAGS: Record<string, string> = {
-  Belgium:         "🇧🇪",
-  Belgique:        "🇧🇪",
-  Germany:         "🇩🇪",
-  Allemagne:       "🇩🇪",
-  Italy:           "🇮🇹",
-  Italie:          "🇮🇹",
-  Spain:           "🇪🇸",
-  Espagne:         "🇪🇸",
-  Netherlands:     "🇳🇱",
-  "Pays-Bas":      "🇳🇱",
-  Switzerland:     "🇨🇭",
-  Suisse:          "🇨🇭",
-  Luxembourg:      "🇱🇺",
-  Portugal:        "🇵🇹",
-  Austria:         "🇦🇹",
-  Autriche:        "🇦🇹",
-  Sweden:          "🇸🇪",
-  Suède:           "🇸🇪",
-  Denmark:         "🇩🇰",
-  Danemark:        "🇩🇰",
-  Norway:          "🇳🇴",
-  Norvège:         "🇳🇴",
-  Finland:         "🇫🇮",
-  Finlande:        "🇫🇮",
-  Poland:          "🇵🇱",
-  Pologne:         "🇵🇱",
-  Greece:          "🇬🇷",
-  Grèce:           "🇬🇷",
-  Ireland:         "🇮🇪",
-  Irlande:         "🇮🇪",
+const FLAG: Record<string, string> = {
+  "belgium":     "🇧🇪", "be": "🇧🇪",
+  "switzerland": "🇨🇭", "ch": "🇨🇭",
+  "germany":     "🇩🇪", "de": "🇩🇪",
+  "italy":       "🇮🇹", "it": "🇮🇹",
+  "spain":       "🇪🇸", "es": "🇪🇸",
+  "netherlands": "🇳🇱", "nl": "🇳🇱",
+  "ireland":     "🇮🇪", "ie": "🇮🇪",
+  "portugal":    "🇵🇹", "pt": "🇵🇹",
+  "luxembourg":  "🇱🇺", "lu": "🇱🇺",
+  "austria":     "🇦🇹", "at": "🇦🇹",
+  "sweden":      "🇸🇪", "se": "🇸🇪",
+  "denmark":     "🇩🇰", "dk": "🇩🇰",
+  "norway":      "🇳🇴", "no": "🇳🇴",
+  "finland":     "🇫🇮", "fi": "🇫🇮",
+  "poland":      "🇵🇱", "pl": "🇵🇱",
+  "greece":      "🇬🇷", "gr": "🇬🇷",
 }
 
 function countryFlag(country?: string) {
-  if (!country) return ""
-  return COUNTRY_FLAGS[country] ?? "🌍"
+  if (!country) return "🌍"
+  return FLAG[country.toLowerCase()] ?? "🌍"
 }
 
 function categoryLabel(cat?: string) {
@@ -109,11 +95,10 @@ function verdictPill(v?: string) {
 // ─── ScoreGauge ───────────────────────────────────────────────────────────────
 
 function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
-  const capped = Math.min(score, 100)
   const r   = (size - 6) / 2
   const c   = 2 * Math.PI * r
-  const off = c - (capped / 100) * c
-  const col = capped >= 80 ? "hsl(145,70%,42%)" : capped >= 50 ? "hsl(25,95%,52%)" : "hsl(220,8%,70%)"
+  const off = c - (score / 100) * c
+  const col = score >= 80 ? "hsl(145,70%,42%)" : score >= 50 ? "hsl(25,95%,52%)" : "hsl(220,8%,70%)"
   return (
     <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
@@ -122,7 +107,7 @@ function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
           strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
       </svg>
       <span style={{ position: "absolute", fontSize: "0.62rem", fontWeight: 600, color: "hsl(220,20%,12%)", fontVariantNumeric: "tabular-nums" }}>
-        {capped}
+        {score}
       </span>
     </div>
   )
@@ -260,7 +245,14 @@ function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: bool
 type Tab = "france" | "europe"
 
 function isFrance(t: Tender) {
-  return t.country === "France" || t.source === "BOAMP"
+  const country  = (t.country  || "").toLowerCase()
+  const location = (t.location || "").toLowerCase()
+  return (
+    country.includes("france") ||
+    country === "fr" ||
+    location.includes("france") ||
+    t.source === "BOAMP"
+  )
 }
 
 export default function TendersGrid({ tenders }: { tenders: Tender[] }) {
