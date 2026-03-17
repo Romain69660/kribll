@@ -1,6 +1,8 @@
 """
-KRIBLL — 01 BOAMP SCRAPER
+KRIBLL — 01 BOAMP SCRAPER v7
 Pagination complète + filtre strict + catégorisation métier
++ extraction enrichie du champ donnees (eForms UBL)
++ date limite de réponse + URL plateforme acheteur
 """
 
 import os
@@ -14,7 +16,7 @@ import pandas as pd
 import requests
 
 print("====================================")
-print("KRIBLL — 01 BOAMP SCRAPER")
+print("KRIBLL — 01 BOAMP SCRAPER v7")
 print("====================================")
 
 # -----------------------------------
@@ -141,7 +143,7 @@ def normalize(text):
     text = str(text).lower()
     text = unicodedata.normalize("NFKD", text)
     text = "".join(c for c in text if not unicodedata.combining(c))
-    text = text.replace("’", " ").replace("'", " ")
+    text = text.replace("'", " ").replace("'", " ")
     text = re.sub(r"[^a-z0-9\s]", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
     return text
@@ -174,49 +176,200 @@ def first_type_marche(rec):
 def nature_value(rec):
     return str(rec.get("nature", "")).upper()
 
-def build_text_blob(rec):
+# -----------------------------------
+# Extraction enrichie du champ donnees
+# -----------------------------------
+
+# Clés textuelles à extraire en priorité depuis le JSON eForms
+TEXT_KEYS = {
+    "#text", "description", "Description",
+    "intitule", "titreMarche", "Name", "Title",
+    "cbc:Description", "cbc:Name",
+    "cbc:Note",
+}
+
+# Clés à ignorer (URIs, codes, IDs techniques)
+SKIP_KEYS = {
+    "uri", "url", "href", "id", "code",
+    "@listName", "@schemeID", "@languageID", "@schemeName",
+    "cbc:ID", "cbc:CustomizationID", "cbc:UBLVersionID",
+    "cbc:VersionID", "cbc:RegulatoryDomain",
+}
+
+def extract_text_from_donnees(donnees_raw):
+    """
+    Extrait tout le contenu textuel utile du champ donnees (JSON eForms UBL).
+    Retourne une chaîne de texte enrichie pour Leman.
+    """
+    donnees = parse_json_recursive(donnees_raw)
     parts = []
 
-    for field in ["objet", "nomacheteur", "famille_libelle", "procedure_libelle"]:
-        if rec.get(field):
-            parts.append(str(rec[field]))
+    def walk(obj, depth=0):
+        if depth > 12:
+            return
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if k in SKIP_KEYS:
+                    continue
+                if k in TEXT_KEYS:
+                    if isinstance(v, str) and len(v.strip()) > 8:
+                        parts.append(v.strip())
+                    elif isinstance(v, dict) and "#text" in v:
+                        text = v["#text"]
+                        if isinstance(text, str) and len(text.strip()) > 8:
+                            parts.append(text.strip())
+                elif isinstance(v, (dict, list)):
+                    walk(v, depth + 1)
+                elif isinstance(v, str):
+                    # Garder les strings longues qui ressemblent à du texte naturel
+                    v = v.strip()
+                    if (
+                        len(v) > 40
+                        and not v.startswith("http")
+                        and not re.match(r"^[\d\-/+:\.]+$", v)
+                        and not re.match(r"^[A-Z0-9\-]{5,}$", v)
+                    ):
+                        parts.append(v)
+        elif isinstance(obj, list):
+            for item in obj:
+                walk(item, depth + 1)
 
-    gestion = parse_json_recursive(rec.get("gestion"))
-    idx = gestion.get("INDEXATION", {}) if isinstance(gestion, dict) else {}
+    walk(donnees)
 
-    if idx.get("RESUME_OBJET"):
-        parts.append(str(idx["RESUME_OBJET"]))
+    # Déduplication en conservant l'ordre
+    seen = set()
+    unique_parts = []
+    for p in parts:
+        p_norm = p.lower().strip()
+        if p_norm not in seen and len(p_norm) > 8:
+            seen.add(p_norm)
+            unique_parts.append(p)
 
-    descripteurs = rec.get("descripteur_libelle")
-    if descripteurs:
-        parts.extend([str(x) for x in ensure_list(descripteurs)])
+    return " | ".join(unique_parts)
 
+
+def extract_buyer_profile_uri(donnees_raw):
+    """
+    Extrait l'URL de la plateforme acheteur (BuyerProfileURI) depuis donnees.
+    C'est là que sont hébergés les PDFs du DCE.
+    """
+    donnees = parse_json_recursive(donnees_raw)
+
+    def walk(obj):
+        if isinstance(obj, dict):
+            # Chercher BuyerProfileURI directement
+            if "cbc:BuyerProfileURI" in obj:
+                val = obj["cbc:BuyerProfileURI"]
+                if isinstance(val, str) and val.startswith("http"):
+                    return val
+            for v in obj.values():
+                result = walk(v)
+                if result:
+                    return result
+        elif isinstance(obj, list):
+            for item in obj:
+                result = walk(item)
+                if result:
+                    return result
+        return None
+
+    return walk(donnees) or ""
+
+
+def extract_deadline(rec):
+    """
+    Extrait la date limite de réponse depuis datelimitereponse ou donnees.
+    """
+    # Champ direct de l'API
+    deadline = rec.get("datelimitereponse", "")
+    if deadline:
+        return str(deadline)[:10]  # Format YYYY-MM-DD
+
+    # Fallback dans donnees
     donnees = parse_json_recursive(rec.get("donnees"))
 
     def walk(obj):
         if isinstance(obj, dict):
             for k, v in obj.items():
-                if isinstance(v, (dict, list)):
-                    walk(v)
-                else:
-                    if k in {
-                        "#text",
-                        "description",
-                        "Description",
-                        "intitule",
-                        "titreMarche",
-                        "Name",
-                        "Title",
-                        "cbc:Description",
-                        "cbc:Name",
-                    }:
-                        parts.append(str(v))
+                if "EndDate" in k or "DueDate" in k or "deadline" in k.lower():
+                    if isinstance(v, str) and len(v) >= 10:
+                        return v[:10]
+                result = walk(v)
+                if result:
+                    return result
         elif isinstance(obj, list):
             for item in obj:
-                walk(item)
+                result = walk(item)
+                if result:
+                    return result
+        return None
 
-    walk(donnees)
+    return walk(donnees) or ""
+
+
+def extract_department(rec):
+    """
+    Extrait le département depuis code_departement ou le code NUTS dans donnees.
+    """
+    dept = rec.get("code_departement")
+    if dept:
+        depts = ensure_list(dept)
+        return " | ".join([str(d) for d in depts if d])
+
+    # Fallback NUTS dans donnees
+    donnees = parse_json_recursive(rec.get("donnees"))
+
+    def walk(obj):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if k == "cbc:CountrySubentityCode" or (k == "@listName" and v == "nuts"):
+                    pass
+                if isinstance(v, dict):
+                    if v.get("@listName") == "nuts" and "#text" in v:
+                        return v["#text"]
+                result = walk(v)
+                if result:
+                    return result
+        elif isinstance(obj, list):
+            for item in obj:
+                result = walk(item)
+                if result:
+                    return result
+        return None
+
+    return walk(donnees) or ""
+
+
+def build_text_blob(rec):
+    """
+    Construit le texte complet pour le filtrage et l'analyse IA.
+    Combine : titre, descripteurs, résumé, et extraction enrichie de donnees.
+    """
+    parts = []
+
+    # Champs directs
+    for field in ["objet", "nomacheteur", "famille_libelle", "procedure_libelle"]:
+        if rec.get(field):
+            parts.append(str(rec[field]))
+
+    # Résumé depuis gestion
+    gestion = parse_json_recursive(rec.get("gestion"))
+    idx = gestion.get("INDEXATION", {}) if isinstance(gestion, dict) else {}
+    if idx.get("RESUME_OBJET"):
+        parts.append(str(idx["RESUME_OBJET"]))
+
+    # Descripteurs
+    descripteurs = rec.get("descripteur_libelle")
+    if descripteurs:
+        parts.extend([str(x) for x in ensure_list(descripteurs)])
+
+    # Extraction enrichie depuis donnees
+    donnees_text = extract_text_from_donnees(rec.get("donnees", ""))
+    if donnees_text:
+        parts.append(donnees_text)
+
     return f" {normalize(' '.join(parts))} "
+
 
 def extract_cpvs(rec):
     cpvs = set()
@@ -238,6 +391,10 @@ def extract_cpvs(rec):
 
     walk(donnees)
     return sorted(cpvs)
+
+# -----------------------------------
+# Scoring
+# -----------------------------------
 
 def cpv_score(cpvs):
     score = 0
@@ -280,6 +437,7 @@ def cpv_score(cpvs):
 
     return score, reasons, strong_archi, medium_archi
 
+
 def phrase_score(text, phrases, weight, label):
     score = 0
     reasons = []
@@ -290,6 +448,7 @@ def phrase_score(text, phrases, weight, label):
             reasons.append(f"{label}: {p}")
             hits += 1
     return score, reasons, hits
+
 
 def classify(rec):
     nature = nature_value(rec)
@@ -356,6 +515,7 @@ def classify(rec):
 
     return False, "EXCLUDE", score, reasons, cpvs, nature, type_marche, text
 
+
 def categorize(rec, cpvs, text):
     title = normalize(rec.get("objet", ""))
 
@@ -416,11 +576,12 @@ def categorize(rec, cpvs, text):
 
     return "OTHER_RELEVANT", "SECONDARY"
 
+
 def fetch_all_records():
     since = (datetime.now(timezone.utc) - timedelta(days=DAYS_BACK)).strftime("%Y-%m-%d")
 
     session = requests.Session()
-    session.headers["User-Agent"] = "Kribll-BOAMP-V6/1.0"
+    session.headers["User-Agent"] = "Kribll-BOAMP-V7/1.0"
 
     all_records = []
     total_count = None
@@ -468,7 +629,26 @@ def fetch_all_records():
 
     return all_records, total_count or 0
 
+
 def row_from_record(rec, decision, score, reasons, cpvs, nature, type_marche, category, priority_bucket):
+    """
+    Construit la ligne CSV finale avec tous les champs enrichis.
+    Nouveaux champs v7 : raw_text_enrichi, deadline, buyer_profile_uri, departement
+    """
+    # Extraction des nouvelles données enrichies
+    donnees_raw = rec.get("donnees", "")
+    donnees_text = extract_text_from_donnees(donnees_raw)
+    buyer_profile_uri = extract_buyer_profile_uri(donnees_raw)
+    deadline = extract_deadline(rec)
+    departement = extract_department(rec)
+
+    # raw_text enrichi = tout ce qu'on a
+    raw_text_parts = [
+        str(rec.get("objet", "")),
+        donnees_text,
+    ]
+    raw_text = " | ".join([p for p in raw_text_parts if p.strip()])
+
     return {
         "decision": decision,
         "priority_bucket": priority_bucket,
@@ -477,16 +657,19 @@ def row_from_record(rec, decision, score, reasons, cpvs, nature, type_marche, ca
         "titre": rec.get("objet"),
         "acheteur": rec.get("nomacheteur"),
         "date_publication": rec.get("dateparution"),
-        "date_limite": rec.get("datelimitereponse"),
+        "date_limite": deadline,
         "nature": nature,
         "type_marche": type_marche,
         "descripteurs": " | ".join(ensure_list(rec.get("descripteur_libelle"))),
         "cpv_codes": " | ".join(cpvs),
-        "departement": " | ".join([str(x) for x in ensure_list(rec.get("code_departement"))]),
+        "departement": departement,
         "url": rec.get("url_avis", f"https://www.boamp.fr/pages/avis/?q=idweb:{rec.get('idweb', '')}"),
+        "buyer_profile_uri": buyer_profile_uri,
+        "raw_text": raw_text,
         "why": " | ".join(reasons[:10]),
         "idweb": rec.get("idweb"),
     }
+
 
 # -----------------------------------
 # Main
@@ -494,7 +677,7 @@ def row_from_record(rec, decision, score, reasons, cpvs, nature, type_marche, ca
 
 def main():
     print("====================================")
-    print("KRIBLL BOAMP V6 — CATEGORISATION METIER")
+    print("KRIBLL BOAMP V7 — EXTRACTION ENRICHIE")
     print("====================================")
 
     records, total = fetch_all_records()
@@ -504,6 +687,7 @@ def main():
     decision_counts = Counter()
     category_counts = Counter()
     priority_counts = Counter()
+    enriched_count = 0
 
     for rec in records:
         keep, decision, score, reasons, cpvs, nature, type_marche, text = classify(rec)
@@ -514,29 +698,27 @@ def main():
             category_counts[category] += 1
             priority_counts[priority_bucket] += 1
 
-            kept.append(
-                row_from_record(
-                    rec,
-                    decision,
-                    score,
-                    reasons,
-                    cpvs,
-                    nature,
-                    type_marche,
-                    category,
-                    priority_bucket,
-                )
+            row = row_from_record(
+                rec, decision, score, reasons, cpvs,
+                nature, type_marche, category, priority_bucket
             )
+
+            # Compter les annonces avec donnees enrichies
+            if row.get("buyer_profile_uri"):
+                enriched_count += 1
+
+            kept.append(row)
 
     order = {"KEEP_HIGH": 0, "KEEP_MEDIUM": 1, "REVIEW": 2}
     kept.sort(key=lambda r: (order.get(r["decision"], 9), -r["score"]))
 
     print(f"\n{'─'*62}")
-    print(f"Kept         : {len(kept)}")
-    print(f"KEEP_HIGH    : {decision_counts['KEEP_HIGH']}")
-    print(f"KEEP_MEDIUM  : {decision_counts['KEEP_MEDIUM']}")
-    print(f"REVIEW       : {decision_counts['REVIEW']}")
-    print(f"EXCLUDE      : {decision_counts['EXCLUDE']}")
+    print(f"Kept              : {len(kept)}")
+    print(f"KEEP_HIGH         : {decision_counts['KEEP_HIGH']}")
+    print(f"KEEP_MEDIUM       : {decision_counts['KEEP_MEDIUM']}")
+    print(f"REVIEW            : {decision_counts['REVIEW']}")
+    print(f"EXCLUDE           : {decision_counts['EXCLUDE']}")
+    print(f"With buyer URI    : {enriched_count}")
     print(f"{'─'*62}")
 
     print("\nCategory distribution:")
@@ -551,22 +733,43 @@ def main():
         print("\nNo announcements kept.")
         return
 
+    # Afficher exemple d'enrichissement
+    print("\nExemple enrichissement (première annonce avec buyer_profile_uri):")
+    for r in kept[:20]:
+        if r.get("buyer_profile_uri"):
+            print(f"  Titre        : {r['titre']}")
+            print(f"  Plateforme   : {r['buyer_profile_uri']}")
+            print(f"  Date limite  : {r['date_limite']}")
+            print(f"  Département  : {r['departement']}")
+            raw_preview = str(r.get("raw_text", ""))[:300]
+            print(f"  Raw text     : {raw_preview}...")
+            break
+
     print("\nTop 10 kept announcements:\n")
     for i, r in enumerate(kept[:10], 1):
         print(f"{i}. [{r['decision']} | {r['score']}] {r['titre']}")
         print(f"   Category : {r['category']} | Bucket : {r['priority_bucket']}")
         print(f"   Buyer    : {r['acheteur']}")
-        print(f"   Nature   : {r['nature']} | Type : {r['type_marche']}")
-        print(f"   Dept     : {r['departement']} | Deadline : {r['date_limite']}")
-        print(f"   CPV      : {r['cpv_codes']}")
-        print(f"   Why      : {r['why']}")
-        print(f"   URL      : {r['url']}\n")
+        print(f"   Deadline : {r['date_limite']}")
+        print(f"   Platform : {r['buyer_profile_uri'] or 'N/A'}")
+        print(f"   Dept     : {r['departement']} | CPV : {r['cpv_codes']}")
+        print(f"   Why      : {r['why']}\n")
 
     df = pd.DataFrame(kept)
     df.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
 
     print(f"CSV exported: {OUTPUT_FILE} ({len(df)} rows)")
+
+    # Stats enrichissement
+    if "buyer_profile_uri" in df.columns:
+        uri_count = (df["buyer_profile_uri"].fillna("") != "").sum()
+        print(f"Annonces avec URL plateforme acheteur : {uri_count}/{len(df)}")
+    if "date_limite" in df.columns:
+        deadline_count = (df["date_limite"].fillna("") != "").sum()
+        print(f"Annonces avec date limite             : {deadline_count}/{len(df)}")
+
     print("\nDone.\n")
+
 
 if __name__ == "__main__":
     main()
