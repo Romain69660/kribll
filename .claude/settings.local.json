@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(python scripts/05_top_feed.py)",
-      "Bash(SUPABASE_URL=\"https://lqzhdgfcjfwzinttaprr.supabase.co\" SUPABASE_KEY=\"sb_publishable_rZiOdPgSfGiS_aDIhUJbvQ_8vE8hv8D\" python scripts/06_upload_supabase.py)"
+      "Bash(SUPABASE_URL=\"https://lqzhdgfcjfwzinttaprr.supabase.co\" SUPABASE_KEY=\"sb_publishable_rZiOdPgSfGiS_aDIhUJbvQ_8vE8hv8D\" python scripts/06_upload_supabase.py)",
+      "Bash(python -c \":*)"
     ]
   }
 }
