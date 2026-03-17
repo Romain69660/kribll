@@ -34,10 +34,11 @@ function verdictPill(v?: string) {
 // ─── ScoreGauge ───────────────────────────────────────────────────────────────
 
 function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
+  const s   = Math.min(Math.round(score), 100)
   const r   = (size - 6) / 2
   const c   = 2 * Math.PI * r
-  const off = c - (score / 100) * c
-  const col = score >= 80 ? "hsl(145,70%,42%)" : score >= 50 ? "hsl(25,95%,52%)" : "hsl(220,8%,70%)"
+  const off = c - (s / 100) * c
+  const col = s >= 80 ? "hsl(145,70%,42%)" : s >= 50 ? "hsl(25,95%,52%)" : "hsl(220,8%,70%)"
   return (
     <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
@@ -46,7 +47,7 @@ function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
           strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
       </svg>
       <span style={{ position: "absolute", fontSize: "0.62rem", fontWeight: 600, color: "hsl(220,20%,12%)" }}>
-        {score}
+        {s}
       </span>
     </div>
   )

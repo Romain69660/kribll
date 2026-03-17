@@ -41,28 +41,40 @@ const CATEGORY_LABELS: Record<string, string> = {
   SURVEY_TOPO:           "Topographie",
 }
 
-const FLAG: Record<string, string> = {
-  "belgium":     "🇧🇪", "be": "🇧🇪",
-  "switzerland": "🇨🇭", "ch": "🇨🇭",
-  "germany":     "🇩🇪", "de": "🇩🇪",
-  "italy":       "🇮🇹", "it": "🇮🇹",
-  "spain":       "🇪🇸", "es": "🇪🇸",
-  "netherlands": "🇳🇱", "nl": "🇳🇱",
-  "ireland":     "🇮🇪", "ie": "🇮🇪",
-  "portugal":    "🇵🇹", "pt": "🇵🇹",
-  "luxembourg":  "🇱🇺", "lu": "🇱🇺",
-  "austria":     "🇦🇹", "at": "🇦🇹",
-  "sweden":      "🇸🇪", "se": "🇸🇪",
-  "denmark":     "🇩🇰", "dk": "🇩🇰",
-  "norway":      "🇳🇴", "no": "🇳🇴",
-  "finland":     "🇫🇮", "fi": "🇫🇮",
-  "poland":      "🇵🇱", "pl": "🇵🇱",
-  "greece":      "🇬🇷", "gr": "🇬🇷",
+const COUNTRY_CODE: Record<string, string> = {
+  "belgium":     "be", "be": "be",
+  "switzerland": "ch", "ch": "ch",
+  "germany":     "de", "de": "de",
+  "italy":       "it", "it": "it",
+  "spain":       "es", "es": "es",
+  "netherlands": "nl", "nl": "nl",
+  "ireland":     "ie", "ie": "ie",
+  "portugal":    "pt", "pt": "pt",
+  "luxembourg":  "lu", "lu": "lu",
+  "austria":     "at", "at": "at",
+  "sweden":      "se", "se": "se",
+  "denmark":     "dk", "dk": "dk",
+  "norway":      "no", "no": "no",
+  "finland":     "fi", "fi": "fi",
+  "poland":      "pl", "pl": "pl",
+  "greece":      "gr", "gr": "gr",
 }
 
-function countryFlag(country?: string) {
-  if (!country) return "🌍"
-  return FLAG[country.toLowerCase()] ?? "🌍"
+function countryCode(country?: string): string | null {
+  if (!country) return null
+  return COUNTRY_CODE[country.toLowerCase()] ?? null
+}
+
+function FlagImg({ country }: { country?: string }) {
+  const code = countryCode(country)
+  if (!code) return null
+  return (
+    <img
+      src={`https://flagcdn.com/24x18/${code}.png`}
+      alt={country}
+      style={{ width: 20, height: 14, borderRadius: 2, objectFit: "cover", display: "inline-block" }}
+    />
+  )
 }
 
 function categoryLabel(cat?: string) {
@@ -95,10 +107,11 @@ function verdictPill(v?: string) {
 // ─── ScoreGauge ───────────────────────────────────────────────────────────────
 
 function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
+  const s   = Math.min(Math.round(score), 100)
   const r   = (size - 6) / 2
   const c   = 2 * Math.PI * r
-  const off = c - (score / 100) * c
-  const col = score >= 80 ? "hsl(145,70%,42%)" : score >= 50 ? "hsl(25,95%,52%)" : "hsl(220,8%,70%)"
+  const off = c - (s / 100) * c
+  const col = s >= 80 ? "hsl(145,70%,42%)" : s >= 50 ? "hsl(25,95%,52%)" : "hsl(220,8%,70%)"
   return (
     <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
@@ -107,7 +120,7 @@ function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
           strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
       </svg>
       <span style={{ position: "absolute", fontSize: "0.62rem", fontWeight: 600, color: "hsl(220,20%,12%)", fontVariantNumeric: "tabular-nums" }}>
-        {score}
+        {s}
       </span>
     </div>
   )
@@ -135,7 +148,6 @@ function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: bool
   const vp       = verdictPill(tender.verdict)
   const catLabel = categoryLabel(tender.category)
   const revenue  = formatRevenue(tender.minimum_revenue_required)
-  const flag     = showFlag ? countryFlag(tender.country) : ""
 
   return (
     <article style={{
@@ -166,9 +178,7 @@ function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: bool
               border: "1px solid hsl(220,8%,91%)",
             }}>{catLabel}</span>
           )}
-          {flag && (
-            <span style={{ fontSize: "0.85rem", lineHeight: 1 }}>{flag}</span>
-          )}
+          {showFlag && <FlagImg country={tender.country} />}
         </div>
         {typeof tender.final_score === "number" && <ScoreGauge score={tender.final_score} size={40} />}
       </div>
@@ -264,30 +274,50 @@ export default function TendersGrid({ tenders }: { tenders: Tender[] }) {
 
   return (
     <div>
-      {/* Tabs — Trainline style */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 28 }}>
+      {/* Tabs */}
+      <div style={{
+        background: "hsl(220,8%,97%)",
+        borderRadius: 16,
+        padding: "6px",
+        display: "flex",
+        justifyContent: "center",
+        gap: 4,
+        marginBottom: 28,
+      }}>
         {(["france", "europe"] as Tab[]).map(t => {
           const active = tab === t
-          const label  = t === "france"
-            ? `🇫🇷 France${france.length ? ` (${france.length})` : ""}`
-            : `🌍 Europe${europe.length ? ` (${europe.length})` : ""}`
+          const count  = t === "france" ? france.length : europe.length
+          const label  = t === "france" ? "France" : "Europe"
           return (
             <button
               key={t}
               onClick={() => setTab(t)}
               style={{
+                width: 160,
                 fontSize: "0.82rem",
-                fontWeight: 500,
-                padding: "8px 20px",
-                borderRadius: 999,
-                border: "none",
+                fontWeight: active ? 500 : 400,
+                padding: "9px 16px",
+                borderRadius: 10,
                 cursor: "pointer",
-                transition: "background .15s, color .15s",
-                background: active ? "hsl(220,20%,12%)" : "hsl(220,8%,95%)",
-                color:      active ? "white"            : "hsl(220,8%,52%)",
+                transition: "all .2s ease",
+                background: active ? "white" : "transparent",
+                color:      active ? "hsl(220,20%,12%)" : "hsl(220,8%,52%)",
+                border:     active ? "1px solid hsl(220,8%,88%)" : "1px solid transparent",
+                boxShadow:  active ? "0 1px 4px hsl(220,20%,12%,0.08)" : "none",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
               }}
             >
-              {label}
+              <span>{label}</span>
+              {count > 0 && (
+                <span style={{
+                  fontSize: "0.68rem",
+                  color: active ? "hsl(220,8%,52%)" : "hsl(220,8%,68%)",
+                  fontWeight: 400,
+                }}>({count})</span>
+              )}
             </button>
           )
         })}

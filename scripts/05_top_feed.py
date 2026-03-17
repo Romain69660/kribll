@@ -100,25 +100,26 @@ df["final_score"] = df["relevance_score"]
 
 # Bonus for GO
 if "verdict" in df.columns:
-    df.loc[df["verdict"] == "GO", "final_score"] += 10
-    df.loc[df["verdict"] == "MAYBE", "final_score"] += 3
+    df.loc[df["verdict"] == "GO", "final_score"] += 20
+    df.loc[df["verdict"] == "MAYBE", "final_score"] += 5
 
 # Bonus for architecture / urbanism core
 if "category" in df.columns:
-    df.loc[df["category"].isin(["ARCHITECTURE_BUILDING", "ARCHITECTURE_GENERAL"]), "final_score"] += 5
-    df.loc[df["category"].isin(["URBANISM_LANDSCAPE"]), "final_score"] += 4
+    df.loc[df["category"].isin(["ARCHITECTURE_BUILDING", "ARCHITECTURE_GENERAL"]), "final_score"] += 10
+    df.loc[df["category"] == "URBANISM_LANDSCAPE", "final_score"] += 8
+    df.loc[df["category"] == "COMPETITIONS", "final_score"] += 15
 
 # Small bonus for BOAMP for now because often cleaner administratively
 if "source" in df.columns:
-    df.loc[df["source"] == "BOAMP", "final_score"] += 2
+    df.loc[df["source"] == "BOAMP", "final_score"] += 3
 
 # Penalty if summary missing
 if "summary" in df.columns:
-    df.loc[df["summary"] == "", "final_score"] -= 10
+    df.loc[df["summary"] == "", "final_score"] -= 25
 
 # Penalty if buyer missing
 if "buyer_name" in df.columns:
-    df.loc[df["buyer_name"] == "", "final_score"] -= 8
+    df.loc[df["buyer_name"] == "", "final_score"] -= 15
 
 # Cap final_score at 100
 df["final_score"] = df["final_score"].clip(upper=100)
