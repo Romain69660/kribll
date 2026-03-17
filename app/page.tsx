@@ -1,38 +1,12 @@
 import { supabase } from "../lib/supabase"
+import TendersGrid, { type Tender } from "./components/TendersGrid"
 import {
-  ArrowRight, Sparkles, Trophy, MapPin, Calendar, Building2,
+  ArrowRight, Sparkles, Trophy,
   Filter, BarChart3, Search, Target, Clock, Eye, Zap,
-  User, Heart, Bell, ArrowUpRight, Users, TrendingUp,
+  User, Heart, Bell, ArrowUpRight,
 } from "lucide-react"
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type Tender = {
-  id: number
-  title: string
-  buyer_name: string
-  final_score: number
-  url: string
-  source?: string
-  country?: string
-  publication_date?: string
-  deadline?: string
-  category?: string
-  summary?: string
-  verdict?: string
-  relevance_score?: number
-  location?: string
-  procedure_type?: string
-  main_discipline?: string
-  estimated_scale?: string
-  why_it_matters?: string
-  project_type?: string
-  program?: string
-  required_references_count?: number | null
-  minimum_revenue_required?: number | null
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Helpers (server-only, used in hero card) ─────────────────────────────────
 
 const CATEGORY_LABELS: Record<string, string> = {
   ARCHITECTURE_BUILDING: "Architecture",
@@ -47,26 +21,6 @@ const CATEGORY_LABELS: Record<string, string> = {
 function categoryLabel(cat?: string) {
   if (!cat) return null
   return CATEGORY_LABELS[cat] ?? cat
-}
-
-function formatDate(d?: string) {
-  if (!d) return null
-  const dt = new Date(d)
-  if (isNaN(dt.getTime())) return d
-  return dt.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })
-}
-
-function formatRevenue(v?: number | null) {
-  if (!v) return null
-  if (v >= 1_000_000) return `CA minimum : ${(v / 1_000_000).toFixed(1).replace(".0", "")}M€`
-  if (v >= 1_000) return `CA minimum : ${Math.round(v / 1_000)}k€`
-  return `CA minimum : ${v}€`
-}
-
-function getSummary(t: Tender) {
-  const s = t.summary?.trim()
-  if (!s) return "Résumé non disponible."
-  return s
 }
 
 function verdictPill(v?: string) {
@@ -86,13 +40,13 @@ function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
   const off = c - (capped / 100) * c
   const col = capped >= 80 ? "hsl(145,70%,42%)" : capped >= 50 ? "hsl(25,95%,52%)" : "hsl(220,8%,70%)"
   return (
-    <div className="relative inline-flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
+    <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="hsl(220,8%,91%)" strokeWidth={2} />
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={col} strokeWidth={2.5}
           strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" />
       </svg>
-      <span className="absolute text-[0.62rem] font-semibold tabular-nums" style={{ color: "hsl(220,20%,12%)" }}>
+      <span style={{ position: "absolute", fontSize: "0.62rem", fontWeight: 600, color: "hsl(220,20%,12%)" }}>
         {capped}
       </span>
     </div>
@@ -103,138 +57,14 @@ function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
 
 function LemanBadge({ text }: { text: string }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5"
-      style={{ background: "hsl(220,8%,95%)" }}>
-      <span className="w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0"
-        style={{ background: "hsl(220,20%,12%)" }}>
-        <span className="text-white text-[0.52rem] font-bold leading-none">L</span>
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, borderRadius: 12, padding: "10px 12px", background: "hsl(220,8%,95%)" }}>
+      <span style={{ width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "hsl(220,20%,12%)", flexShrink: 0 }}>
+        <span style={{ color: "white", fontSize: "0.52rem", fontWeight: 700, lineHeight: 1 }}>L</span>
       </span>
-      <span className="text-[0.72rem] leading-snug" style={{ color: "hsl(220,20%,12%)", fontWeight: 400 }}>
+      <span style={{ fontSize: "0.72rem", lineHeight: 1.4, color: "hsl(220,20%,12%)", fontWeight: 400 }}>
         {text}
       </span>
     </div>
-  )
-}
-
-// ─── MetaPill ─────────────────────────────────────────────────────────────────
-
-function MetaPill({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <span style={{
-      display: "inline-flex", alignItems: "center", gap: 4,
-      fontSize: "0.62rem", fontWeight: 400, padding: "4px 10px", borderRadius: 999,
-      background: "transparent", color: "hsl(220,8%,52%)", border: "1px solid hsl(220,8%,91%)",
-      whiteSpace: "nowrap",
-    }}>
-      {icon}
-      {label}
-    </span>
-  )
-}
-
-// ─── OpportunityCard ──────────────────────────────────────────────────────────
-
-function OpportunityCard({ tender }: { tender: Tender }) {
-  const summary  = getSummary(tender)
-  const vp       = verdictPill(tender.verdict)
-  const catLabel = categoryLabel(tender.category)
-  const revenue  = formatRevenue(tender.minimum_revenue_required)
-
-  return (
-    <article style={{
-      background: "white",
-      border: "1px solid hsl(220,8%,91%)",
-      borderRadius: 20,
-      padding: "1.35rem 1.35rem 1.2rem",
-      display: "flex",
-      flexDirection: "column",
-      gap: "0.65rem",
-      boxShadow: "0 1px 3px hsl(220 20% 12%/0.04)",
-      transition: "box-shadow .3s ease, transform .3s ease",
-    }}>
-
-      {/* Source + category + score */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-          {tender.source && (
-            <span style={{
-              fontSize: "0.62rem", fontWeight: 500, padding: "3px 10px", borderRadius: 999,
-              background: "hsl(220,85%,96%)", color: "hsl(220,90%,56%)",
-            }}>{tender.source}</span>
-          )}
-          {catLabel && (
-            <span style={{
-              fontSize: "0.62rem", fontWeight: 400, padding: "3px 10px", borderRadius: 999,
-              background: "transparent", color: "hsl(220,8%,52%)",
-              border: "1px solid hsl(220,8%,91%)",
-            }}>{catLabel}</span>
-          )}
-        </div>
-        {typeof tender.final_score === "number" && <ScoreGauge score={tender.final_score} size={40} />}
-      </div>
-
-      {/* Verdict pill */}
-      {tender.verdict && (
-        <div>
-          <span style={{
-            fontSize: "0.68rem", fontWeight: 600, padding: "4px 12px", borderRadius: 999,
-            background: vp.background, color: vp.color,
-          }}>{vp.label}</span>
-        </div>
-      )}
-
-      {/* Title */}
-      <h3 style={{
-        fontSize: "0.95rem", fontWeight: 500, lineHeight: 1.35,
-        color: "hsl(220,20%,12%)", margin: 0,
-      }}>{tender.title}</h3>
-
-      {/* Summary — full, no truncation */}
-      <p style={{ fontSize: "0.78rem", color: "hsl(220,8%,52%)", lineHeight: 1.6, margin: 0, fontWeight: 400 }}>
-        {summary}
-      </p>
-
-      {/* Why it matters */}
-      {tender.why_it_matters && (
-        <p style={{ fontSize: "0.78rem", color: "hsl(220,8%,45%)", lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
-          {tender.why_it_matters}
-        </p>
-      )}
-
-      {/* Meta pills */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
-        {(tender.location || tender.country) && (
-          <MetaPill
-            icon={<MapPin style={{ width: 10, height: 10 }} />}
-            label={tender.location || tender.country!}
-          />
-        )}
-        {tender.publication_date && (
-          <MetaPill
-            icon={<Calendar style={{ width: 10, height: 10 }} />}
-            label={formatDate(tender.publication_date)!}
-          />
-        )}
-        {tender.main_discipline && (
-          <MetaPill
-            icon={<Building2 style={{ width: 10, height: 10 }} />}
-            label={categoryLabel(tender.main_discipline) ?? tender.main_discipline}
-          />
-        )}
-        {tender.required_references_count != null && tender.required_references_count > 0 && (
-          <MetaPill
-            icon={<Users style={{ width: 10, height: 10 }} />}
-            label={`Références requises : ${tender.required_references_count}`}
-          />
-        )}
-        {revenue && (
-          <MetaPill
-            icon={<TrendingUp style={{ width: 10, height: 10 }} />}
-            label={revenue}
-          />
-        )}
-      </div>
-    </article>
   )
 }
 
@@ -454,16 +284,8 @@ export default async function Home() {
             </p>
           </div>
 
-          {/* Grid */}
-          {tenders.length > 0 ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
-              {tenders.map((t, i) => <OpportunityCard key={t.id ?? i} tender={t} />)}
-            </div>
-          ) : (
-            <div style={{ textAlign: "center", padding: "48px 0", color: "hsl(220,8%,52%)", fontSize: "0.88rem" }}>
-              Aucune opportunité disponible pour le moment.
-            </div>
-          )}
+          {/* Grid with tabs */}
+          <TendersGrid tenders={tenders} />
 
           {/* CTA */}
           <div style={{ display: "flex", justifyContent: "center", marginTop: 28 }}>

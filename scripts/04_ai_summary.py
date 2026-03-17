@@ -17,12 +17,16 @@ if not OPENAI_API_KEY:
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
+AGENCY_PROFILE_FILE = "data/agency_profile.json"
+with open(AGENCY_PROFILE_FILE, encoding="utf-8") as f:
+    AGENCY_PROFILE = json.load(f)
+
 INPUT_FILE = "data/kribll_results.csv"
 OUTPUT_FILE = "data/kribll_agency_feed.csv"
 
 # GitHub Actions friendly settings
-MAX_ROWS = 10
-MODEL_NAME = "gpt-5-mini"
+MAX_ROWS = 50
+MODEL_NAME = "gpt-4o-mini"
 
 # -----------------------------------
 # Helpers
@@ -141,11 +145,38 @@ def compute_pre_ai_score(row):
 
     return score
 
-def build_prompt(row):
+def build_prompt(row, profile):
+    references_text = "\n".join(
+        f"- {ref.get('name', '')} ({ref.get('type', '')}, {ref.get('location', '')}, {ref.get('year', '')})"
+        for ref in profile.get("references", [])
+    )
+
     return f"""
 Tu es Leman, une IA experte qui analyse des appels d'offres pour des agences d'architecture, d'urbanisme, de paysage et de maîtrise d'œuvre.
 
 Tu dois analyser l'opportunité et retourner STRICTEMENT un JSON valide.
+
+Tu analyses cet appel d'offres pour l'agence suivante :
+
+Nom : {profile.get("name", "")}
+Ville : {profile.get("city", "")}
+CA annuel : {profile.get("annual_revenue", "")} €
+Taille équipe : {profile.get("team_size", "")} personnes
+Pays préférés : {profile.get("preferred_countries", [])}
+Types de projets : {profile.get("project_types", [])}
+Références :
+{references_text}
+Catégories préférées : {profile.get("preferred_categories", [])}
+Catégories exclues : {profile.get("excluded_categories", [])}
+Mots-clés positifs : {profile.get("keywords_positive", [])}
+Mots-clés négatifs : {profile.get("keywords_negative", [])}
+
+Le verdict GO / MAYBE / NO doit refléter si CETTE agence spécifique
+devrait candidater à cet appel d'offres, pas une agence générique.
+
+GO = l'agence a les références, le CA, et les compétences pour candidater
+MAYBE = l'agence pourrait candidater mais il y a un point à vérifier
+NO = l'agence ne correspond pas ou ne peut pas candidater
 
 Voici les données disponibles :
 
@@ -216,15 +247,15 @@ def extract_json(text):
     json_str = text[start:end + 1]
     return json.loads(json_str)
 
-def summarize_with_leman(row):
-    prompt = build_prompt(row)
+def summarize_with_leman(row, profile):
+    prompt = build_prompt(row, profile)
 
-    response = client.responses.create(
+    response = client.chat.completions.create(
         model=MODEL_NAME,
-        input=prompt
+        messages=[{"role": "user", "content": prompt}]
     )
 
-    return response.output_text
+    return response.choices[0].message.content
 
 def safe_json_list(value):
     if isinstance(value, list):
@@ -259,7 +290,7 @@ def main():
         normalized = normalize_row(row)
 
         try:
-            analysis_text = summarize_with_leman(normalized)
+            analysis_text = summarize_with_leman(normalized, AGENCY_PROFILE)
             analysis_json = extract_json(analysis_text)
         except Exception as e:
             print("Error during AI analysis:", e)

@@ -1,48 +1,31 @@
-﻿decision,priority_bucket,category,score,titre,acheteur,date_publication,date_limite,nature,type_marche,descripteurs,cpv_codes,departement,url,why,idweb,source,publication_number,publication_date,cpv_code,cpv_uri,ted_url,leman_analysis,project_type,program,location,procedure_type,main_discipline,estimated_scale,estimated_budget,required_references,required_references_count,minimum_revenue_required,required_certifications,consortium_required,architect_mandatory,relevance_score,verdict,summary,why_it_matters
-KEEP_HIGH,CORE,COMPETITIONS,74.0,"CONCOURS RESTREINT DE MAITRISE D'OEUVRE SUR ESQUISSE POUR LA CONSTRUCTION DU POLE ENFANCE (UNE ECOLE MATERNELLE, UNE CRECHE ET UN CENTRE DE LOISIRS) A PANTIN",Ville de Pantin,2026-02-25,,APPEL_OFFRE,SERVICES,Maîtrise d'oeuvre,71000000 | 71200000 | 71221000 | 71240000 | 71400000,93,https://www.boamp.fr/pages/avis/?q=idweb:26-19093,nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | CPV archi 71200000 | CPV archi 71221000 | CPV archi 71240000 | CPV archi 71400000 | + fort: maitrise d oeuvre | + fort: architecte | + fort: concours de maitrise d oeuvre,26-19093,,,,,,,"{
-  ""project_type"": ""competition"",
-  ""program"": null,
-  ""location"": null,
-  ""procedure_type"": ""competition"",
-  ""main_discipline"": ""architecture"",
+﻿title,buyer_name,publication_date,publication_number,country,category,priority_bucket,cpv_code,url,source,raw_text,pre_ai_score,leman_analysis,project_type,program,location,procedure_type,main_discipline,estimated_scale,estimated_budget,required_references,required_references_count,minimum_revenue_required,required_certifications,consortium_required,architect_mandatory,relevance_score,verdict,summary,why_it_matters
+Mission de maîtrise d’œuvre pour l'aménagement d'une ancienne bergerie et d'un ancien chai et création d'un pôle métiers d'arts aux Matelles (34),Cté Cnes du Grand Pic St Loup,2026-02-25,26-19185,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-19185,BOAMP,Mission de maîtrise d’œuvre pour l'aménagement d'une ancienne bergerie et d'un ancien chai et création d'un pôle métiers d'arts aux Matelles (34) | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + fort: architecte | + moyen: rehabilitation | + moyen: amenagement | + moyen: etude | + moyen: paysage | + moyen: interieur | 30 | 34 | https://www.boamp.fr/pages/avis/?q=idweb:26-19185,67,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""aménagement d'une ancienne bergerie et d'un ancien chai et création d'un pôle métiers d'arts"",
+  ""location"": ""Matelles"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
   ""estimated_scale"": null,
   ""estimated_budget"": null,
-  ""required_references"": [],
-  ""required_references_count"": null,
-  ""minimum_revenue_required"": null,
-  ""required_certifications"": [],
-  ""consortium_required"": null,
-  ""architect_mandatory"": null,
-  ""relevance_score"": 30,
-  ""verdict"": ""MAYBE"",
-  ""summary"": ""Donnée très limitée : seule la catégorie 'COMPETITIONS' et l'URL sont fournies. Aucun détail sur le programme, le maître d'ouvrage, le lieu, le budget, les pièces requises ou les conditions de sélection n'est disponible. Il s'agit vraisemblablement d'un appel à concours publié sur BOAMP (lien fourni) mais le dossier complet doit être consulté pour évaluer l'opportunité."",
-  ""why_it_matters"": ""Les concours peuvent constituer des opportunités de visibilité et de commande pour les agences d'architecture, mais sans dossier ni cahier des charges il est impossible d'évaluer l'adéquation (compétences requises, taille du projet, contraintes administratives, besoin de consortium ou d'architecte inscrit). Vérifier rapidement le lien BOAMP pour récupérer le dossier, les délais et les critères d'admissibilité.""
-}",competition,,,competition,architecture,,,[],,,[],,,30,MAYBE,"Donnée très limitée : seule la catégorie 'COMPETITIONS' et l'URL sont fournies. Aucun détail sur le programme, le maître d'ouvrage, le lieu, le budget, les pièces requises ou les conditions de sélection n'est disponible. Il s'agit vraisemblablement d'un appel à concours publié sur BOAMP (lien fourni) mais le dossier complet doit être consulté pour évaluer l'opportunité.","Les concours peuvent constituer des opportunités de visibilité et de commande pour les agences d'architecture, mais sans dossier ni cahier des charges il est impossible d'évaluer l'adéquation (compétences requises, taille du projet, contraintes administratives, besoin de consortium ou d'architecte inscrit). Vérifier rapidement le lien BOAMP pour récupérer le dossier, les délais et les critères d'admissibilité."
-KEEP_HIGH,CORE,ARCHITECTURE_BUILDING,70.0,"Prestations de Maitrise d'œuvre, d'ingénierie et de service pour la réalisation de l'espace d'aménagement touristique de la Pointe Faula",Ville du Vauclin,2026-02-26,2026-03-07T16:00:00+00:00,APPEL_OFFRE,SERVICES,Contrôle technique | Ingénierie | Maîtrise d'oeuvre | Prestations de services | Sécurité incendie | Topographie,71000000 | 71221000 | 71222000 | 71240000 | 71317200 | 71332000 | 71335000 | 71351810 | 71351923 | 71356100 | 71631300,75 | 78 | 971 | 972 | 973,https://www.boamp.fr/pages/avis/?q=idweb:26-19432,nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | CPV archi 71221000 | CPV archi 71222000 | CPV archi 71240000 | CPV secondaire 71317200 | CPV secondaire 71332000 | CPV secondaire 71335000 | CPV secondaire 71351810,26-19432,,,,,,,"{
-  ""project_type"": ""Architectural services"",
-  ""program"": null,
-  ""location"": ""France (BOAMP)"",
-  ""procedure_type"": null,
-  ""main_discipline"": ""Architecture"",
-  ""estimated_scale"": null,
-  ""estimated_budget"": null,
-  ""required_references"": [],
-  ""required_references_count"": null,
+  ""required_references"": [
+    ""rehabilitation""
+  ],
+  ""required_references_count"": 1,
   ""minimum_revenue_required"": null,
   ""required_certifications"": [],
   ""consortium_required"": null,
   ""architect_mandatory"": true,
-  ""relevance_score"": 40,
-  ""verdict"": ""MAYBE"",
-  ""summary"": ""Annonce BOAMP catégorisée ARCHITECTURE_BUILDING sans informations détaillées fournies. Les champs clés (budget, lieu précis, procédure, programme, références exigées) sont absents des données transmises. Lien source indiqué mais non consulté : https://www.boamp.fr/pages/avis/?q=idweb:26-19432."",
-  ""why_it_matters"": ""Présence sur BOAMP signale un marché public potentiellement pertinent pour agences d'architecture. En l'état, manque d'informations critiques (type précis de mission, enveloppe budgétaire, exigences de références ou certifications, calendrier) : nécessite récupération du contenu complet de l'avis pour déterminer opportunité réelle et préparation de dossier de candidature.""
-}",Architectural services,,France (BOAMP),,Architecture,,,[],,,[],,True,40,MAYBE,"Annonce BOAMP catégorisée ARCHITECTURE_BUILDING sans informations détaillées fournies. Les champs clés (budget, lieu précis, procédure, programme, références exigées) sont absents des données transmises. Lien source indiqué mais non consulté : https://www.boamp.fr/pages/avis/?q=idweb:26-19432.","Présence sur BOAMP signale un marché public potentiellement pertinent pour agences d'architecture. En l'état, manque d'informations critiques (type précis de mission, enveloppe budgétaire, exigences de références ou certifications, calendrier) : nécessite récupération du contenu complet de l'avis pour déterminer opportunité réelle et préparation de dossier de candidature."
-KEEP_HIGH,CORE,ARCHITECTURE_BUILDING,53.0,Aménagement de la ZAC de Marchaux-Chaudefontaine,Territoire 25,2026-02-27,2026-03-27T13:00:00+00:00,APPEL_OFFRE,SERVICES,Voirie et réseaux divers | Espaces verts | Prestations de services,71222000 | 71300000 | 71313000 | 71320000 | 71400000 | 90711000,25 | 70 | 90,https://www.boamp.fr/pages/avis/?q=idweb:26-20132,nature APPEL_OFFRE | type SERVICES | CPV archi 71222000 | CPV secondaire 71300000 | CPV secondaire 71313000 | CPV secondaire 71320000 | CPV archi 71400000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + fort: architecte,26-20132,,,,,,,"{
-  ""project_type"": null,
-  ""program"": null,
+  ""relevance_score"": 80,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'agence Exemple a des références pertinentes dans la réhabilitation, correspondant à la mission d'aménagement demandée. De plus, l'agence possède une structure et un CA capable de répondre à cet appel d'offres."",
+  ""why_it_matters"": ""Cette opportunité est importante car elle implique la réhabilitation et l'aménagement de bâtiments, domaines dans lesquels l'agence a de l'expérience, ce qui pourrait renforcer sa visibilité et son portefeuille de projets.""
+}",rehabilitation,aménagement d'une ancienne bergerie et d'un ancien chai et création d'un pôle métiers d'arts,Matelles,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""rehabilitation""]",1.0,,[],,True,80,GO,"L'agence Exemple a des références pertinentes dans la réhabilitation, correspondant à la mission d'aménagement demandée. De plus, l'agence possède une structure et un CA capable de répondre à cet appel d'offres.","Cette opportunité est importante car elle implique la réhabilitation et l'aménagement de bâtiments, domaines dans lesquels l'agence a de l'expérience, ce qui pourrait renforcer sa visibilité et son portefeuille de projets."
+Révision du PLUI,Metropole Rouen Normandie,2026-03-08,26-23666,France,URBANISM_LANDSCAPE,CORE,71410000 | 77314000 | 79311000 | 90712000,https://www.boamp.fr/pages/avis/?q=idweb:26-23666,BOAMP,Révision du PLUI | Prestations de services | Assistance à maîtrise d'ouvrage | APPEL_OFFRE | SERVICES | 71410000 | 77314000 | 79311000 | 90712000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71410000 | + fort: architecture | + fort: assistance a maitrise d ouvrage | + fort: urbanisme | + moyen: amenagement | + moyen: ingenierie | + moyen: paysage | - fort: signalisation | 76 | https://www.boamp.fr/pages/avis/?q=idweb:26-23666,65,"{
+  ""project_type"": ""urbanism"",
+  ""program"": ""Révision du PLUI"",
   ""location"": ""France"",
-  ""procedure_type"": null,
-  ""main_discipline"": ""Architecture"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""URBANISM_LANDSCAPE"",
   ""estimated_scale"": null,
   ""estimated_budget"": null,
   ""required_references"": [],
@@ -51,131 +34,17 @@ KEEP_HIGH,CORE,ARCHITECTURE_BUILDING,53.0,Aménagement de la ZAC de Marchaux-Cha
   ""required_certifications"": [],
   ""consortium_required"": null,
   ""architect_mandatory"": null,
-  ""relevance_score"": 25,
+  ""relevance_score"": 75,
   ""verdict"": ""MAYBE"",
-  ""summary"": ""Annonce issue du BOAMP (lien fourni) catégorisée ARCHITECTURE_BUILDING. Les métadonnées transmises sont quasiment absentes (numéro, date, acheteur, pays et CPV manquants). Aucune information exploitable sur le périmètre, le budget, l'échelle du projet, les références ou exigences administratives n'est disponible dans les données fournies."",
-  ""why_it_matters"": ""Le signal provient du BOAMP, source de marchés publics français : cela indique une opportunité potentielle pour agences d'architecture. En l'état, le dossier est indéterminé — il peut s'agir d'un avis de marché pertinent ou d'un avis non pertinent. Action recommandée : consulter la notice complète via le lien pour récupérer l'avis intégral (objet, lot(s), pièces du marché, calendrier, budget indicatif, critères de sélection, exigences en matière de références et certifications) avant de décider d'investir du temps dans une réponse ou une veille approfondie.""
-}",,,France,,Architecture,,,[],,,[],,,25,MAYBE,"Annonce issue du BOAMP (lien fourni) catégorisée ARCHITECTURE_BUILDING. Les métadonnées transmises sont quasiment absentes (numéro, date, acheteur, pays et CPV manquants). Aucune information exploitable sur le périmètre, le budget, l'échelle du projet, les références ou exigences administratives n'est disponible dans les données fournies.","Le signal provient du BOAMP, source de marchés publics français : cela indique une opportunité potentielle pour agences d'architecture. En l'état, le dossier est indéterminé — il peut s'agir d'un avis de marché pertinent ou d'un avis non pertinent. Action recommandée : consulter la notice complète via le lien pour récupérer l'avis intégral (objet, lot(s), pièces du marché, calendrier, budget indicatif, critères de sélection, exigences en matière de références et certifications) avant de décider d'investir du temps dans une réponse ou une veille approfondie."
-KEEP_HIGH,CORE,COMPETITIONS,47.0,Concours de maitrise d'oeuvre pour les travaux de restructuration du gymnase de Saint Céré (46),CC Causses et Vallée de la Dordogne,2026-02-24,2026-04-10T10:00:00+00:00,APPEL_OFFRE,SERVICES,Maîtrise d'oeuvre,71221000 | 71230000 | 71240000,46,https://www.boamp.fr/pages/avis/?q=idweb:26-18678,nature APPEL_OFFRE | type SERVICES | CPV archi 71221000 | CPV archi 71230000 | CPV archi 71240000 | + fort: maitrise d oeuvre | + fort: maitre d oeuvre | + fort: concours de maitrise d oeuvre,26-18678,,,,,,,"{
-  ""project_type"": ""design competition"",
-  ""program"": null,
-  ""location"": null,
-  ""procedure_type"": ""competition"",
-  ""main_discipline"": ""architecture"",
-  ""estimated_scale"": null,
-  ""estimated_budget"": null,
-  ""required_references"": [],
-  ""required_references_count"": null,
-  ""minimum_revenue_required"": null,
-  ""required_certifications"": [],
-  ""consortium_required"": null,
-  ""architect_mandatory"": null,
-  ""relevance_score"": 20,
-  ""verdict"": ""MAYBE"",
-  ""summary"": ""Annonce référencée sur BOAMP (catégorie COMPETITIONS) mais les données fournies ici sont inexistantes (titre, acheteur, pays, description absents). Il s'agit probablement d'un concours de maîtrise d'œuvre/d'architecture; aucun élément technique, financier ou administratif n'est disponible dans l'extrait fourni."",
-  ""why_it_matters"": ""Les concours sont une voie importante pour les agences d'architecture mais exigent la consultation du dossier complet (programme, pièces administratives, conditions de participation) pour évaluer l'opportunité. Avec l'information fournie, l'appel d'offres n'est pas actionable : il faut consulter le lien BOAMP pour déterminer si le projet correspond aux compétences, contraintes de capacité ou exigences formelles.""
-}",design competition,,,competition,architecture,,,[],,,[],,,20,MAYBE,"Annonce référencée sur BOAMP (catégorie COMPETITIONS) mais les données fournies ici sont inexistantes (titre, acheteur, pays, description absents). Il s'agit probablement d'un concours de maîtrise d'œuvre/d'architecture; aucun élément technique, financier ou administratif n'est disponible dans l'extrait fourni.","Les concours sont une voie importante pour les agences d'architecture mais exigent la consultation du dossier complet (programme, pièces administratives, conditions de participation) pour évaluer l'opportunité. Avec l'information fournie, l'appel d'offres n'est pas actionable : il faut consulter le lien BOAMP pour déterminer si le projet correspond aux compétences, contraintes de capacité ou exigences formelles."
-KEEP_HIGH,CORE,COMPETITIONS,41.0,CONCOURS - MISSION DE MAITRISE D'OEUVRE POUR LA RECONSTRUCTION DE L'EHPAD GASTON MONMOUSSEAU,EHPAD GASTON MONMOUSSEAU,2026-03-08,,APPEL_OFFRE,SERVICES,Ingénierie,71000000 | 71200000 | 71300000,93,https://www.boamp.fr/pages/avis/?q=idweb:26-23606,nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | CPV archi 71200000 | CPV secondaire 71300000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + moyen: ingenierie,26-23606,,,,,,,"{
-  ""project_type"": ""design competition"",
-  ""program"": null,
-  ""location"": null,
-  ""procedure_type"": ""Competition"",
-  ""main_discipline"": ""architecture"",
-  ""estimated_scale"": null,
-  ""estimated_budget"": null,
-  ""required_references"": [],
-  ""required_references_count"": null,
-  ""minimum_revenue_required"": null,
-  ""required_certifications"": [],
-  ""consortium_required"": null,
-  ""architect_mandatory"": null,
-  ""relevance_score"": 20,
-  ""verdict"": ""MAYBE"",
-  ""summary"": ""Annonce identifiée comme concours (BOAMP) mais le jeu de données fourni est incomplet : pas de titre, d'acheteur, de lieu, de programme ni de budget. Impossible d'évaluer précisément l'objet, l'envergure et les exigences. Consultation du dossier complet via le lien est nécessaire pour décision."",
-  ""why_it_matters"": ""Les concours d'architecture peuvent mener à des opportunités de notoriété et à des marchés importants, mais sans informations clés (périmètre, contraintes, budget, conditions de participation et dates), le risque organisationnel et financier ne peut pas être estimé. Vérifier le dossier complet pour conditions de groupement, références exigées, obligations contractuelles et éventuelles certifications.""
-}",design competition,,,Competition,architecture,,,[],,,[],,,20,MAYBE,"Annonce identifiée comme concours (BOAMP) mais le jeu de données fourni est incomplet : pas de titre, d'acheteur, de lieu, de programme ni de budget. Impossible d'évaluer précisément l'objet, l'envergure et les exigences. Consultation du dossier complet via le lien est nécessaire pour décision.","Les concours d'architecture peuvent mener à des opportunités de notoriété et à des marchés importants, mais sans informations clés (périmètre, contraintes, budget, conditions de participation et dates), le risque organisationnel et financier ne peut pas être estimé. Vérifier le dossier complet pour conditions de groupement, références exigées, obligations contractuelles et éventuelles certifications."
-KEEP_HIGH,CORE,COMPETITIONS,41.0,Mission de maîtrise d’œuvre relative aux études de conception pour la reconstruction du centre de formation de l'AFPAR de Saint-François - Phase Candidatures,Région Réunion,2026-03-01,,APPEL_OFFRE,SERVICES,Prestations de services,71240000 | 71245000 | 71247000,974,https://www.boamp.fr/pages/avis/?q=idweb:26-20396,nature APPEL_OFFRE | type SERVICES | CPV archi 71240000 | CPV archi 71245000 | CPV archi 71247000 | + fort: architecte | + fort: architecture | + moyen: etude | + moyen: ingenierie | + moyen: paysagiste,26-20396,,,,,,,"{
-  ""project_type"": ""design competition"",
-  ""program"": null,
-  ""location"": null,
-  ""procedure_type"": ""competition"",
-  ""main_discipline"": ""architecture"",
-  ""estimated_scale"": null,
-  ""estimated_budget"": null,
-  ""required_references"": [],
-  ""required_references_count"": null,
-  ""minimum_revenue_required"": null,
-  ""required_certifications"": [],
-  ""consortium_required"": null,
-  ""architect_mandatory"": null,
-  ""relevance_score"": 40,
-  ""verdict"": ""MAYBE"",
-  ""summary"": ""Avis classé en COMPETITIONS sur BOAMP. Les données fournies sont incomplètes (pas de titre, d'acheteur, de localisation, ni de budget ou de détail du programme). Il s'agit vraisemblablement d'un concours de maîtrise d'œuvre ou de projet nécessitant lecture du dossier complet via l'URL fournie pour évaluer les exigences et contraintes."",
-  ""why_it_matters"": ""Les concours représentent des opportunités commerciales pour agences d'architecture mais leurs conditions (type de concours, critères de sélection, références exigées, modalités financières) déterminent la pertinence. Sans le dossier on ne peut vérifier si le projet est adapté (références, chiffre d'affaires minimum, nécessité de consortium, obligations architecte). Consulter le cahier des charges est indispensable avant de décider d'investir du temps.""
-}",design competition,,,competition,architecture,,,[],,,[],,,40,MAYBE,"Avis classé en COMPETITIONS sur BOAMP. Les données fournies sont incomplètes (pas de titre, d'acheteur, de localisation, ni de budget ou de détail du programme). Il s'agit vraisemblablement d'un concours de maîtrise d'œuvre ou de projet nécessitant lecture du dossier complet via l'URL fournie pour évaluer les exigences et contraintes.","Les concours représentent des opportunités commerciales pour agences d'architecture mais leurs conditions (type de concours, critères de sélection, références exigées, modalités financières) déterminent la pertinence. Sans le dossier on ne peut vérifier si le projet est adapté (références, chiffre d'affaires minimum, nécessité de consortium, obligations architecte). Consulter le cahier des charges est indispensable avant de décider d'investir du temps."
-KEEP_HIGH,CORE,ARCHITECTURE_BUILDING,40.0,Marché de maitrise d'oeuvre pour la création d'une usine de traitement des forages de Port aux oies à Cannes Ecluse.,Communauté de Communes du Pays de Montereau,2026-03-05,2026-04-03T10:00:00+00:00,APPEL_OFFRE,SERVICES,Maîtrise d'oeuvre | Alimentation en eau potable,71000000,77,https://www.boamp.fr/pages/avis/?q=idweb:26-22063,nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + fort: assistance a maitrise d ouvrage | + fort: urbanisme | + moyen: etude,26-22063,,,,,,,"{
-  ""project_type"": ""Architectural services"",
-  ""program"": null,
-  ""location"": null,
-  ""procedure_type"": null,
-  ""main_discipline"": ""Architecture / Building"",
-  ""estimated_scale"": null,
-  ""estimated_budget"": null,
-  ""required_references"": [],
-  ""required_references_count"": null,
-  ""minimum_revenue_required"": null,
-  ""required_certifications"": [],
-  ""consortium_required"": null,
-  ""architect_mandatory"": null,
-  ""relevance_score"": 20,
-  ""verdict"": ""MAYBE"",
-  ""summary"": ""Annonce issue d'une fiche BOAMP avec métadonnées manquantes (publication, date, titre, acheteur, pays, CPV). Catégorie indiquée ARCHITECTURE_BUILDING et URL fournie, mais aucun détail sur le programme, l'échelle, le budget, la procédure ou les exigences. Impossible d'évaluer précisément les contraintes ou opportunités sans le texte complet de l'avis."",
-  ""why_it_matters"": ""La catégorie montre une opportunité potentielle pour agences d'architecture, mais l'absence d'informations critiques empêche une décision claire. À surveiller : récupérer le texte complet de l'avis via l'URL pour évaluer l'adéquation (budget, références, obligations contractuelles).""
-}",Architectural services,,,,Architecture / Building,,,[],,,[],,,20,MAYBE,"Annonce issue d'une fiche BOAMP avec métadonnées manquantes (publication, date, titre, acheteur, pays, CPV). Catégorie indiquée ARCHITECTURE_BUILDING et URL fournie, mais aucun détail sur le programme, l'échelle, le budget, la procédure ou les exigences. Impossible d'évaluer précisément les contraintes ou opportunités sans le texte complet de l'avis.","La catégorie montre une opportunité potentielle pour agences d'architecture, mais l'absence d'informations critiques empêche une décision claire. À surveiller : récupérer le texte complet de l'avis via l'URL pour évaluer l'adéquation (budget, références, obligations contractuelles)."
-KEEP_HIGH,CORE,ARCHITECTURE_BUILDING,40.0,MARCHE DE MAITRISE D'OEUVRE POUR LA REHABILITATION DE LA NOUVELLE MAISON DE LA SOLIDARITE DEPARTEMENTALE A LOURDES,Département des Hautes Pyrénées,2026-03-04,2026-04-07T10:00:00+00:00,APPEL_OFFRE,SERVICES,Maîtrise d'oeuvre | Ingénierie,71220000 | 71240000,65,https://www.boamp.fr/pages/avis/?q=idweb:26-21416,nature APPEL_OFFRE | type SERVICES | CPV archi 71220000 | CPV archi 71240000 | + fort: maitrise d oeuvre | + fort: architecte | + moyen: rehabilitation | + moyen: etude | + moyen: ingenierie,26-21416,,,,,,,"{
-  ""project_type"": ""Architectural design"",
-  ""program"": null,
-  ""location"": null,
-  ""procedure_type"": null,
-  ""main_discipline"": ""Architecture"",
-  ""estimated_scale"": null,
-  ""estimated_budget"": null,
-  ""required_references"": [],
-  ""required_references_count"": null,
-  ""minimum_revenue_required"": null,
-  ""required_certifications"": [],
-  ""consortium_required"": null,
-  ""architect_mandatory"": null,
-  ""relevance_score"": 35,
-  ""verdict"": ""MAYBE"",
-  ""summary"": ""Annonce identifiée sur BOAMP (catégorie ARCHITECTURE_BUILDING) mais les métadonnées fournies sont incomplètes (titre, acheteur, lieu, budget, etc. manquants). À première vue il s'agit d'un marché lié à l'architecture/bâtiment ; toutefois les informations essentielles pour évaluer l'opportunité (programme, montant estimé, références exigées, procédures) ne sont pas disponibles ici."",
-  ""why_it_matters"": ""Pour une agence d'architecture, la présence dans la catégorie ARCHITECTURE_BUILDING indique une opportunité potentielle. Sans détails il est impossible d'évaluer l'adéquation (taille du projet, contraintes contractuelles, obligations en termes de références ou certifications). Il est recommandé de consulter la page BOAMP liée pour récupérer le dossier complet avant de décider d'investir du temps dans une réponse ou de lancer des démarches (consortium, vérification des capacités financières, etc.).""
-}",Architectural design,,,,Architecture,,,[],,,[],,,35,MAYBE,"Annonce identifiée sur BOAMP (catégorie ARCHITECTURE_BUILDING) mais les métadonnées fournies sont incomplètes (titre, acheteur, lieu, budget, etc. manquants). À première vue il s'agit d'un marché lié à l'architecture/bâtiment ; toutefois les informations essentielles pour évaluer l'opportunité (programme, montant estimé, références exigées, procédures) ne sont pas disponibles ici.","Pour une agence d'architecture, la présence dans la catégorie ARCHITECTURE_BUILDING indique une opportunité potentielle. Sans détails il est impossible d'évaluer l'adéquation (taille du projet, contraintes contractuelles, obligations en termes de références ou certifications). Il est recommandé de consulter la page BOAMP liée pour récupérer le dossier complet avant de décider d'investir du temps dans une réponse ou de lancer des démarches (consortium, vérification des capacités financières, etc.)."
-KEEP_HIGH,CORE,ARCHITECTURE_BUILDING,38.0,Maîtrise d'œuvre pour la restauration du chevet de l'église Saint Séverin Paris 5ème,VILLE de PARIS - DFA - SDA,2026-03-10,2026-04-14T11:00:00+00:00,APPEL_OFFRE,SERVICES,Maîtrise d'oeuvre,71000000 | 71200000,75,https://www.boamp.fr/pages/avis/?q=idweb:26-23952,nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | CPV archi 71200000 | + fort: maitrise d oeuvre | + fort: architecte | + moyen: etude,26-23952,,,,,,,"{
-  ""project_type"": null,
-  ""program"": null,
-  ""location"": null,
-  ""procedure_type"": null,
-  ""main_discipline"": ""architecture"",
-  ""estimated_scale"": null,
-  ""estimated_budget"": null,
-  ""required_references"": [],
-  ""required_references_count"": null,
-  ""minimum_revenue_required"": null,
-  ""required_certifications"": [],
-  ""consortium_required"": null,
-  ""architect_mandatory"": null,
-  ""relevance_score"": 50,
-  ""verdict"": ""MAYBE"",
-  ""summary"": ""Notice identifiée via BOAMP (idweb:26-23952) classée ARCHITECTURE_BUILDING. Les métadonnées fournies sont insuffisantes (pas de titre, acheteur, localisation, budget ou procédure). À ce stade, seules la catégorie et l'URL sont connues."",
-  ""why_it_matters"": ""La catégorie ARCHITECTURE_BUILDING indique une opportunité potentiellement pertinente pour agences d'architecture, mais l'absence d'informations clés (programme, budget, contraintes, pièces justificatives) empêche une décision ferme. Vérifier le détail de l'avis sur le lien BOAMP est nécessaire pour évaluer l'adéquation, les références exigées, le formalisme de la procédure et la nécessité d'un groupement ou d'un architecte mandataire.""
-}",,,,,architecture,,,[],,,[],,,50,MAYBE,"Notice identifiée via BOAMP (idweb:26-23952) classée ARCHITECTURE_BUILDING. Les métadonnées fournies sont insuffisantes (pas de titre, acheteur, localisation, budget ou procédure). À ce stade, seules la catégorie et l'URL sont connues.","La catégorie ARCHITECTURE_BUILDING indique une opportunité potentiellement pertinente pour agences d'architecture, mais l'absence d'informations clés (programme, budget, contraintes, pièces justificatives) empêche une décision ferme. Vérifier le détail de l'avis sur le lien BOAMP est nécessaire pour évaluer l'adéquation, les références exigées, le formalisme de la procédure et la nécessité d'un groupement ou d'un architecte mandataire."
-KEEP_HIGH,CORE,ARCHITECTURE_BUILDING,38.0,Mission de maîtrise d’œuvre pour l'aménagement d'une ancienne bergerie et d'un ancien chai et création d'un pôle métiers d'arts aux Matelles (34),Cté Cnes du Grand Pic St Loup,2026-02-25,2026-04-07T11:00:00+00:00,APPEL_OFFRE,SERVICES,Maîtrise d'oeuvre,71000000,30 | 34,https://www.boamp.fr/pages/avis/?q=idweb:26-19185,nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + fort: architecte | + moyen: rehabilitation | + moyen: amenagement | + moyen: etude | + moyen: paysage | + moyen: interieur,26-19185,,,,,,,"{
-  ""project_type"": ""building architecture"",
-  ""program"": null,
-  ""location"": null,
-  ""procedure_type"": null,
-  ""main_discipline"": ""Architecture"",
+  ""summary"": ""L'agence Exemple a des compétences en urbanisme et des réalisations pertinentes telles que la réhabilitation d'un bloc de logements et une extension d'école. Cependant, il n'est pas précisé si des références spécifiques à la révision de PLUI sont requises."",
+  ""why_it_matters"": ""Le projet est aligné avec les compétences en urbanisme de l'agence, mais il est crucial de vérifier si l'agence a des expériences directement liées à des révisions de PLUI pour se sentir confiante dans une candidature.""
+}",urbanism,Révision du PLUI,France,APPEL_OFFRE,URBANISM_LANDSCAPE,,,[],,,[],,,75,MAYBE,"L'agence Exemple a des compétences en urbanisme et des réalisations pertinentes telles que la réhabilitation d'un bloc de logements et une extension d'école. Cependant, il n'est pas précisé si des références spécifiques à la révision de PLUI sont requises.","Le projet est aligné avec les compétences en urbanisme de l'agence, mais il est crucial de vérifier si l'agence a des expériences directement liées à des révisions de PLUI pour se sentir confiante dans une candidature."
+"Marché de maîtrise d'oeuvre architecturale, paysagère et technique - Aménagements de surface de la rue Bruneseau et inversion du schéma de circulation du secteur Bruneseau Nord - ZAC Paris Rive Gauche",SEMAPA,2026-03-08,26-23266,France,URBANISM_LANDSCAPE,CORE,71400000,https://www.boamp.fr/pages/avis/?q=idweb:26-23266,BOAMP,"Marché de maîtrise d'oeuvre architecturale, paysagère et technique - Aménagements de surface de la rue Bruneseau et inversion du schéma de circulation du secteur Bruneseau Nord - ZAC Paris Rive Gauche | Prestations de services | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71400000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71400000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + fort: architecte | + moyen: amenagement | + moyen: etude | + moyen: ingenierie | + moyen: paysage | 75 | https://www.boamp.fr/pages/avis/?q=idweb:26-23266",65,"{
+  ""project_type"": ""urbanism"",
+  ""program"": ""Aménagements de surface de la rue Bruneseau et inversion du schéma de circulation du secteur Bruneseau Nord"",
+  ""location"": ""Paris"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""URBANISM_LANDSCAPE"",
   ""estimated_scale"": null,
   ""estimated_budget"": null,
   ""required_references"": [],
@@ -186,6 +55,973 @@ KEEP_HIGH,CORE,ARCHITECTURE_BUILDING,38.0,Mission de maîtrise d’œuvre pour l
   ""architect_mandatory"": null,
   ""relevance_score"": 80,
   ""verdict"": ""MAYBE"",
-  ""summary"": ""Annonce référencée sur BOAMP (id web fourni) classée en ARCHITECTURE_BUILDING. Les métadonnées transmises sont incomplètes (pas de titre, acheteur, lieu, budget, procédure). Potentiellement pertinente pour agences d'architecture mais nécessite consultation du lien pour obtenir le dossier et les pièces du marché."",
-  ""why_it_matters"": ""La catégorie indique un marché lié à l'architecture/bâtiment, ce qui le rend intrinsèquement intéressant pour des agences. En l'absence d'informations clés (budget, périmètre, contraintes, obligations de références ou certifications), il est impossible d'évaluer la viabilité ou l'adéquation sans récupérer le dossier complet sur le site BOAMP.""
-}",building architecture,,,,Architecture,,,[],,,[],,,80,MAYBE,"Annonce référencée sur BOAMP (id web fourni) classée en ARCHITECTURE_BUILDING. Les métadonnées transmises sont incomplètes (pas de titre, acheteur, lieu, budget, procédure). Potentiellement pertinente pour agences d'architecture mais nécessite consultation du lien pour obtenir le dossier et les pièces du marché.","La catégorie indique un marché lié à l'architecture/bâtiment, ce qui le rend intrinsèquement intéressant pour des agences. En l'absence d'informations clés (budget, périmètre, contraintes, obligations de références ou certifications), il est impossible d'évaluer la viabilité ou l'adéquation sans récupérer le dossier complet sur le site BOAMP."
+  ""summary"": ""L'agence a des compétences dans l'urbanisme et le paysage, mais aucune référence spécifique demandée n'a été identifiée. Avec un CA annuel adéquat, elle pourrait envisager de candidater, sous réserve de vérifier si elle rencontre d'autres exigences spécifiques du marché."",
+  ""why_it_matters"": ""Ce marché représente une opportunité de développement des compétences en aménagement urbain et paysager dans un secteur dynamique de Paris, renforçant ainsi la position de l'agence sur le marché local.""
+}",urbanism,Aménagements de surface de la rue Bruneseau et inversion du schéma de circulation du secteur Bruneseau Nord,Paris,APPEL_OFFRE,URBANISM_LANDSCAPE,,,[],,,[],,,80,MAYBE,"L'agence a des compétences dans l'urbanisme et le paysage, mais aucune référence spécifique demandée n'a été identifiée. Avec un CA annuel adéquat, elle pourrait envisager de candidater, sous réserve de vérifier si elle rencontre d'autres exigences spécifiques du marché.","Ce marché représente une opportunité de développement des compétences en aménagement urbain et paysager dans un secteur dynamique de Paris, renforçant ainsi la position de l'agence sur le marché local."
+Mission de maîtrise d'oeuvre pour la réhabilitation et aménagement de l'îlot urbain des services publics,COMMUNE DE TOUCY,2026-02-25,26-18974,France,ARCHITECTURE_BUILDING,CORE,71200000,https://www.boamp.fr/pages/avis/?q=idweb:26-18974,BOAMP,Mission de maîtrise d'oeuvre pour la réhabilitation et aménagement de l'îlot urbain des services publics | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71200000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71200000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + moyen: rehabilitation | + moyen: amenagement | 10 | 21 | 45 | 58 | 75 | 89 | https://www.boamp.fr/pages/avis/?q=idweb:26-18974,64,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""aménagement de l'îlot urbain des services publics"",
+  ""location"": ""Toucy"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation d'un bâtiment de logement"",
+    ""Extension d'une école publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 85,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'agence Exemple a les compétences et références requises pour candidater à la mission de maîtrise d'œuvre pour cette réhabilitation. Le projet s'inscrit dans ses domaines d'expertise, notamment dans la réhabilitation et l'urbanisme."",
+  ""why_it_matters"": ""Cette opportunité est importante car elle permet à l'agence de mettre en avant son savoir-faire en matière de réhabilitation tout en contribuant à l'amélioration de l'espace urbain à Toucy.""
+}",rehabilitation,aménagement de l'îlot urbain des services publics,Toucy,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""Réhabilitation d'un bâtiment de logement"", ""Extension d'une école publique""]",2.0,,[],,True,85,GO,"L'agence Exemple a les compétences et références requises pour candidater à la mission de maîtrise d'œuvre pour cette réhabilitation. Le projet s'inscrit dans ses domaines d'expertise, notamment dans la réhabilitation et l'urbanisme.",Cette opportunité est importante car elle permet à l'agence de mettre en avant son savoir-faire en matière de réhabilitation tout en contribuant à l'amélioration de l'espace urbain à Toucy.
+Maitrise d'oeuvre pour la réhabilitation de 182 logements locatifs sociaux collectifs - Résidence Beaussier à ANGERS (49),PODELIHA,2026-03-04,26-21782,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-21782,BOAMP,Maitrise d'oeuvre pour la réhabilitation de 182 logements locatifs sociaux collectifs - Résidence Beaussier à ANGERS (49) | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + moyen: rehabilitation | 49 | https://www.boamp.fr/pages/avis/?q=idweb:26-21782,64,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""Réhabilitation de 182 logements locatifs sociaux"",
+  ""location"": ""Angers"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": ""large"",
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation de logements locatifs sociaux"",
+    ""Réhabilitation de logements""
+  ],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": 1500000,
+  ""required_certifications"": [],
+  ""consortium_required"": false,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 90,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'Agence Exemple a les compétences et les références requises pour candidater à ce projet de réhabilitation de logements à Angers. Le chiffre d'affaires annuel de l'agence est suffisant pour répondre aux exigences financières de l'appel d'offres."",
+  ""why_it_matters"": ""Cette opportunité est importante car elle correspond à l'expertise de l'agence en réhabilitation et en logements sociaux, un secteur en demande croissante.""
+}",rehabilitation,Réhabilitation de 182 logements locatifs sociaux,Angers,APPEL_OFFRE,ARCHITECTURE_BUILDING,large,,"[""Réhabilitation de logements locatifs sociaux"", ""Réhabilitation de logements""]",1.0,1500000.0,[],False,True,90,GO,L'Agence Exemple a les compétences et les références requises pour candidater à ce projet de réhabilitation de logements à Angers. Le chiffre d'affaires annuel de l'agence est suffisant pour répondre aux exigences financières de l'appel d'offres.,"Cette opportunité est importante car elle correspond à l'expertise de l'agence en réhabilitation et en logements sociaux, un secteur en demande croissante."
+Marché de maîtrise d'œuvre pour la poursuite de l'aménagement de la ZAC des Clos,Ville de Chartres (28),2026-03-06,26-22709,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-22709,BOAMP,Marché de maîtrise d'œuvre pour la poursuite de l'aménagement de la ZAC des Clos | Prestations de services | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + moyen: amenagement | + moyen: zac | - fort: informatique | 28 | https://www.boamp.fr/pages/avis/?q=idweb:26-22709,64,"{
+  ""project_type"": ""urbanism"",
+  ""program"": ""ZAC des Clos development"",
+  ""location"": ""Chartres"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [""rehabilitation of a housing block"", ""Public school extension""],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 80,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'Agence Exemple est bien positionnée pour candidater à cet appel d'offres lié à l'aménagement d'une ZAC. Les références passées dans le domaine de la réhabilitation et de l'extension de bâtiments scolaires correspondent aux exigences du marché."",
+  ""why_it_matters"": ""Cet appel d'offres représente une opportunité significative pour l'Agence Exemple d'accroître son portefeuille de projets en France en travaillant sur un développement urbain important."" 
+}",urbanism,ZAC des Clos development,Chartres,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""rehabilitation of a housing block"", ""Public school extension""]",2.0,,[],,,80,GO,L'Agence Exemple est bien positionnée pour candidater à cet appel d'offres lié à l'aménagement d'une ZAC. Les références passées dans le domaine de la réhabilitation et de l'extension de bâtiments scolaires correspondent aux exigences du marché.,Cet appel d'offres représente une opportunité significative pour l'Agence Exemple d'accroître son portefeuille de projets en France en travaillant sur un développement urbain important.
+"25N0680 - Missions d'études d'aménagement et de programmation urbaine, fonctionnelle et architecturale.",METROPOLE NICE COTE D'AZUR,2026-02-26,26-19594,France,ARCHITECTURE_BUILDING,CORE,71241000,https://www.boamp.fr/pages/avis/?q=idweb:26-19594,BOAMP,"25N0680 - Missions d'études d'aménagement et de programmation urbaine, fonctionnelle et architecturale. | Prestations de services | Etude | APPEL_OFFRE | SERVICES | 71241000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71241000 | + fort: architecte | + fort: urbanisme | + fort: programmation urbaine | + moyen: amenagement | + moyen: etude | 6 | https://www.boamp.fr/pages/avis/?q=idweb:26-19594",64,"{
+  ""project_type"": ""urbanism"",
+  ""program"": ""Missions d'études d'aménagement et de programmation urbaine, fonctionnelle et architecturale."",
+  ""location"": ""France"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": 0,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 70,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'agence Exemple est bien positionnée pour postuler à cet appel d'offres, bien qu'aucune référence spécifique ne soit requise. Sa spécialisation en urbanisme et en architecture lui donne une certaine légitimité dans ce domaine, mais il faudra vérifier d'autres aspects, comme les ressources dédiées."",
+  ""why_it_matters"": ""Cet appel d'offres offre une opportunité dans le domaine de l'urbanisme qui est en adéquation avec les compétences et l'expérience de l'agence Exemple, ce qui pourrait renforcer sa visibilité et son portfolio.""
+}",urbanism,"Missions d'études d'aménagement et de programmation urbaine, fonctionnelle et architecturale.",France,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,[],0.0,,[],,True,70,MAYBE,"L'agence Exemple est bien positionnée pour postuler à cet appel d'offres, bien qu'aucune référence spécifique ne soit requise. Sa spécialisation en urbanisme et en architecture lui donne une certaine légitimité dans ce domaine, mais il faudra vérifier d'autres aspects, comme les ressources dédiées.","Cet appel d'offres offre une opportunité dans le domaine de l'urbanisme qui est en adéquation avec les compétences et l'expérience de l'agence Exemple, ce qui pourrait renforcer sa visibilité et son portfolio."
+"Réalisation de missions de maitrise d'uvre pour des travaux sur les ouvrages dont la SEMEPA assure la gestion du patrimoine (Parc de stationnement ROTONDE, RAMBOT, siège de la SEMEPA...)",SEMEPA,2026-03-04,26-21385,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-21385,BOAMP,"Réalisation de missions de maitrise d'uvre pour des travaux sur les ouvrages dont la SEMEPA assure la gestion du patrimoine (Parc de stationnement ROTONDE, RAMBOT, siège de la SEMEPA...) | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + fort: architecture | + moyen: amenagement | + moyen: ingenierie | + moyen: interieur | 13 | https://www.boamp.fr/pages/avis/?q=idweb:26-21385",64,"{
+    ""project_type"": ""public_building"",
+    ""program"": null,
+    ""location"": ""France"",
+    ""procedure_type"": ""APPEL_OFFRE"",
+    ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+    ""estimated_scale"": null,
+    ""estimated_budget"": null,
+    ""required_references"": [],
+    ""required_references_count"": null,
+    ""minimum_revenue_required"": null,
+    ""required_certifications"": [],
+    ""consortium_required"": null,
+    ""architect_mandatory"": true,
+    ""relevance_score"": 70,
+    ""verdict"": ""MAYBE"",
+    ""summary"": ""L'appel d'offres concerne des missions de maîtrise d'œuvre pour des travaux sur des ouvrages gérés par la SEMEPA. Bien que l'agence ait des références pertinentes, les détails spécifiques sur les références attendues et le chiffre d'affaires minimum sont absents."",
+    ""why_it_matters"": ""Cet appel d'offres pourrait permettre à l'agence de participer à des projets locaux tout en valorisant son expertise en maîtrise d'œuvre, mais il est essentiel de confirmer les exigences spécifiques de candidature.""
+}",public_building,,France,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,[],,,[],,True,70,MAYBE,"L'appel d'offres concerne des missions de maîtrise d'œuvre pour des travaux sur des ouvrages gérés par la SEMEPA. Bien que l'agence ait des références pertinentes, les détails spécifiques sur les références attendues et le chiffre d'affaires minimum sont absents.","Cet appel d'offres pourrait permettre à l'agence de participer à des projets locaux tout en valorisant son expertise en maîtrise d'œuvre, mais il est essentiel de confirmer les exigences spécifiques de candidature."
+"CONCOURS RESTREINT DE MAITRISE D'OEUVRE SUR ESQUISSE POUR LA CONSTRUCTION DU POLE ENFANCE (UNE ECOLE MATERNELLE, UNE CRECHE ET UN CENTRE DE LOISIRS) A PANTIN",Ville de Pantin,2026-02-25,26-19093,France,COMPETITIONS,CORE,71000000 | 71200000 | 71221000 | 71240000 | 71400000,https://www.boamp.fr/pages/avis/?q=idweb:26-19093,BOAMP,"CONCOURS RESTREINT DE MAITRISE D'OEUVRE SUR ESQUISSE POUR LA CONSTRUCTION DU POLE ENFANCE (UNE ECOLE MATERNELLE, UNE CRECHE ET UN CENTRE DE LOISIRS) A PANTIN | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | 71200000 | 71221000 | 71240000 | 71400000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | CPV archi 71200000 | CPV archi 71221000 | CPV archi 71240000 | CPV archi 71400000 | + fort: maitrise d oeuvre | + fort: architecte | + fort: concours de maitrise d oeuvre | 93 | https://www.boamp.fr/pages/avis/?q=idweb:26-19093",63,"{
+  ""project_type"": ""school"",
+  ""program"": ""Construction du pôle enfance (une école maternelle, une crèche et un centre de loisirs)"",
+  ""location"": ""Pantin"",
+  ""procedure_type"": ""concours restreint"",
+  ""main_discipline"": ""maîtrise d'œuvre"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Construction d'une école maternelle"",
+    ""Extension d'une école publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 80,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'appel d'offres concerne la construction d'une école maternelle, d'une crèche et d'un centre de loisirs à Pantin. L'agence Exemple possède des références pertinentes dans le domaine scolaire et des compétences adaptées pour ce type de projet."",
+  ""why_it_matters"": ""Cet appel d'offres représente une excellente opportunité pour l'agence Exemple de développer son portefeuille tout en contribuant à des projets éducatifs significatifs dans sa région.""
+}",school,"Construction du pôle enfance (une école maternelle, une crèche et un centre de loisirs)",Pantin,concours restreint,maîtrise d'œuvre,,,"[""Construction d'une école maternelle"", ""Extension d'une école publique""]",2.0,,[],,True,80,GO,"L'appel d'offres concerne la construction d'une école maternelle, d'une crèche et d'un centre de loisirs à Pantin. L'agence Exemple possède des références pertinentes dans le domaine scolaire et des compétences adaptées pour ce type de projet.",Cet appel d'offres représente une excellente opportunité pour l'agence Exemple de développer son portefeuille tout en contribuant à des projets éducatifs significatifs dans sa région.
+"Prestation de services relatifs à des missions d'études environnementales, réglementaires, de maîtrise d'oeuvre concernant l'opération de réalisation d'une passerelle liaison douce à proximité du pont",Conseil Départemental du Nord,2026-02-27,26-20087,France,URBANISM_LANDSCAPE,CORE,71310000 | 71313440 | 71322000 | 71336000,https://www.boamp.fr/pages/avis/?q=idweb:26-20087,BOAMP,"Prestation de services relatifs à des missions d'études environnementales, réglementaires, de maîtrise d'oeuvre concernant l'opération de réalisation d'une passerelle liaison douce à proximité du pont | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71310000 | 71313440 | 71322000 | 71336000 | nature APPEL_OFFRE | type SERVICES | CPV secondaire 71310000 | CPV secondaire 71313440 | CPV secondaire 71322000 | CPV secondaire 71336000 | + fort: maitrise d oeuvre | + fort: architecture | + fort: urbanisme | + moyen: amenagement | 59 | https://www.boamp.fr/pages/avis/?q=idweb:26-20087",62,"{
+  ""project_type"": ""urbanisme"",
+  ""program"": ""réalisation d'une passerelle liaison douce"",
+  ""location"": ""France"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""URBANISM_LANDSCAPE"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": 0,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 50,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'agence Exemple a des compétences en urbanisme et paysage, mais ne possède pas de références spécifiques portant sur des missions de liaison douce. Bien qu'elle ait une bonne expérience dans d'autres types de projets, l'absence de référence pertinente à cet appel d'offres reste un point à vérifier."",
+  ""why_it_matters"": ""L'opportunité est intéressante car elle concerne un projet de liaison douce, un domaine où l'agence pourrait s'impliquer, mais il faut considérer la pertinence des références et de l'expérience dans des projets similaires.""
+}",urbanisme,réalisation d'une passerelle liaison douce,France,APPEL_OFFRE,URBANISM_LANDSCAPE,,,[],0.0,,[],,,50,MAYBE,"L'agence Exemple a des compétences en urbanisme et paysage, mais ne possède pas de références spécifiques portant sur des missions de liaison douce. Bien qu'elle ait une bonne expérience dans d'autres types de projets, l'absence de référence pertinente à cet appel d'offres reste un point à vérifier.","L'opportunité est intéressante car elle concerne un projet de liaison douce, un domaine où l'agence pourrait s'impliquer, mais il faut considérer la pertinence des références et de l'expérience dans des projets similaires."
+ZAC DES QUAIS - Floirac  Assistance à Maîtrise d'Ouvrage - Conseil Projet Urbain,Bordeaux Métropole,2026-03-03,26-21013,France,URBANISM_LANDSCAPE,CORE,71400000,https://www.boamp.fr/pages/avis/?q=idweb:26-21013,BOAMP,ZAC DES QUAIS - Floirac  Assistance à Maîtrise d'Ouvrage - Conseil Projet Urbain | Assistance à maîtrise d'ouvrage | APPEL_OFFRE | SERVICES | 71400000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71400000 | + fort: architecte | + fort: assistance a maitrise d ouvrage | + fort: urbanisme | + moyen: etude | + moyen: ingenierie | + moyen: paysage | + moyen: paysagiste | 33 | https://www.boamp.fr/pages/avis/?q=idweb:26-21013,62,"{
+  ""project_type"": ""urbanism"",
+  ""program"": ""Assistance à Maîtrise d'Ouvrage - Conseil Projet Urbain"",
+  ""location"": ""Floirac"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""URBANISM_LANDSCAPE"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 70,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'appel d'offres porte sur un projet d'assistance à maîtrise d'ouvrage dans le domaine de l'urbanisme à Floirac. Bien que l'agence ait des compétences en urbanisme, il n'y a pas de références spécifiques demandées. Il faudrait vérifier si l'agence peut démontrer une expérience pertinente et si elle peut répondre aux exigences spécifiques du projet."",
+  ""why_it_matters"": ""Cet appel d'offres représente une opportunité importante pour l'agence de s'impliquer dans un projet d'urbanisme au sein d'une métropole, ce qui pourrait renforcer son positionnement sur ce marché tout en élargissant son portefeuille de projets.""
+}",urbanism,Assistance à Maîtrise d'Ouvrage - Conseil Projet Urbain,Floirac,APPEL_OFFRE,URBANISM_LANDSCAPE,,,[],,,[],,,70,MAYBE,"L'appel d'offres porte sur un projet d'assistance à maîtrise d'ouvrage dans le domaine de l'urbanisme à Floirac. Bien que l'agence ait des compétences en urbanisme, il n'y a pas de références spécifiques demandées. Il faudrait vérifier si l'agence peut démontrer une expérience pertinente et si elle peut répondre aux exigences spécifiques du projet.","Cet appel d'offres représente une opportunité importante pour l'agence de s'impliquer dans un projet d'urbanisme au sein d'une métropole, ce qui pourrait renforcer son positionnement sur ce marché tout en élargissant son portefeuille de projets."
+Mission de maitrise d'oeuvre pour l'aménagement du front de neige du quartier du Lavachet à Tignes,Commune de Tignes,2026-03-05,26-21891,France,ARCHITECTURE_BUILDING,CORE,71240000 | 71300000,https://www.boamp.fr/pages/avis/?q=idweb:26-21891,BOAMP,Mission de maitrise d'oeuvre pour l'aménagement du front de neige du quartier du Lavachet à Tignes | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71240000 | 71300000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71240000 | CPV secondaire 71300000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + moyen: amenagement | 73 | https://www.boamp.fr/pages/avis/?q=idweb:26-21891,61,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": null,
+  ""location"": ""Tignes"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 70,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'appel d'offres concerne l'aménagement du front de neige à Tignes, correspondant à des projets de réhabilitation. Bien que l'agence ait des références dans des projets similaires, il reste à vérifier son expérience spécifique en aménagement extérieur."",
+  ""why_it_matters"": ""L'agence pourrait renforcer son portefeuille de projets en intégrant des travaux liés à l'urbanisme et l'aménagement, ce qui pourrait également augmenter sa visibilité dans des secteurs connexes.""
+}",rehabilitation,,Tignes,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,[],,,[],,,70,MAYBE,"L'appel d'offres concerne l'aménagement du front de neige à Tignes, correspondant à des projets de réhabilitation. Bien que l'agence ait des références dans des projets similaires, il reste à vérifier son expérience spécifique en aménagement extérieur.","L'agence pourrait renforcer son portefeuille de projets en intégrant des travaux liés à l'urbanisme et l'aménagement, ce qui pourrait également augmenter sa visibilité dans des secteurs connexes."
+"Réhabilitation d'une résidence sociale et restructuration en résidence et logements diffus, située aux 54, 56, 58 rue Johannes Brahms, 26000 Valence",SOLIHA Drôme,2026-02-28,26-20255,France,ARCHITECTURE_BUILDING,CORE,71240000,https://www.boamp.fr/pages/avis/?q=idweb:26-20255,BOAMP,"Réhabilitation d'une résidence sociale et restructuration en résidence et logements diffus, située aux 54, 56, 58 rue Johannes Brahms, 26000 Valence | Bâtiment | APPEL_OFFRE | SERVICES | 71240000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71240000 | + moyen: rehabilitation | 26 | 7 | 38 | https://www.boamp.fr/pages/avis/?q=idweb:26-20255",61,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""residence and housing"",
+  ""location"": ""Valence"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": ""medium"",
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation d'une résidence sociale"",
+    ""restructuration en résidence et logements diffus""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 80,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'agence Exemple est bien positionnée pour candidater à la réhabilitation d'une résidence sociale à Valence. Avec des références similaires en réhabilitation de logements, elle dispose des compétences nécessaires."",
+  ""why_it_matters"": ""Cet appel d'offres représente une opportunité significative pour l'agence, renforçant son portefeuille dans le domaine de la réhabilitation, ce qui est en phase avec ses compétences et ses projets antérieurs.""
+}",rehabilitation,residence and housing,Valence,APPEL_OFFRE,ARCHITECTURE_BUILDING,medium,,"[""Réhabilitation d'une résidence sociale"", ""restructuration en résidence et logements diffus""]",2.0,,[],,True,80,GO,"L'agence Exemple est bien positionnée pour candidater à la réhabilitation d'une résidence sociale à Valence. Avec des références similaires en réhabilitation de logements, elle dispose des compétences nécessaires.","Cet appel d'offres représente une opportunité significative pour l'agence, renforçant son portefeuille dans le domaine de la réhabilitation, ce qui est en phase avec ses compétences et ses projets antérieurs."
+Marché de maitrise d'oeuvre pour la rénovation et l'extension du Gymnase Jeannie Longo à Saint-Martin-le-Vinoux,SIVOM du Néron,2026-03-01,26-20629,France,ARCHITECTURE_BUILDING,CORE,71221000 | 71223000,https://www.boamp.fr/pages/avis/?q=idweb:26-20629,BOAMP,Marché de maitrise d'oeuvre pour la rénovation et l'extension du Gymnase Jeannie Longo à Saint-Martin-le-Vinoux | Maîtrise d'oeuvre | Bâtiment | APPEL_OFFRE | SERVICES | 71221000 | 71223000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71221000 | CPV archi 71223000 | + fort: maitrise d oeuvre | + moyen: rehabilitation | 38 | https://www.boamp.fr/pages/avis/?q=idweb:26-20629,61,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""rénovation et extension d'un gymnase"",
+  ""location"": ""Saint-Martin-le-Vinoux"",
+  ""procedure_type"": ""appel d'offre"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""réhabilitation de bloc de logement"",
+    ""extension d'école publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": 1500000,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 75,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'Agence Exemple est bien positionnée pour répondre à cet appel d'offres en raison de son expérience en réhabilitation et d'extensions de bâtiments. Sa spécialisation en architecture et sa taille d'équipe correspondent aux exigences du projet."",
+  ""why_it_matters"": ""Candidater à cet appel d'offres permettrait à l'Agence Exemple d'élargir son portefeuille tout en contribuant à un projet significatif de réhabilitation et d'extension dans le secteur sportif.""
+}",rehabilitation,rénovation et extension d'un gymnase,Saint-Martin-le-Vinoux,appel d'offre,ARCHITECTURE_BUILDING,,,"[""réhabilitation de bloc de logement"", ""extension d'école publique""]",2.0,1500000.0,[],,,75,GO,L'Agence Exemple est bien positionnée pour répondre à cet appel d'offres en raison de son expérience en réhabilitation et d'extensions de bâtiments. Sa spécialisation en architecture et sa taille d'équipe correspondent aux exigences du projet.,Candidater à cet appel d'offres permettrait à l'Agence Exemple d'élargir son portefeuille tout en contribuant à un projet significatif de réhabilitation et d'extension dans le secteur sportif.
+Mission de maîtrise d'oeuvre pour les travaux de modernisation et de réhabilitation de la station de traitement des eaux usées de Bois de Nèfles - Commune de Saint-Leu,Communauté d'Agglomération Territoire de la Côte Ouest (974),2026-03-08,26-23450,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-23450,BOAMP,Mission de maîtrise d'oeuvre pour les travaux de modernisation et de réhabilitation de la station de traitement des eaux usées de Bois de Nèfles - Commune de Saint-Leu | Station d'épuration (travaux) | Assainissement | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + fort: architecte | + moyen: rehabilitation | 974 | https://www.boamp.fr/pages/avis/?q=idweb:26-23450,61,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": null,
+  ""location"": ""Saint-Leu"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation de bloc de logements"",
+    ""Extension d'école publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 30,
+  ""verdict"": ""NO"",
+  ""summary"": ""L'agence Exemple se concentre sur des projets de logements, d'écoles et d'autres infrastructures publiques, mais cette mission porte sur la réhabilitation d'une station d'épuration. Bien que la réhabilitation fasse partie de ses compétences, l'absence de connexions sur des projets d'assainissement rend cette opportunité moins pertinente. De plus, la mission n'accroît pas leur expertise dans les secteurs de prédilection."",
+  ""why_it_matters"": ""Participer à des projets en dehors de leur domaine principal pourrait diluer leur image et expertise, et cette offre ne semble pas alignée sur leurs compétences clés.""
+}",rehabilitation,,Saint-Leu,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""Réhabilitation de bloc de logements"", ""Extension d'école publique""]",2.0,,[],,True,30,NO,"L'agence Exemple se concentre sur des projets de logements, d'écoles et d'autres infrastructures publiques, mais cette mission porte sur la réhabilitation d'une station d'épuration. Bien que la réhabilitation fasse partie de ses compétences, l'absence de connexions sur des projets d'assainissement rend cette opportunité moins pertinente. De plus, la mission n'accroît pas leur expertise dans les secteurs de prédilection.","Participer à des projets en dehors de leur domaine principal pourrait diluer leur image et expertise, et cette offre ne semble pas alignée sur leurs compétences clés."
+"Accord-cadre de MOE pour l'étude, la restauration et la valorisation du patrimoine historique de la Ville de Saint-Quentin",Ville de Saint-Quentin,2026-03-04,26-21766,France,ARCHITECTURE_BUILDING,CORE,71221000,https://www.boamp.fr/pages/avis/?q=idweb:26-21766,BOAMP,"Accord-cadre de MOE pour l'étude, la restauration et la valorisation du patrimoine historique de la Ville de Saint-Quentin | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71221000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71221000 | + fort: maitrise d oeuvre | + fort: architecte | + fort: architecture | + moyen: etude | - fort: materiel | 2 | https://www.boamp.fr/pages/avis/?q=idweb:26-21766",61,"{
+  ""project_type"": ""heritage"",
+  ""program"": ""restauration et valorisation du patrimoine historique"",
+  ""location"": ""Saint-Quentin"",
+  ""procedure_type"": ""Accord-cadre"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""etude de restauration"",
+    ""valorisation du patrimoine""
+  ],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 80,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'Agence Exemple a des références pertinentes en réhabilitation et un CA suffisant pour candidater. Cependant, la demande des références spécifiques liée à la restauration du patrimoine doit être vérifiée. Les compétences en architecture sont essentielles pour ce projet."",
+  ""why_it_matters"": ""Cet appel d'offres représente une opportunité significative pour travailler sur un projet de restauration de patrimoine, un domaine dans lequel l'agence a de l'expérience, ce qui pourrait renforcer son portefeuille et sa réputation.""
+}",heritage,restauration et valorisation du patrimoine historique,Saint-Quentin,Accord-cadre,ARCHITECTURE_BUILDING,,,"[""etude de restauration"", ""valorisation du patrimoine""]",,,[],,True,80,MAYBE,"L'Agence Exemple a des références pertinentes en réhabilitation et un CA suffisant pour candidater. Cependant, la demande des références spécifiques liée à la restauration du patrimoine doit être vérifiée. Les compétences en architecture sont essentielles pour ce projet.","Cet appel d'offres représente une opportunité significative pour travailler sur un projet de restauration de patrimoine, un domaine dans lequel l'agence a de l'expérience, ce qui pourrait renforcer son portefeuille et sa réputation."
+Marché de maîtrise d'œuvre pour la réhabilitation du bâtiment 5 du Parc Technologique Universitaire,Université de La Réunion,2026-03-04,26-21824,France,ARCHITECTURE_BUILDING,CORE,71221000,https://www.boamp.fr/pages/avis/?q=idweb:26-21824,BOAMP,Marché de maîtrise d'œuvre pour la réhabilitation du bâtiment 5 du Parc Technologique Universitaire | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71221000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71221000 | + fort: maitrise d oeuvre | + moyen: rehabilitation | 974 | https://www.boamp.fr/pages/avis/?q=idweb:26-21824,61,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": null,
+  ""location"": ""La Réunion"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation d'un bâtiment""
+  ],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 90,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'Agence Exemple est bien positionnée pour candidater à cet appel d'offres grâce à son expérience dans la réhabilitation de bâtiments. Le type de projet correspond parfaitement à ses compétences et références, notamment dans le secteur du logement. Cet appel d'offres est en adéquation avec les types de projets que l'agence a déjà réalisés."",
+  ""why_it_matters"": ""Participer à ce marché permettrait à l'Agence Exemple de renforcer sa position sur le marché de la réhabilitation et de capitaliser sur son expertise en architecture, tout en élargissant son réseau dans le secteur éducatif.""
+}",rehabilitation,,La Réunion,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""Réhabilitation d'un bâtiment""]",1.0,,[],,True,90,GO,"L'Agence Exemple est bien positionnée pour candidater à cet appel d'offres grâce à son expérience dans la réhabilitation de bâtiments. Le type de projet correspond parfaitement à ses compétences et références, notamment dans le secteur du logement. Cet appel d'offres est en adéquation avec les types de projets que l'agence a déjà réalisés.","Participer à ce marché permettrait à l'Agence Exemple de renforcer sa position sur le marché de la réhabilitation et de capitaliser sur son expertise en architecture, tout en élargissant son réseau dans le secteur éducatif."
+"Marché de Maîtrise d’œuvre Bâtiment et VRD pour la construction de 113 LLS/LLTS/LLI "" Calathéa "" – ZAC Concorde à Matoury.",2TER HABITAT (ex SIGUY-SIMKO),2026-03-01,26-20735,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-20735,BOAMP,"Marché de Maîtrise d’œuvre Bâtiment et VRD pour la construction de 113 LLS/LLTS/LLI "" Calathéa "" – ZAC Concorde à Matoury. | Prestations de services | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + moyen: amenagement | + moyen: zac | 973 | https://www.boamp.fr/pages/avis/?q=idweb:26-20735",61,"{
+  ""project_type"": ""housing"",
+  ""program"": ""construction de 113 LLS/LLTS/LLI \"" Calathéa \"""",
+  ""location"": ""Matoury"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": ""large"",
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation de bâtiment d'habitation"",
+    ""Extension d'école publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": 1500000,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 85,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'appel d'offres concerne la maîtrise d'œuvre pour la construction de logements sociaux à Matoury. L'agence Exemple possède des références pertinentes dans la réhabilitation de logements et l'extension d'écoles, ainsi qu'un chiffre d'affaires conforme aux exigences. Cela en fait une opportunité bien alignée avec son profil et ses compétences."",
+  ""why_it_matters"": ""Candidater à ce projet pourrait renforcer la visibilité de l'agence dans le secteur des logements sociaux, un domaine où elle a déjà fait ses preuves, tout en contribuant à l'amélioration de l'habitat local.""
+}",housing,"construction de 113 LLS/LLTS/LLI "" Calathéa """,Matoury,APPEL_OFFRE,ARCHITECTURE_BUILDING,large,,"[""Réhabilitation de bâtiment d'habitation"", ""Extension d'école publique""]",2.0,1500000.0,[],,,85,GO,"L'appel d'offres concerne la maîtrise d'œuvre pour la construction de logements sociaux à Matoury. L'agence Exemple possède des références pertinentes dans la réhabilitation de logements et l'extension d'écoles, ainsi qu'un chiffre d'affaires conforme aux exigences. Cela en fait une opportunité bien alignée avec son profil et ses compétences.","Candidater à ce projet pourrait renforcer la visibilité de l'agence dans le secteur des logements sociaux, un domaine où elle a déjà fait ses preuves, tout en contribuant à l'amélioration de l'habitat local."
+Aménagement de la ZAC de Marchaux-Chaudefontaine,Territoire 25,2026-02-27,26-20132,France,ARCHITECTURE_BUILDING,CORE,71222000 | 71300000 | 71313000 | 71320000 | 71400000 | 90711000,https://www.boamp.fr/pages/avis/?q=idweb:26-20132,BOAMP,Aménagement de la ZAC de Marchaux-Chaudefontaine | Voirie et réseaux divers | Espaces verts | Prestations de services | APPEL_OFFRE | SERVICES | 71222000 | 71300000 | 71313000 | 71320000 | 71400000 | 90711000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71222000 | CPV secondaire 71300000 | CPV secondaire 71313000 | CPV secondaire 71320000 | CPV archi 71400000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + fort: architecte | 25 | 70 | 90 | https://www.boamp.fr/pages/avis/?q=idweb:26-20132,61,"{
+  ""project_type"": ""urbanism"",
+  ""program"": ""Aménagement de la ZAC de Marchaux-Chaudefontaine"",
+  ""location"": ""France"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 70,
+  ""verdict"": ""NO"",
+  ""summary"": ""L'appel d'offres concerne l'aménagement d'une ZAC, ce qui nécessite des compétences en urbanisme, mais Agence Exemple ne dispose pas de références dans ce domaine spécifique. De plus, l'agence exclut les domaines d'ingénierie, ce qui pourrait être crucial pour ce projet."",
+  ""why_it_matters"": ""Cet appel d'offres représente une opportunité importante dans le domaine de l'urbanisme, mais ne correspond pas aux spécialités et aux références de l'Agence Exemple.""
+}",urbanism,Aménagement de la ZAC de Marchaux-Chaudefontaine,France,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,[],,,[],,True,70,NO,"L'appel d'offres concerne l'aménagement d'une ZAC, ce qui nécessite des compétences en urbanisme, mais Agence Exemple ne dispose pas de références dans ce domaine spécifique. De plus, l'agence exclut les domaines d'ingénierie, ce qui pourrait être crucial pour ce projet.","Cet appel d'offres représente une opportunité importante dans le domaine de l'urbanisme, mais ne correspond pas aux spécialités et aux références de l'Agence Exemple."
+MARCHE DE MAITRISE D'OEUVRE POUR LA REHABILITATION DE LA NOUVELLE MAISON DE LA SOLIDARITE DEPARTEMENTALE A LOURDES,Département des Hautes Pyrénées,2026-03-04,26-21416,France,ARCHITECTURE_BUILDING,CORE,71220000 | 71240000,https://www.boamp.fr/pages/avis/?q=idweb:26-21416,BOAMP,MARCHE DE MAITRISE D'OEUVRE POUR LA REHABILITATION DE LA NOUVELLE MAISON DE LA SOLIDARITE DEPARTEMENTALE A LOURDES | Maîtrise d'oeuvre | Ingénierie | APPEL_OFFRE | SERVICES | 71220000 | 71240000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71220000 | CPV archi 71240000 | + fort: maitrise d oeuvre | + fort: architecte | + moyen: rehabilitation | + moyen: etude | + moyen: ingenierie | 65 | https://www.boamp.fr/pages/avis/?q=idweb:26-21416,61,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""NEW DEPARTMENTAL SOLIDARITY HOUSE"",
+  ""location"": ""Lourdes"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""rehabilitation project""
+  ],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": 1500000,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 70,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'appel d'offres concerne la réhabilitation d'une maison de solidarité départementale, ce qui implique des compétences en réhabilitation et en architecture. L'agence Exemple dispose de l'expertise nécessaire ainsi que de références pertinentes dans ce domaine."",
+  ""why_it_matters"": ""Cette opportunité représente un projet de réhabilitation qui correspond parfaitement au savoir-faire de l'agence, et un contrat potentiel important qui s'inscrit dans le cadre de son chiffre d'affaires annuel.""
+}",rehabilitation,NEW DEPARTMENTAL SOLIDARITY HOUSE,Lourdes,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""rehabilitation project""]",1.0,1500000.0,[],,True,70,GO,"L'appel d'offres concerne la réhabilitation d'une maison de solidarité départementale, ce qui implique des compétences en réhabilitation et en architecture. L'agence Exemple dispose de l'expertise nécessaire ainsi que de références pertinentes dans ce domaine.","Cette opportunité représente un projet de réhabilitation qui correspond parfaitement au savoir-faire de l'agence, et un contrat potentiel important qui s'inscrit dans le cadre de son chiffre d'affaires annuel."
+ASSISTANCE À MAÎTRISE D'OUVRAGE POUR L'AMÉNAGEMENT INTÉRIEUR ET LA SIGNALÉTIQUE DE LA MAIRIE-MÉDIATHÈQUE DE MAROMME - ARCHITECTE D'INTERIEUR,Ville de Maromme,2026-03-10,26-24802,France,ARCHITECTURE_BUILDING,CORE,71241000,https://www.boamp.fr/pages/avis/?q=idweb:26-24802,BOAMP,ASSISTANCE À MAÎTRISE D'OUVRAGE POUR L'AMÉNAGEMENT INTÉRIEUR ET LA SIGNALÉTIQUE DE LA MAIRIE-MÉDIATHÈQUE DE MAROMME - ARCHITECTE D'INTERIEUR | Assistance technique | Assistance à maîtrise d'ouvrage | APPEL_OFFRE | SERVICES | 71241000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71241000 | + fort: architecte | + fort: architecte d interieur | + fort: assistance a maitrise d ouvrage | + moyen: amenagement | + moyen: signaletique | + moyen: interieur | 14 | 27 | 50 | 60 | 61 | 76 | 78 | 80 | 95 | https://www.boamp.fr/pages/avis/?q=idweb:26-24802,61,"{
+  ""project_type"": ""Assistance à maîtrise d'ouvrage"",
+  ""program"": ""Aménagement intérieur et signalétique de la mairie-médiathèque"",
+  ""location"": ""Maromme"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 75,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'appel d'offres concerne des services d'assistance à maîtrise d'ouvrage pour l'aménagement intérieur et la signalétique d'une mairie-médiathèque. Bien que pertinent, ce projet nécessite un architecte d'intérieur, ce qui pourrait ne pas correspondre à l'expertise de l'agence Exemple."",
+  ""why_it_matters"": ""Cette opportunité peut permettre à l'agence d'élargir son portefeuille de projets publics, mais la nécessité d'une compétence spécifique en architecture d'intérieur doit être vérifiée.""
+}",Assistance à maîtrise d'ouvrage,Aménagement intérieur et signalétique de la mairie-médiathèque,Maromme,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,[],,,[],,True,75,MAYBE,"L'appel d'offres concerne des services d'assistance à maîtrise d'ouvrage pour l'aménagement intérieur et la signalétique d'une mairie-médiathèque. Bien que pertinent, ce projet nécessite un architecte d'intérieur, ce qui pourrait ne pas correspondre à l'expertise de l'agence Exemple.","Cette opportunité peut permettre à l'agence d'élargir son portefeuille de projets publics, mais la nécessité d'une compétence spécifique en architecture d'intérieur doit être vérifiée."
+OP304 - Concession d'aménagement de la ZAC de la Métairie Neuve à Carhaix - mission de MOE,SemBreizh,2026-03-04,26-21826,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-21826,BOAMP,OP304 - Concession d'aménagement de la ZAC de la Métairie Neuve à Carhaix - mission de MOE | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + moyen: amenagement | + moyen: zac | 29 | https://www.boamp.fr/pages/avis/?q=idweb:26-21826,61,"{
+  ""project_type"": ""urbanism"",
+  ""program"": ""ZAC de la Métairie Neuve"",
+  ""location"": ""Carhaix"",
+  ""procedure_type"": ""Concession"",
+  ""main_discipline"": ""MOE"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Références en maîtrise d'œuvre pour des aménagements urbains""
+  ],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 70,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'agence Exemple a des références adéquates en réhabilitation et en conception d'écoles, mais le projet concerne spécifiquement l'aménagement urbain, une discipline où elle doit confirmer son expérience. Le type de projet pourrait correspondre à sa spécialisation, bien que ce soit une concession d'aménagement qui requiert un accent sur la maîtrise d'œuvre."",
+  ""why_it_matters"": ""Ce projet est une opportunité de participer à un aménagement urbain qui peut renforcer la visibilité de l'agence sur des projets similaires à l'avenir et diversifier son portefeuille d'activités.""
+}",urbanism,ZAC de la Métairie Neuve,Carhaix,Concession,MOE,,,"[""Références en maîtrise d'œuvre pour des aménagements urbains""]",1.0,,[],,True,70,MAYBE,"L'agence Exemple a des références adéquates en réhabilitation et en conception d'écoles, mais le projet concerne spécifiquement l'aménagement urbain, une discipline où elle doit confirmer son expérience. Le type de projet pourrait correspondre à sa spécialisation, bien que ce soit une concession d'aménagement qui requiert un accent sur la maîtrise d'œuvre.",Ce projet est une opportunité de participer à un aménagement urbain qui peut renforcer la visibilité de l'agence sur des projets similaires à l'avenir et diversifier son portefeuille d'activités.
+26S0041-Maitrise d'oeuvre pour la construction de 47 logements - Bâtiment E - Tohannic à VANNES,Morbihan Habitat (56),2026-03-05,26-22408,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-22408,BOAMP,26S0041-Maitrise d'oeuvre pour la construction de 47 logements - Bâtiment E - Tohannic à VANNES | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | 56 | https://www.boamp.fr/pages/avis/?q=idweb:26-22408,61,"{
+  ""project_type"": ""housing"",
+  ""program"": null,
+  ""location"": ""Vannes"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": ""medium"",
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation d'un bloc de logements"",
+    ""Élargissement d'une école publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": 1500000,
+  ""required_certifications"": [],
+  ""consortium_required"": false,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 90,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'agence Exemple est tout à fait pertinente pour cet appel d'offres, car elle a de l'expérience dans des projets similaires de réhabilitation et d'école. Le budget annuel de l'agence est conforme aux attentes en termes de revenus pour cette maîtrise d'œuvre."",
+  ""why_it_matters"": ""Cet appel d'offres offre une opportunité significative pour développer des projets de logement dans une zone en demandant une expertise avérée en architecture, correspondant parfaitement à la spécialisation et aux capacités de l'agence.""
+}",housing,,Vannes,APPEL_OFFRE,ARCHITECTURE_BUILDING,medium,,"[""Réhabilitation d'un bloc de logements"", ""Élargissement d'une école publique""]",2.0,1500000.0,[],False,True,90,GO,"L'agence Exemple est tout à fait pertinente pour cet appel d'offres, car elle a de l'expérience dans des projets similaires de réhabilitation et d'école. Le budget annuel de l'agence est conforme aux attentes en termes de revenus pour cette maîtrise d'œuvre.","Cet appel d'offres offre une opportunité significative pour développer des projets de logement dans une zone en demandant une expertise avérée en architecture, correspondant parfaitement à la spécialisation et aux capacités de l'agence."
+"Maîtrise d'œuvre pour des travaux de restauration, aménagement et mise en conformité du Domaine de Chantilly",Domaine de Chantilly - Fondation d'Aumale,2026-02-25,26-18827,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-18827,BOAMP,"Maîtrise d'œuvre pour des travaux de restauration, aménagement et mise en conformité du Domaine de Chantilly | Monuments historiques | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + moyen: amenagement | 60 | 75 | https://www.boamp.fr/pages/avis/?q=idweb:26-18827",61,"{
+  ""project_type"": ""restoration"",
+  ""program"": ""Domaine de Chantilly"",
+  ""location"": ""France"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": 0,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 70,
+  ""verdict"": ""NO"",
+  ""summary"": ""L'appel d'offres concerne la maîtrise d'œuvre pour des travaux de restauration au Domaine de Chantilly, axée sur des monuments historiques. L'Agence Exemple n'a pas de références dans ce domaine spécifique de restauration de monuments historiques."",
+  ""why_it_matters"": ""Il est essentiel de candidater à des projets correspondant à des compétences et références spécifiques pour maximiser les chances de succès.""
+}",restoration,Domaine de Chantilly,France,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,[],0.0,,[],,,70,NO,"L'appel d'offres concerne la maîtrise d'œuvre pour des travaux de restauration au Domaine de Chantilly, axée sur des monuments historiques. L'Agence Exemple n'a pas de références dans ce domaine spécifique de restauration de monuments historiques.",Il est essentiel de candidater à des projets correspondant à des compétences et références spécifiques pour maximiser les chances de succès.
+Mission de maitrise d'oeuvre pour la réhabilitation du parking A5 à Sevran,Ville de Sevran,2026-03-02,26-21468,France,ARCHITECTURE_BUILDING,CORE,71221000,https://www.boamp.fr/pages/avis/?q=idweb:26-21468,BOAMP,Mission de maitrise d'oeuvre pour la réhabilitation du parking A5 à Sevran | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71221000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71221000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + moyen: rehabilitation | 93 | https://www.boamp.fr/pages/avis/?q=idweb:26-21468,61,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": null,
+  ""location"": ""Sevran"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation du parking A5""
+  ],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": false,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 75,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'agence Exemple a une expertise en réhabilitation, avec des références pertinentes. Cependant, elle ne dispose pas d'une référence spécifique à la réhabilitation de parkings, qui pourrait être un critère d'évaluation. Il est recommandé de vérifier si d'autres projets similaires peuvent être considérés comme suffisants."",
+  ""why_it_matters"": ""Ce marché public représente une opportunité pour l'agence d'élargir son portefeuille dans le domaine de la réhabilitation, un type de projet dans lequel elle est déjà active.""
+}",rehabilitation,,Sevran,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""Réhabilitation du parking A5""]",1.0,,[],False,True,75,MAYBE,"L'agence Exemple a une expertise en réhabilitation, avec des références pertinentes. Cependant, elle ne dispose pas d'une référence spécifique à la réhabilitation de parkings, qui pourrait être un critère d'évaluation. Il est recommandé de vérifier si d'autres projets similaires peuvent être considérés comme suffisants.","Ce marché public représente une opportunité pour l'agence d'élargir son portefeuille dans le domaine de la réhabilitation, un type de projet dans lequel elle est déjà active."
+26V0409 - Restructuration et extension du stade des Arboras - Concours de maîtrise d'oeuvre restreint,VILLE DE NICE,2026-03-08,26-23661,France,COMPETITIONS,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-23661,BOAMP,26V0409 - Restructuration et extension du stade des Arboras - Concours de maîtrise d'oeuvre restreint | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + fort: architecte | + fort: architecture | + fort: concours d architecture | + fort: concours de maitrise d oeuvre | + moyen: amenagement | 6 | https://www.boamp.fr/pages/avis/?q=idweb:26-23661,60,"{
+  ""project_type"": ""public_building"",
+  ""program"": ""Restructuration et extension du stade"",
+  ""location"": ""Nice"",
+  ""procedure_type"": ""concours de maîtrise d'oeuvre"",
+  ""main_discipline"": ""maîtrise d'oeuvre"",
+  ""estimated_scale"": ""medium"",
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation d'un bâtiment public"",
+    ""Projets de concours d'architecture""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": 1200000,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 70,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'agence Exemple a une solide expérience en réhabilitation et est compétente dans des projets de bâtiment public. Cependant, l'exigence spécifique de références liées à la maîtrise d'œuvre et au concours d'architecture doit être confirmée."",
+  ""why_it_matters"": ""Cette opportunité pourrait permettre à l'agence de renforcer sa présence dans le secteur public et de diversifier ses projets, tout en utilisant ses compétences en réhabilitation et en architecture.""
+}",public_building,Restructuration et extension du stade,Nice,concours de maîtrise d'oeuvre,maîtrise d'oeuvre,medium,,"[""Réhabilitation d'un bâtiment public"", ""Projets de concours d'architecture""]",2.0,1200000.0,[],,True,70,MAYBE,"L'agence Exemple a une solide expérience en réhabilitation et est compétente dans des projets de bâtiment public. Cependant, l'exigence spécifique de références liées à la maîtrise d'œuvre et au concours d'architecture doit être confirmée.","Cette opportunité pourrait permettre à l'agence de renforcer sa présence dans le secteur public et de diversifier ses projets, tout en utilisant ses compétences en réhabilitation et en architecture."
+Moe de conception de l'aménagement écologique et paysager à base de sédiments traités à Mondeville,Syndicat Mixte Ports de Normandie,2026-03-10,26-24355,France,URBANISM_LANDSCAPE,CORE,71420000,https://www.boamp.fr/pages/avis/?q=idweb:26-24355,BOAMP,Moe de conception de l'aménagement écologique et paysager à base de sédiments traités à Mondeville | Espaces verts | APPEL_OFFRE | SERVICES | 71420000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71420000 | + fort: maitrise d oeuvre | + moyen: amenagement | + moyen: etude | + moyen: paysage | 14 | https://www.boamp.fr/pages/avis/?q=idweb:26-24355,59,"{
+  ""project_type"": ""landscape"",
+  ""program"": null,
+  ""location"": ""Mondeville"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""URBANISM_LANDSCAPE"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 50,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'appel d'offres concerne la maîtrise d'œuvre pour l'aménagement écologique et paysager à Mondeville, ce qui pourrait intéresser l'Agence Exemple en raison de son expertise en urbanisme et paysage. Cependant, il n'y a pas de références spécifiques requises, ce qui nécessite une évaluation plus approfondie des compétences spécifiques requises pour ce projet."",
+  ""why_it_matters"": ""Cette opportunité est pertinente car elle touche à des domaines en adéquation avec les compétences de l'agence, et pourrait ouvrir de nouvelles avenues de collaboration avec des acteurs du secteur public. Une candidature pourrait renforcer la visibilité et le réseau de l'agence dans le domaine de l'urbanisme paysager.""
+}",landscape,,Mondeville,APPEL_OFFRE,URBANISM_LANDSCAPE,,,[],,,[],,,50,MAYBE,"L'appel d'offres concerne la maîtrise d'œuvre pour l'aménagement écologique et paysager à Mondeville, ce qui pourrait intéresser l'Agence Exemple en raison de son expertise en urbanisme et paysage. Cependant, il n'y a pas de références spécifiques requises, ce qui nécessite une évaluation plus approfondie des compétences spécifiques requises pour ce projet.","Cette opportunité est pertinente car elle touche à des domaines en adéquation avec les compétences de l'agence, et pourrait ouvrir de nouvelles avenues de collaboration avec des acteurs du secteur public. Une candidature pourrait renforcer la visibilité et le réseau de l'agence dans le domaine de l'urbanisme paysager."
+2026R006 - Mise en place d'outils d'urbanisme opérationnels et d'aménagement - consultation de bureaux d'études,VILLE DE SAINT-TROPEZ,2026-03-10,26-24427,France,URBANISM_LANDSCAPE,CORE,,https://www.boamp.fr/pages/avis/?q=idweb:26-24427,BOAMP,2026R006 - Mise en place d'outils d'urbanisme opérationnels et d'aménagement - consultation de bureaux d'études | Machines-outils | APPEL_OFFRE | SERVICES | nature APPEL_OFFRE | type SERVICES | + fort: urbanisme | + moyen: amenagement | + moyen: etude | 83 | https://www.boamp.fr/pages/avis/?q=idweb:26-24427,59,"{
+  ""project_type"": ""urbanism"",
+  ""program"": ""Mise en place d'outils d'urbanisme opérationnels et d'aménagement"",
+  ""location"": ""Saint-Tropez"",
+  ""procedure_type"": ""consultation de bureaux d'études"",
+  ""main_discipline"": ""URBANISM_LANDSCAPE"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 70,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'appel d'offres concerne la mise en place d'outils d'urbanisme à Saint-Tropez. Bien que l'agence ait l'expérience en urbanisme, elle n'a pas de références explicites requises pour cet appel d'offres."",
+  ""why_it_matters"": ""Cette opportunité peut permettre à l'agence de s'impliquer dans des projets d'urbanisme, élargissant ainsi son portefeuille tout en renforçant sa présence dans le secteur.""
+}",urbanism,Mise en place d'outils d'urbanisme opérationnels et d'aménagement,Saint-Tropez,consultation de bureaux d'études,URBANISM_LANDSCAPE,,,[],,,[],,,70,MAYBE,"L'appel d'offres concerne la mise en place d'outils d'urbanisme à Saint-Tropez. Bien que l'agence ait l'expérience en urbanisme, elle n'a pas de références explicites requises pour cet appel d'offres.","Cette opportunité peut permettre à l'agence de s'impliquer dans des projets d'urbanisme, élargissant ainsi son portefeuille tout en renforçant sa présence dans le secteur."
+MARCHÉ PUBLIC D'ASSISTANCE À MAÎTRISE D'OUVRAGE PROJET TRANSITION ARCHITECTURE ET PAYSAGE (TAP),ENSA de Normandie,2026-03-06,26-22874,France,URBANISM_LANDSCAPE,CORE,73000000,https://www.boamp.fr/pages/avis/?q=idweb:26-22874,BOAMP,MARCHÉ PUBLIC D'ASSISTANCE À MAÎTRISE D'OUVRAGE PROJET TRANSITION ARCHITECTURE ET PAYSAGE (TAP) | Assistance à maîtrise d'ouvrage | APPEL_OFFRE | SERVICES | 73000000 | nature APPEL_OFFRE | type SERVICES | + fort: architecture | + fort: assistance a maitrise d ouvrage | + moyen: paysage | 76 | https://www.boamp.fr/pages/avis/?q=idweb:26-22874,59,"{
+  ""project_type"": ""TAP"",
+  ""program"": ""Assistance à maîtrise d'ouvrage"",
+  ""location"": ""France"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""URBANISM_LANDSCAPE"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 75,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'agence Exemple pourrait candidater à cet appel d'offres en raison de son expertise en urbanisme et paysage. Cependant, l'absence de références spécifiques demandées rend la candidature incertaine."",
+  ""why_it_matters"": ""Cette opportunité permettrait à l'agence de se positionner sur des projets d'assistance à maîtrise d'ouvrage, renforçant ainsi sa visibilité et son réseau dans le secteur de l'architecture et du paysage.""
+}",TAP,Assistance à maîtrise d'ouvrage,France,APPEL_OFFRE,URBANISM_LANDSCAPE,,,[],,,[],,,75,MAYBE,"L'agence Exemple pourrait candidater à cet appel d'offres en raison de son expertise en urbanisme et paysage. Cependant, l'absence de références spécifiques demandées rend la candidature incertaine.","Cette opportunité permettrait à l'agence de se positionner sur des projets d'assistance à maîtrise d'ouvrage, renforçant ainsi sa visibilité et son réseau dans le secteur de l'architecture et du paysage."
+"Rillieux la Pape : Mission d'urbaniste architecte paysagiste en chef de la ZAC des Alagniers / Assistance à Maîtrise d'Ouvrage, Qualité Environnementale Urbaine / Qualité Environnementale du Bâti",GRANDLYON Métropole,2026-03-06,26-22537,France,ARCHITECTURE_BUILDING,CORE,71240000,https://www.boamp.fr/pages/avis/?q=idweb:26-22537,BOAMP,"Rillieux la Pape : Mission d'urbaniste architecte paysagiste en chef de la ZAC des Alagniers / Assistance à Maîtrise d'Ouvrage, Qualité Environnementale Urbaine / Qualité Environnementale du Bâti | Assistance à maîtrise d'ouvrage | APPEL_OFFRE | SERVICES | 71240000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71240000 | + fort: architecte | + fort: assistance a maitrise d ouvrage | + moyen: etude | + moyen: paysagiste | + moyen: zac | 69 | https://www.boamp.fr/pages/avis/?q=idweb:26-22537",58,"{
+  ""project_type"": ""urbanism"",
+  ""program"": ""Assistance à Maîtrise d'Ouvrage, Qualité Environnementale Urbaine / Qualité Environnementale du Bâti"",
+  ""location"": ""Rillieux la Pape"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation d'un ensemble de logements"",
+    ""Extension d'une école publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": 1000000,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 75,
+  ""verdict"": ""NO"",
+  ""summary"": ""L'appel d'offres concerne une mission d'urbaniste architecte paysagiste en chef pour des services de qualité environnementale à Rillieux la Pape. Bien que l'agence ait des références intéressantes, celle-ci ne possède pas les références spécifiques exigées pour le projet."",
+  ""why_it_matters"": ""L'agence a de l'expérience dans des projets liés à l'urbanisme et à la réhabilitation, mais l'absence de références précises requises dans le domaine spécifique de la mission en cours la rend non éligible à cet appel d'offres.""
+}",urbanism,"Assistance à Maîtrise d'Ouvrage, Qualité Environnementale Urbaine / Qualité Environnementale du Bâti",Rillieux la Pape,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""Réhabilitation d'un ensemble de logements"", ""Extension d'une école publique""]",2.0,1000000.0,[],,True,75,NO,"L'appel d'offres concerne une mission d'urbaniste architecte paysagiste en chef pour des services de qualité environnementale à Rillieux la Pape. Bien que l'agence ait des références intéressantes, celle-ci ne possède pas les références spécifiques exigées pour le projet.","L'agence a de l'expérience dans des projets liés à l'urbanisme et à la réhabilitation, mais l'absence de références précises requises dans le domaine spécifique de la mission en cours la rend non éligible à cet appel d'offres."
+Marché de Maîtrise d'oeuvre pour la rénovation et l'aménagement des bâtiments A-B-C du centre de gestion de la fonction publique de Saône et Loire à 71000 MACON,"SEMA 71, agissant au nom et pour le compte du Centre de Gestion de la Fonction publique Territoriale de Saône et Loire",2026-03-04,26-21821,France,ARCHITECTURE_BUILDING,CORE,71200000 | 71221000,https://www.boamp.fr/pages/avis/?q=idweb:26-21821,BOAMP,Marché de Maîtrise d'oeuvre pour la rénovation et l'aménagement des bâtiments A-B-C du centre de gestion de la fonction publique de Saône et Loire à 71000 MACON | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71200000 | 71221000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71200000 | CPV archi 71221000 | + fort: maitrise d oeuvre | + moyen: amenagement | 71 | https://www.boamp.fr/pages/avis/?q=idweb:26-21821,58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": null,
+  ""location"": ""Macon"",
+  ""procedure_type"": ""services"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""réhabilitation"",
+    ""maîtrise d'oeuvre""
+  ],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 85,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'Agence Exemple est bien positionnée pour candidater à cet appel d'offres, avec une référence pertinente en réhabilitation et une spécialisation dans les bâtiments publics. Le projet de rénovation des bâtiments A-B-C répond à ses compétences et à son expérience dans des projets similaires."",
+  ""why_it_matters"": ""Cet appel d'offres représente une opportunité significative pour l'agence de travailler sur un projet de réhabilitation de bâtiment public, renforçant ainsi son portfolio et sa visibilité dans le secteur."" 
+}",rehabilitation,,Macon,services,ARCHITECTURE_BUILDING,,,"[""réhabilitation"", ""maîtrise d'oeuvre""]",1.0,,[],,,85,GO,"L'Agence Exemple est bien positionnée pour candidater à cet appel d'offres, avec une référence pertinente en réhabilitation et une spécialisation dans les bâtiments publics. Le projet de rénovation des bâtiments A-B-C répond à ses compétences et à son expérience dans des projets similaires.","Cet appel d'offres représente une opportunité significative pour l'agence de travailler sur un projet de réhabilitation de bâtiment public, renforçant ainsi son portfolio et sa visibilité dans le secteur."
+MISSION DE MAÎTRISE D'OEUVRE POUR LA LA RÉHABILITATION DE LOCAUX EN POSTE DE POLICE MUNICIPALE,Commune de Taverny,2026-02-26,26-20151,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-20151,BOAMP,MISSION DE MAÎTRISE D'OEUVRE POUR LA LA RÉHABILITATION DE LOCAUX EN POSTE DE POLICE MUNICIPALE | Ingénierie | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + moyen: rehabilitation | + moyen: ingenierie | 95 | https://www.boamp.fr/pages/avis/?q=idweb:26-20151,58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""réhabilitation de locaux en poste de police municipale"",
+  ""location"": ""Taverny"",
+  ""procedure_type"": ""services"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""réhabilitation""
+  ],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 80,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'Agence Exemple est bien positionnée pour candidater grâce à son expertise en réhabilitation et ses références pertinentes. Le projet s'inscrit parfaitement dans ses compétences et ses préférences de catégories."",
+  ""why_it_matters"": ""Cette opportunité est cruciale pour l'agence, car elle lui permet d'élargir son portefeuille de projets dans le secteur public et de mettre en avant son expérience en réhabilitation, un domaine clé de sa spécialisation.""
+}",rehabilitation,réhabilitation de locaux en poste de police municipale,Taverny,services,ARCHITECTURE_BUILDING,,,"[""réhabilitation""]",1.0,,[],,True,80,GO,L'Agence Exemple est bien positionnée pour candidater grâce à son expertise en réhabilitation et ses références pertinentes. Le projet s'inscrit parfaitement dans ses compétences et ses préférences de catégories.,"Cette opportunité est cruciale pour l'agence, car elle lui permet d'élargir son portefeuille de projets dans le secteur public et de mettre en avant son expérience en réhabilitation, un domaine clé de sa spécialisation."
+Mission de maîtrise d’œuvre relative au projet d’aménagement d’un accès secondaire et d’un parking pour le futur commissariat d’Aulnay-sous-Bois sis 8 Avenue du Maréchal Juin (93600).,PREFECTURE DE POLICE DE PARIS,2026-03-04,26-21845,France,ARCHITECTURE_BUILDING,CORE,71200000 | 71300000 | 71400000,https://www.boamp.fr/pages/avis/?q=idweb:26-21845,BOAMP,Mission de maîtrise d’œuvre relative au projet d’aménagement d’un accès secondaire et d’un parking pour le futur commissariat d’Aulnay-sous-Bois sis 8 Avenue du Maréchal Juin (93600). | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71200000 | 71300000 | 71400000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71200000 | CPV secondaire 71300000 | CPV archi 71400000 | + fort: maitrise d oeuvre | + moyen: amenagement | 75 | 77 | 78 | 91 | 92 | 93 | 94 | 95 | https://www.boamp.fr/pages/avis/?q=idweb:26-21845,58,"{
+  ""project_type"": ""public_building"",
+  ""program"": ""maîtrise d'œuvre"",
+  ""location"": ""Aulnay-sous-Bois"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 70,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""Ce projet concerne l'aménagement d'un accès secondaire et d'un parking pour un commissariat à Aulnay-sous-Bois. L'agence Exemple a des compétences en maîtrise d'œuvre, mais il pourrait être nécessaire de vérifier si elle a des projets similaires dans des bâtiments publics."",
+  ""why_it_matters"": ""Candidater à cet appel d'offres pourrait permettre à l'Agence Exemple de diversifier son portefeuille, tout en contribuant à un projet d'intérêt public dans un secteur en développement.""
+}",public_building,maîtrise d'œuvre,Aulnay-sous-Bois,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,[],,,[],,,70,MAYBE,"Ce projet concerne l'aménagement d'un accès secondaire et d'un parking pour un commissariat à Aulnay-sous-Bois. L'agence Exemple a des compétences en maîtrise d'œuvre, mais il pourrait être nécessaire de vérifier si elle a des projets similaires dans des bâtiments publics.","Candidater à cet appel d'offres pourrait permettre à l'Agence Exemple de diversifier son portefeuille, tout en contribuant à un projet d'intérêt public dans un secteur en développement."
+25V1158-Assistance à maitrise d'ouvrage bâtiment,VILLE DE NICE,2026-03-10,26-24039,France,ARCHITECTURE_BUILDING,CORE,71241000,https://www.boamp.fr/pages/avis/?q=idweb:26-24039,BOAMP,25V1158-Assistance à maitrise d'ouvrage bâtiment | Prestations de services | Etude | APPEL_OFFRE | SERVICES | 71241000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71241000 | + fort: assistance a maitrise d ouvrage | + fort:  amo  | + moyen: rehabilitation | + moyen: amenagement | + moyen: etude | 6 | https://www.boamp.fr/pages/avis/?q=idweb:26-24039,58,"{
+  ""project_type"": ""Assistance à maitrise d'ouvrage bâtiment"",
+  ""program"": null,
+  ""location"": ""Nice"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 75,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'appel d'offres concerne des prestations d'assistance à maîtrise d'ouvrage pour un bâtiment. L'agence a des références en réhabilitation et en école, mais elle devra clarifier son expertise en AMO pour des projets de bâtiment spécifiques."",
+  ""why_it_matters"": ""Cette opportunité pourrait permettre à l'agence de développer ses activités sur de nouveaux projets d'architecture, ce qui pourrait diversifier son portefeuille et augmenter son chiffre d'affaires.""
+}",Assistance à maitrise d'ouvrage bâtiment,,Nice,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,[],,,[],,,75,MAYBE,"L'appel d'offres concerne des prestations d'assistance à maîtrise d'ouvrage pour un bâtiment. L'agence a des références en réhabilitation et en école, mais elle devra clarifier son expertise en AMO pour des projets de bâtiment spécifiques.","Cette opportunité pourrait permettre à l'agence de développer ses activités sur de nouveaux projets d'architecture, ce qui pourrait diversifier son portefeuille et augmenter son chiffre d'affaires."
+"Maîtrise d'oeuvre pour réhabilitation et l’extension de la maison de quartier "" la Baleine"" de Marcouville à Pontoise",Ville de Pontoise,2026-02-26,26-19248,France,ARCHITECTURE_BUILDING,CORE,71221000,https://www.boamp.fr/pages/avis/?q=idweb:26-19248,BOAMP,"Maîtrise d'oeuvre pour réhabilitation et l’extension de la maison de quartier "" la Baleine"" de Marcouville à Pontoise | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71221000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71221000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + moyen: rehabilitation | 95 | https://www.boamp.fr/pages/avis/?q=idweb:26-19248",58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""extension de la maison de quartier"",
+  ""location"": ""Pontoise"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 85,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'agence Exemple est bien positionnée pour candidater à l'appel d'offres pour la réhabilitation de la maison de quartier à Pontoise grâce à son expertise en réhabilitation et en bâtiments publics. Toutefois, il serait essentiel de vérifier certaines références spécifiques en lien avec des projets similaires."",
+  ""why_it_matters"": ""Cet appel d'offres représente une opportunité significative pour l'agence de s'engager dans un projet défini comme important par la ville de Pontoise, ce qui peut renforcer leur visibilité et leur portfolio dans la région.""
+}",rehabilitation,extension de la maison de quartier,Pontoise,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,[],,,[],,,85,MAYBE,"L'agence Exemple est bien positionnée pour candidater à l'appel d'offres pour la réhabilitation de la maison de quartier à Pontoise grâce à son expertise en réhabilitation et en bâtiments publics. Toutefois, il serait essentiel de vérifier certaines références spécifiques en lien avec des projets similaires.","Cet appel d'offres représente une opportunité significative pour l'agence de s'engager dans un projet défini comme important par la ville de Pontoise, ce qui peut renforcer leur visibilité et leur portfolio dans la région."
+Mission d’accompagnement AMO réemploi pour le projet de réhabilitation du COSEC de l’UFR STAPS sur le campus Remicourt à Villers-Lès-Nancy (54),Université de Lorraine,2026-03-03,26-21523,France,ARCHITECTURE_BUILDING,CORE,71241000,https://www.boamp.fr/pages/avis/?q=idweb:26-21523,BOAMP,Mission d’accompagnement AMO réemploi pour le projet de réhabilitation du COSEC de l’UFR STAPS sur le campus Remicourt à Villers-Lès-Nancy (54) | Prestations de services | APPEL_OFFRE | SERVICES | 71241000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71241000 | + fort:  amo  | + moyen: rehabilitation | - moyen: accompagnement | 54 | 55 | 57 | 88 | https://www.boamp.fr/pages/avis/?q=idweb:26-21523,58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""AMO réemploi"",
+  ""location"": ""Villers-Lès-Nancy"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [""réhabilitation""],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 75,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'agence Exemple a une bonne expérience dans les projets de réhabilitation, et le CA annuel est conforme aux exigences potentielles. Cependant, il serait important de vérifier si des certifications spécifiques sont demandées pour ce type de mission AMO."",
+  ""why_it_matters"": ""Cette opportunité pourrait permettre à l'agence d'étendre son portefeuille dans le secteur de la réhabilitation, un domaine où elle a déjà des références réussies.""
+}",rehabilitation,AMO réemploi,Villers-Lès-Nancy,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""réhabilitation""]",1.0,,[],,,75,MAYBE,"L'agence Exemple a une bonne expérience dans les projets de réhabilitation, et le CA annuel est conforme aux exigences potentielles. Cependant, il serait important de vérifier si des certifications spécifiques sont demandées pour ce type de mission AMO.","Cette opportunité pourrait permettre à l'agence d'étendre son portefeuille dans le secteur de la réhabilitation, un domaine où elle a déjà des références réussies."
+"Marché de Maîtrise d’œuvre Bâtiment et VRD pour la construction de 32 LLS/LLTS "" Génipa "" - Rue Grage - Cité Mirza à Cayenne.",2TER HABITAT (ex SIGUY-SIMKO),2026-02-26,26-19433,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-19433,BOAMP,"Marché de Maîtrise d’œuvre Bâtiment et VRD pour la construction de 32 LLS/LLTS "" Génipa "" - Rue Grage - Cité Mirza à Cayenne. | Prestations de services | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + moyen: amenagement | 973 | https://www.boamp.fr/pages/avis/?q=idweb:26-19433",58,"{
+  ""project_type"": ""housing"",
+  ""program"": null,
+  ""location"": ""Cayenne"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": ""medium"",
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation de logements"",
+    ""École publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": 1000000,
+  ""required_certifications"": [],
+  ""consortium_required"": false,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 80,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'appel d'offres concerne la maîtrise d'œuvre pour la construction de logements à Cayenne. L'agence Exemple a les compétences et références nécessaires dans le secteur du logement et des bâtiments publics. Leur chiffre d'affaires correspond également aux exigences minimales."",
+  ""why_it_matters"": ""Cette opportunité permettra à l'agence Exemple de développer sa présence sur un nouveau marché tout en mettant en valeur son expertise en matière de projets résidentiels et d'écoles.""
+}",housing,,Cayenne,APPEL_OFFRE,ARCHITECTURE_BUILDING,medium,,"[""Réhabilitation de logements"", ""École publique""]",2.0,1000000.0,[],False,True,80,GO,L'appel d'offres concerne la maîtrise d'œuvre pour la construction de logements à Cayenne. L'agence Exemple a les compétences et références nécessaires dans le secteur du logement et des bâtiments publics. Leur chiffre d'affaires correspond également aux exigences minimales.,Cette opportunité permettra à l'agence Exemple de développer sa présence sur un nouveau marché tout en mettant en valeur son expertise en matière de projets résidentiels et d'écoles.
+Aménagements du bâtiment KOADEG pour le compte de la CGSS Guyane,Caisse Générale de Sécurité Sociale de Guyane,2026-03-04,26-21313,France,ARCHITECTURE_BUILDING,CORE,71200000,https://www.boamp.fr/pages/avis/?q=idweb:26-21313,BOAMP,Aménagements du bâtiment KOADEG pour le compte de la CGSS Guyane | Bâtiment | APPEL_OFFRE | SERVICES | 71200000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71200000 | + moyen: amenagement | 973 | 972 | 971 | 75 | https://www.boamp.fr/pages/avis/?q=idweb:26-21313,58,"{
+  ""project_type"": ""aménagement"",
+  ""program"": ""bâtiment"",
+  ""location"": ""Guyane"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation d'un ensemble de logements"",
+    ""Extension d'école publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 70,
+  ""verdict"": ""MOYEN"",
+  ""summary"": ""L'agence Exemple a des références pertinentes en réhabilitation et en école publique, qui correspondent aux besoins de cet appel d'offres. Cependant, il y a un point à vérifier concernant l'absence de spécificités sur l'estimation de budget et de tailles de projets."",
+  ""why_it_matters"": ""Candidater à cet appel d'offres pourrait ouvrir des opportunités de projets en Guyane, augmentant la visibilité et le chiffre d'affaires de l'agence dans un nouveau territoire d'intervention.""
+}",aménagement,bâtiment,Guyane,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""Réhabilitation d'un ensemble de logements"", ""Extension d'école publique""]",2.0,,[],,True,70,MOYEN,"L'agence Exemple a des références pertinentes en réhabilitation et en école publique, qui correspondent aux besoins de cet appel d'offres. Cependant, il y a un point à vérifier concernant l'absence de spécificités sur l'estimation de budget et de tailles de projets.","Candidater à cet appel d'offres pourrait ouvrir des opportunités de projets en Guyane, augmentant la visibilité et le chiffre d'affaires de l'agence dans un nouveau territoire d'intervention."
+Réhabilitation du bâtiment de l'Office du Tourisme d'Arêches,Commune de Beaufort,2026-03-04,26-22540,France,ARCHITECTURE_BUILDING,CORE,71200000,https://www.boamp.fr/pages/avis/?q=idweb:26-22540,BOAMP,Réhabilitation du bâtiment de l'Office du Tourisme d'Arêches | Bâtiment | APPEL_OFFRE | SERVICES | 71200000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71200000 | + moyen: rehabilitation | 73 | https://www.boamp.fr/pages/avis/?q=idweb:26-22540,58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": null,
+  ""location"": ""Arêches"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation du bâtiment de l'Office du Tourisme d'Arêches""
+  ],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 80,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'Agence Exemple possède une référence pertinente en réhabilitation, ce qui correspond parfaitement au projet proposé. De plus, la catégorie de l'appel d'offres est alignée avec les spécialités de l'agence, ce qui renforce sa compétence pour ce type de mission."",
+  ""why_it_matters"": ""Ce projet offre une opportunité significative à l'agence de mettre en avant son expertise en réhabilitation, tout en contribuant à la valorisation d'un bâtiment touristique, ce qui peut améliorer sa visibilité et son réseau dans le secteur.""
+}",rehabilitation,,Arêches,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""Réhabilitation du bâtiment de l'Office du Tourisme d'Arêches""]",1.0,,[],,,80,GO,"L'Agence Exemple possède une référence pertinente en réhabilitation, ce qui correspond parfaitement au projet proposé. De plus, la catégorie de l'appel d'offres est alignée avec les spécialités de l'agence, ce qui renforce sa compétence pour ce type de mission.","Ce projet offre une opportunité significative à l'agence de mettre en avant son expertise en réhabilitation, tout en contribuant à la valorisation d'un bâtiment touristique, ce qui peut améliorer sa visibilité et son réseau dans le secteur."
+Mission de maîtrise d'oeuvre du réaménagement du pôle gare de Houilles - Carrières-sur-Seine,CA SAINT GERMAIN BOUCLES DE SEINE,2026-03-06,26-22762,France,ARCHITECTURE_BUILDING,CORE,71241000,https://www.boamp.fr/pages/avis/?q=idweb:26-22762,BOAMP,Mission de maîtrise d'oeuvre du réaménagement du pôle gare de Houilles - Carrières-sur-Seine | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71241000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71241000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + moyen: amenagement | 78 | https://www.boamp.fr/pages/avis/?q=idweb:26-22762,58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": null,
+  ""location"": ""Houilles - Carrières-sur-Seine"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""réhabilitation"",
+    ""rehabilitation""
+  ],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 70,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'appel d'offres concerne une mission de maîtrise d'œuvre pour le réaménagement d'un pôle gare. Bien que l'agence ait de l'expérience en réhabilitation, il serait pertinent de vérifier si des références spécifiques au projet de gare sont requises."",
+  ""why_it_matters"": ""Ce projet offre une opportunité de travail avec une collectivité sur un site de transport important, pouvant augmenter la visibilité et le CA de l'agence si elle réussit à obtenir le contrat.""
+}",rehabilitation,,Houilles - Carrières-sur-Seine,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""réhabilitation"", ""rehabilitation""]",1.0,,[],,,70,MAYBE,"L'appel d'offres concerne une mission de maîtrise d'œuvre pour le réaménagement d'un pôle gare. Bien que l'agence ait de l'expérience en réhabilitation, il serait pertinent de vérifier si des références spécifiques au projet de gare sont requises.","Ce projet offre une opportunité de travail avec une collectivité sur un site de transport important, pouvant augmenter la visibilité et le CA de l'agence si elle réussit à obtenir le contrat."
+Marché de maitrise d'oeuvre pour l'opération de construction d'un collège sur la commune de Les Rousses,"D2P CONSEIL, au nom et pour le compte du CONSEIL DEPARTEMENTAL DU JURA",2026-03-07,26-23177,France,ARCHITECTURE_BUILDING,CORE,71240000,https://www.boamp.fr/pages/avis/?q=idweb:26-23177,BOAMP,Marché de maitrise d'oeuvre pour l'opération de construction d'un collège sur la commune de Les Rousses | Bâtiment | Restauration collective | APPEL_OFFRE | SERVICES | 71240000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71240000 | + fort: maitrise d oeuvre | 69 | 39 | 71 | 21 | 1 | 25 | 70 | https://www.boamp.fr/pages/avis/?q=idweb:26-23177,58,"{
+  ""project_type"": ""construction"",
+  ""program"": ""collège"",
+  ""location"": ""Les Rousses"",
+  ""procedure_type"": ""appel d'offres"",
+  ""main_discipline"": ""architecture"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 70,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'agence Exemple pourrait candidater à cet appel d'offres pour la construction d'un collège car il s'agit d'un projet scolaire, domaine d'expertise de l'agence. Cependant, il y a une absence de références spécifiquement demandées et il est crucial de vérifier si le marché nécessite des compétences particulières non présentes dans le profil de l'agence."",
+  ""why_it_matters"": ""Cet appel d'offres représente une opportunité de diversification pour l'agence dans le domaine éducatif tout en renforçant sa présence dans le secteur public.""
+}",construction,collège,Les Rousses,appel d'offres,architecture,,,[],,,[],,True,70,MAYBE,"L'agence Exemple pourrait candidater à cet appel d'offres pour la construction d'un collège car il s'agit d'un projet scolaire, domaine d'expertise de l'agence. Cependant, il y a une absence de références spécifiquement demandées et il est crucial de vérifier si le marché nécessite des compétences particulières non présentes dans le profil de l'agence.",Cet appel d'offres représente une opportunité de diversification pour l'agence dans le domaine éducatif tout en renforçant sa présence dans le secteur public.
+MOE_TJ_BEAUVAIS_CFO_CFA,Département Immobilier DIR SG MJ,2026-03-04,26-21166,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-21166,BOAMP,MOE_TJ_BEAUVAIS_CFO_CFA | Maîtrise d'oeuvre | Electricité (travaux) | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + fort: architecture | 60 | 80 | 2 | 59 | 62 | https://www.boamp.fr/pages/avis/?q=idweb:26-21166,58,"{
+  ""project_type"": ""architecture"",
+  ""program"": ""maîtrise d'oeuvre"",
+  ""location"": ""Beauvais"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": 1500000,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 50,
+  ""verdict"": ""NO"",
+  ""summary"": ""L'appel d'offres concerne des travaux de maîtrise d'oeuvre en électricité, ce qui n'est pas dans le domaine d'expertise de l'agence Exemple. De plus, aucune référence spécifique à l'architecture n'est requise, ce qui diminue l'adéquation de l'agence à ce projet."",
+  ""why_it_matters"": ""Le projet ne correspond pas aux spécialités de l'agence et se concentre sur des compétences en génie électrique, ce qui limite l'intérêt pour l'agence Exemple.""
+}",architecture,maîtrise d'oeuvre,Beauvais,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,[],,1500000.0,[],,,50,NO,"L'appel d'offres concerne des travaux de maîtrise d'oeuvre en électricité, ce qui n'est pas dans le domaine d'expertise de l'agence Exemple. De plus, aucune référence spécifique à l'architecture n'est requise, ce qui diminue l'adéquation de l'agence à ce projet.","Le projet ne correspond pas aux spécialités de l'agence et se concentre sur des compétences en génie électrique, ce qui limite l'intérêt pour l'agence Exemple."
+Mission de maîtrise d’œuvre partielle pour des travaux de réhabilitation du réseau d'eau potable de la CASUD,Communauté d'Agglomération du Sud,2026-03-10,26-24525,France,ARCHITECTURE_BUILDING,CORE,71240000,https://www.boamp.fr/pages/avis/?q=idweb:26-24525,BOAMP,Mission de maîtrise d’œuvre partielle pour des travaux de réhabilitation du réseau d'eau potable de la CASUD | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71240000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71240000 | + fort: maitrise d oeuvre | + moyen: rehabilitation | 974 | https://www.boamp.fr/pages/avis/?q=idweb:26-24525,58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": null,
+  ""location"": ""France"",
+  ""procedure_type"": null,
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 50,
+  ""verdict"": ""NO"",
+  ""summary"": ""L'appel d'offres concerne des travaux de réhabilitation du réseau d'eau potable, ce qui n'est pas en adéquation avec l'expertise de l'agence en architecture et urbanisme. De plus, il n'y a pas de références demandées spécifiquement dans le domaine du logement ou d'autres types de projets correspondant aux compétences de l'agence."",
+  ""why_it_matters"": ""C'est une opportunité dans le domaine de la réhabilitation, cependant, les travaux portent sur un réseau d'eau potable, un domaine qui n'est pas dans le champ d'expertise de l'Agence Exemple.""
+}",rehabilitation,,France,,ARCHITECTURE_BUILDING,,,[],,,[],,,50,NO,"L'appel d'offres concerne des travaux de réhabilitation du réseau d'eau potable, ce qui n'est pas en adéquation avec l'expertise de l'agence en architecture et urbanisme. De plus, il n'y a pas de références demandées spécifiquement dans le domaine du logement ou d'autres types de projets correspondant aux compétences de l'agence.","C'est une opportunité dans le domaine de la réhabilitation, cependant, les travaux portent sur un réseau d'eau potable, un domaine qui n'est pas dans le champ d'expertise de l'Agence Exemple."
+"Marché de MAITRISE D'OEUVRE pour la mise à niveau de l'AVP, missions PRO et suivantes - PAPI Sanne-Dolon","Pouvoir adjuddicateur  : SYNDICAT ISEROIS DES RIVIERES RHONE AVAL – SIRRA / 
+Adresse : 366 Rue Stéphane Hessel, 38440 Saint-Jean-de-Bournay
+
+/ Mandataire agissant au nom et pour le compte du pouvoir adjudicateur : SPL d’Aménagement au capital de 1 180 000 € - RCS GRENOBLE 524 119 641",2026-02-28,26-20229,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-20229,BOAMP,"Marché de MAITRISE D'OEUVRE pour la mise à niveau de l'AVP, missions PRO et suivantes - PAPI Sanne-Dolon | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + moyen: amenagement | + moyen: etude | - moyen: animation | 38 | https://www.boamp.fr/pages/avis/?q=idweb:26-20229",58,"{
+  ""project_type"": ""MAITRISE D'OEUVRE"",
+  ""program"": ""mise à niveau de l'AVP, missions PRO et suivantes"",
+  ""location"": ""Saint-Jean-de-Bournay"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [""rehabilitation"", ""public school""],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 60,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'Agence Exemple a des références dans des projets de réhabilitation et d'extension d'écoles, ce qui est en partie aligné avec les besoins de ce marché. Toutefois, l'agence n'a pas d'expérience spécifique mentionnée dans la maîtrise d'œuvre pour le type de projet indiqué."",
+  ""why_it_matters"": ""Le projet de maîtrise d'œuvre implique des missions techniques spécifiques qui peuvent nécessiter une expertise approfondie que l'agence n'a pas clairement démontrée."" 
+}",MAITRISE D'OEUVRE,"mise à niveau de l'AVP, missions PRO et suivantes",Saint-Jean-de-Bournay,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""rehabilitation"", ""public school""]",,,[],,,60,MAYBE,"L'Agence Exemple a des références dans des projets de réhabilitation et d'extension d'écoles, ce qui est en partie aligné avec les besoins de ce marché. Toutefois, l'agence n'a pas d'expérience spécifique mentionnée dans la maîtrise d'œuvre pour le type de projet indiqué.",Le projet de maîtrise d'œuvre implique des missions techniques spécifiques qui peuvent nécessiter une expertise approfondie que l'agence n'a pas clairement démontrée.
+Mission de maitrise d’œuvre relative à la réhabilitation des tribunes du Parc Municipal des Sports de Vincennes,Mairie de Vincennes,2026-02-25,26-18985,France,ARCHITECTURE_BUILDING,CORE,71222000 | 71300000,https://www.boamp.fr/pages/avis/?q=idweb:26-18985,BOAMP,Mission de maitrise d’œuvre relative à la réhabilitation des tribunes du Parc Municipal des Sports de Vincennes | Ingénierie | APPEL_OFFRE | SERVICES | 71222000 | 71300000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71222000 | CPV secondaire 71300000 | + moyen: rehabilitation | + moyen: ingenierie | 94 | https://www.boamp.fr/pages/avis/?q=idweb:26-18985,58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""réhabilitation des tribunes du Parc Municipal des Sports de Vincennes"",
+  ""location"": ""Vincennes"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [""réhabilitation""],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": false,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 90,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'agence Exemple est bien positionnée pour candidater à la réhabilitation des tribunes du Parc Municipal des Sports de Vincennes, ayant des références dans la réhabilitation et des compétences en architecture. Le projet exige une maîtrise d'œuvre, un domaine dont l'agence a l'expérience."",
+  ""why_it_matters"": ""Cette mission est une opportunité significative pour l'agence d'élargir son portefeuille de projets publics en France, surtout dans un contexte sportif et récréatif, favorisant l'engagement communautaire.""
+}",rehabilitation,réhabilitation des tribunes du Parc Municipal des Sports de Vincennes,Vincennes,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""réhabilitation""]",,,[],False,True,90,GO,"L'agence Exemple est bien positionnée pour candidater à la réhabilitation des tribunes du Parc Municipal des Sports de Vincennes, ayant des références dans la réhabilitation et des compétences en architecture. Le projet exige une maîtrise d'œuvre, un domaine dont l'agence a l'expérience.","Cette mission est une opportunité significative pour l'agence d'élargir son portefeuille de projets publics en France, surtout dans un contexte sportif et récréatif, favorisant l'engagement communautaire."
+Maîtrise d'oeuvre pour la rénovation énergétique du gymnase du Canal,MAIRIE D'ILLZACH,2026-02-25,26-19501,France,ARCHITECTURE_BUILDING,CORE,71221000,https://www.boamp.fr/pages/avis/?q=idweb:26-19501,BOAMP,Maîtrise d'oeuvre pour la rénovation énergétique du gymnase du Canal | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71221000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71221000 | + fort: maitrise d oeuvre | + moyen: zac | 68 | https://www.boamp.fr/pages/avis/?q=idweb:26-19501,58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""rénovation énergétique"",
+  ""location"": ""Illzach"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": ""medium"",
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""réhabilitation de bâtiment"",
+    ""expansion d'école"",
+    ""maîtrise d'œuvre pour un gymnase""
+  ],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": 1500000,
+  ""required_certifications"": [],
+  ""consortium_required"": false,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 70,
+  ""verdict"": ""MAYBE"",
+  ""summary"": ""L'agence a une expertise dans la réhabilitation et des références pertinentes, mais doit confirmer si elle a des projets similaires en maîtrise d'œuvre. Le projet porte sur la rénovation énergétique d'un gymnase, une compétence qui peut être alignée avec leur domaine d'expertise."",
+  ""why_it_matters"": ""Cette opportunité permet à l'agence de montrer son savoir-faire dans des projets d'envergure liés à la réhabilitation et la durabilité, renforçant ainsi son portfolio et sa présence sur le marché.""
+}",rehabilitation,rénovation énergétique,Illzach,APPEL_OFFRE,ARCHITECTURE_BUILDING,medium,,"[""réhabilitation de bâtiment"", ""expansion d'école"", ""maîtrise d'œuvre pour un gymnase""]",1.0,1500000.0,[],False,True,70,MAYBE,"L'agence a une expertise dans la réhabilitation et des références pertinentes, mais doit confirmer si elle a des projets similaires en maîtrise d'œuvre. Le projet porte sur la rénovation énergétique d'un gymnase, une compétence qui peut être alignée avec leur domaine d'expertise.","Cette opportunité permet à l'agence de montrer son savoir-faire dans des projets d'envergure liés à la réhabilitation et la durabilité, renforçant ainsi son portfolio et sa présence sur le marché."
+Mission de maîtrise d’œuvre pour la réhabilitation du Petit Théâtre et de la longère,MAIRIE DE PONT-AUDEMER,2026-03-04,26-21437,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-21437,BOAMP,Mission de maîtrise d’œuvre pour la réhabilitation du Petit Théâtre et de la longère | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + moyen: rehabilitation | 27 | https://www.boamp.fr/pages/avis/?q=idweb:26-21437,58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""Petit Théâtre et de la longère"",
+  ""location"": ""Pont-Audemer"",
+  ""procedure_type"": ""APPEL_OFFRE"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [""réhabilitation""],
+  ""required_references_count"": 1,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 80,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'agence Exemple a des expériences pertinentes en réhabilitation de projets similaires, ce qui fait d'elle une candidate idéale pour cette mission. La compétence requise enArchitecture Building est en adéquation avec leurs références."",
+  ""why_it_matters"": ""Cet appel d'offres représente une belle opportunité de développer un projet culturel important en France et de renforcer la présence de l'agence sur le marché de la réhabilitation architecturale.""
+}",rehabilitation,Petit Théâtre et de la longère,Pont-Audemer,APPEL_OFFRE,ARCHITECTURE_BUILDING,,,"[""réhabilitation""]",1.0,,[],,,80,GO,"L'agence Exemple a des expériences pertinentes en réhabilitation de projets similaires, ce qui fait d'elle une candidate idéale pour cette mission. La compétence requise enArchitecture Building est en adéquation avec leurs références.",Cet appel d'offres représente une belle opportunité de développer un projet culturel important en France et de renforcer la présence de l'agence sur le marché de la réhabilitation architecturale.
+"0168 - TERRENOIRE
+Mission de maîtrise d'oeuvre 
+Construction neuve de 45 logements",TOIT FOREZIEN,2026-03-10,26-24061,France,ARCHITECTURE_BUILDING,CORE,71240000,https://www.boamp.fr/pages/avis/?q=idweb:26-24061,BOAMP,"0168 - TERRENOIRE
+Mission de maîtrise d'oeuvre 
+Construction neuve de 45 logements | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71240000 | nature APPEL_OFFRE | type SERVICES | CPV archi 71240000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | 42 | https://www.boamp.fr/pages/avis/?q=idweb:26-24061",58,"{
+  ""project_type"": ""housing"",
+  ""program"": ""Construction neuve de 45 logements"",
+  ""location"": ""France"",
+  ""procedure_type"": null,
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": ""medium"",
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""Réhabilitation d'un immeuble de logements"",
+    ""Extension d'une école publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": 1500000,
+  ""required_certifications"": [],
+  ""consortium_required"": false,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 80,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'Agence Exemple a des références pertinentes en réhabilitation et construction de logements, ainsi qu'un CA annuel suffisant pour ce projet. La mission concerne la construction de nouveaux logements, domaine dans lequel l'agence a de l'expérience."",
+  ""why_it_matters"": ""Cette opportunité permet à l'agence de croître en participant à un projet de construction significatif dans le secteur du logement en France, en alignement avec ses compétences et son expérience.""
+}",housing,Construction neuve de 45 logements,France,,ARCHITECTURE_BUILDING,medium,,"[""Réhabilitation d'un immeuble de logements"", ""Extension d'une école publique""]",2.0,1500000.0,[],False,True,80,GO,"L'Agence Exemple a des références pertinentes en réhabilitation et construction de logements, ainsi qu'un CA annuel suffisant pour ce projet. La mission concerne la construction de nouveaux logements, domaine dans lequel l'agence a de l'expérience.","Cette opportunité permet à l'agence de croître en participant à un projet de construction significatif dans le secteur du logement en France, en alignement avec ses compétences et son expérience."
+Maîtrise d'œuvre pour la restauration du chevet de l'église Saint Séverin Paris 5ème,VILLE de PARIS - DFA - SDA,2026-03-10,26-23952,France,ARCHITECTURE_BUILDING,CORE,71000000 | 71200000,https://www.boamp.fr/pages/avis/?q=idweb:26-23952,BOAMP,Maîtrise d'œuvre pour la restauration du chevet de l'église Saint Séverin Paris 5ème | Maîtrise d'oeuvre | APPEL_OFFRE | SERVICES | 71000000 | 71200000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | CPV archi 71200000 | + fort: maitrise d oeuvre | + fort: architecte | + moyen: etude | 75 | https://www.boamp.fr/pages/avis/?q=idweb:26-23952,58,"{
+  ""project_type"": ""rehabilitation"",
+  ""program"": ""restauration du chevet de l'église Saint Séverin"",
+  ""location"": ""Paris, 5ème"",
+  ""procedure_type"": ""appel d'offre"",
+  ""main_discipline"": ""Maîtrise d'œuvre"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [
+    ""réhabilitation d'un bâtiment de logement"",
+    ""extension d'une école publique""
+  ],
+  ""required_references_count"": 2,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": true,
+  ""relevance_score"": 80,
+  ""verdict"": ""GO"",
+  ""summary"": ""L'Agence Exemple a les compétences et les références nécessaires pour répondre à cet appel d'offres. La réhabilitation d'un bâtiment de logement et l'extension d'une école publique sont des projets alignés avec les expériences passées de l'agence."",
+  ""why_it_matters"": ""La restauration d'un monument historique comme l'église Saint Séverin représente une opportunité significative pour l'agence, renforçant sa présence dans le secteur du patrimoine et de l'architecture à Paris.""
+}",rehabilitation,restauration du chevet de l'église Saint Séverin,"Paris, 5ème",appel d'offre,Maîtrise d'œuvre,,,"[""réhabilitation d'un bâtiment de logement"", ""extension d'une école publique""]",2.0,,[],,True,80,GO,L'Agence Exemple a les compétences et les références nécessaires pour répondre à cet appel d'offres. La réhabilitation d'un bâtiment de logement et l'extension d'une école publique sont des projets alignés avec les expériences passées de l'agence.,"La restauration d'un monument historique comme l'église Saint Séverin représente une opportunité significative pour l'agence, renforçant sa présence dans le secteur du patrimoine et de l'architecture à Paris."
+Marché de maitrise d'oeuvre pour la création d'une usine de traitement des forages de Port aux oies à Cannes Ecluse.,Communauté de Communes du Pays de Montereau,2026-03-05,26-22063,France,ARCHITECTURE_BUILDING,CORE,71000000,https://www.boamp.fr/pages/avis/?q=idweb:26-22063,BOAMP,Marché de maitrise d'oeuvre pour la création d'une usine de traitement des forages de Port aux oies à Cannes Ecluse. | Maîtrise d'oeuvre | Alimentation en eau potable | APPEL_OFFRE | SERVICES | 71000000 | nature APPEL_OFFRE | type SERVICES | CPV fort 71000000 | + fort: maitrise d oeuvre | + fort: mission de maitrise d oeuvre | + fort: assistance a maitrise d ouvrage | + fort: urbanisme | + moyen: etude | 77 | https://www.boamp.fr/pages/avis/?q=idweb:26-22063,58,"{
+  ""project_type"": ""public_building"",
+  ""program"": ""traitement des forages"",
+  ""location"": ""Cannes Ecluse"",
+  ""procedure_type"": ""appel d'offre"",
+  ""main_discipline"": ""ARCHITECTURE_BUILDING"",
+  ""estimated_scale"": null,
+  ""estimated_budget"": null,
+  ""required_references"": [],
+  ""required_references_count"": null,
+  ""minimum_revenue_required"": null,
+  ""required_certifications"": [],
+  ""consortium_required"": null,
+  ""architect_mandatory"": null,
+  ""relevance_score"": 20,
+  ""verdict"": ""NO"",
+  ""summary"": ""L'appel d'offres concerne la maîtrise d'œuvre pour une usine de traitement, ce qui ne correspond pas aux compétences principales de l'agence Exemple qui se concentre sur des projets d'habitat, d'écoles, et d'urbanisme. Par ailleurs, les références demandées ne sont pas spécifiées."",
+  ""why_it_matters"": ""Cette opportunité ne correspond pas aux typologies et aux spécialités de l'agence, rendant la candidature inappropriée et peu avantageuse.""
+}",public_building,traitement des forages,Cannes Ecluse,appel d'offre,ARCHITECTURE_BUILDING,,,[],,,[],,,20,NO,"L'appel d'offres concerne la maîtrise d'œuvre pour une usine de traitement, ce qui ne correspond pas aux compétences principales de l'agence Exemple qui se concentre sur des projets d'habitat, d'écoles, et d'urbanisme. Par ailleurs, les références demandées ne sont pas spécifiées.","Cette opportunité ne correspond pas aux typologies et aux spécialités de l'agence, rendant la candidature inappropriée et peu avantageuse."

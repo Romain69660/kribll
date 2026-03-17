@@ -120,6 +120,9 @@ if "summary" in df.columns:
 if "buyer_name" in df.columns:
     df.loc[df["buyer_name"] == "", "final_score"] -= 8
 
+# Cap final_score at 100
+df["final_score"] = df["final_score"].clip(upper=100)
+
 # -----------------------------------
 # Sort date
 # -----------------------------------
