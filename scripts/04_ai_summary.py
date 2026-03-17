@@ -225,6 +225,13 @@ Règles :
 - consortium_required = true, false ou null si inconnu
 - architect_mandatory = true, false ou null si inconnu
 - relevance_score = nombre entier de 0 à 100
+  Utilise TOUTE la plage de façon stricte :
+  90-100 = correspondance quasi parfaite (profil, références, CA, localisation tous alignés)
+  70-89  = bonne correspondance avec quelques points à vérifier
+  50-69  = correspondance partielle, incertitudes importantes
+  30-49  = correspondance faible, un critère bloquant
+  0-29   = pas de correspondance, ne pas candidater
+  Ne mets PAS 80 par défaut. Évalue vraiment chaque critère.
 - verdict = "GO", "MAYBE" ou "NO"
 - summary = résumé clair en 2 à 4 phrases maximum
 - why_it_matters = explication brève et concrète de l'intérêt de l'opportunité
