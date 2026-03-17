@@ -4,7 +4,9 @@
       "Bash(python scripts/05_top_feed.py)",
       "Bash(SUPABASE_URL=\"https://lqzhdgfcjfwzinttaprr.supabase.co\" SUPABASE_KEY=\"sb_publishable_rZiOdPgSfGiS_aDIhUJbvQ_8vE8hv8D\" python scripts/06_upload_supabase.py)",
       "Bash(python -c \":*)",
-      "Bash(python scripts/04_ai_summary.py)"
+      "Bash(python scripts/04_ai_summary.py)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''Next:'''', d.get\\(''''dependencies'''',{}\\).get\\(''''next'''',''''''''\\)\\); print\\(''''React:'''', d.get\\(''''dependencies'''',{}\\).get\\(''''react'''',''''''''\\)\\)\")",
+      "Bash(npm install:*)"
     ]
   }
 }

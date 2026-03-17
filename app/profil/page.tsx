@@ -1,0 +1,344 @@
+'use client'
+
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+
+const hl = "'Outfit', 'Inter', sans-serif"
+
+const SPECIALISATIONS = [
+  { value: 'housing',       label: 'Logement' },
+  { value: 'school',        label: 'École' },
+  { value: 'heritage',      label: 'Patrimoine' },
+  { value: 'rehabilitation',label: 'Réhabilitation' },
+  { value: 'museum',        label: 'Musée / Culture' },
+  { value: 'public_building',label: 'Bâtiment public' },
+  { value: 'urbanism',      label: 'Urbanisme' },
+  { value: 'landscape',     label: 'Paysage' },
+  { value: 'amo',           label: 'AMO' },
+  { value: 'competition',   label: 'Concours' },
+]
+
+const PAYS = ['France', 'Belgique', 'Suisse', 'Allemagne', 'Italie']
+
+const REF_BUDGETS = ['<500k', '500k-2M', '2M-10M', '10M+']
+
+interface Reference {
+  type: string
+  location: string
+  year: string
+  budget: string
+}
+
+interface Profile {
+  name: string
+  city: string
+  team_size: string
+  annual_revenue: string
+  project_types: string[]
+  preferred_countries: string[]
+  preferred_regions: string
+  references: Reference[]
+}
+
+const EMPTY: Profile = {
+  name: '', city: '', team_size: '6-15', annual_revenue: '300k-600k',
+  project_types: [], preferred_countries: [], preferred_regions: '',
+  references: [],
+}
+
+const EMPTY_REF: Reference = { type: 'housing', location: '', year: '', budget: '<500k' }
+
+export default function ProfilPage() {
+  const supabase = createClientComponentClient()
+  const router   = useRouter()
+
+  const [userId,  setUserId]  = useState<string | null>(null)
+  const [profile, setProfile] = useState<Profile>(EMPTY)
+  const [saving,  setSaving]  = useState(false)
+  const [saved,   setSaved]   = useState(false)
+  const [error,   setError]   = useState<string | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) { router.push('/login'); return }
+      setUserId(data.session.user.id)
+      const { data: p } = await supabase
+        .from('agency_profiles')
+        .select('*')
+        .eq('user_id', data.session.user.id)
+        .single()
+      if (p) {
+        setProfile({
+          name:               p.name ?? '',
+          city:               p.city ?? '',
+          team_size:          String(p.team_size ?? '6-15'),
+          annual_revenue:     String(p.annual_revenue ?? '300k-600k'),
+          project_types:      p.project_types ?? [],
+          preferred_countries:p.preferred_countries ?? [],
+          preferred_regions:  '',
+          references:         (p.references ?? []).map((r: Reference) => ({
+            type: r.type ?? 'housing', location: r.location ?? '',
+            year: String(r.year ?? ''), budget: r.budget ?? '<500k',
+          })),
+        })
+      }
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function toggleArray(arr: string[], val: string) {
+    return arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
+  }
+
+  function updateRef(i: number, field: keyof Reference, val: string) {
+    const refs = [...profile.references]
+    refs[i] = { ...refs[i], [field]: val }
+    setProfile(p => ({ ...p, references: refs }))
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    if (!userId) return
+    setSaving(true); setError(null); setSaved(false)
+
+    const payload = {
+      user_id:             userId,
+      name:                profile.name,
+      city:                profile.city,
+      team_size:           profile.team_size,
+      annual_revenue:      profile.annual_revenue,
+      project_types:       profile.project_types,
+      preferred_countries: profile.preferred_countries,
+      preferred_categories: profile.project_types.map(t => {
+        if (['urbanism','landscape'].includes(t)) return 'URBANISM_LANDSCAPE'
+        if (t === 'amo')       return 'AMO_PROGRAMMING'
+        if (t === 'competition') return 'COMPETITIONS'
+        return 'ARCHITECTURE_BUILDING'
+      }).filter((v, i, a) => a.indexOf(v) === i),
+      references: profile.references,
+    }
+
+    const { error: err } = await supabase
+      .from('agency_profiles')
+      .upsert(payload, { onConflict: 'user_id' })
+
+    if (err) setError(err.message)
+    else setSaved(true)
+    setSaving(false)
+  }
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '9px 13px', borderRadius: 10,
+    border: '1px solid hsl(220,8%,88%)', fontSize: '0.88rem',
+    color: 'hsl(220,20%,12%)', background: 'white', outline: 'none',
+    boxSizing: 'border-box',
+  }
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: '0.78rem', fontWeight: 500, color: 'hsl(220,20%,32%)',
+    display: 'block', marginBottom: 6,
+  }
+
+  const sectionStyle: React.CSSProperties = {
+    background: 'white', border: '1px solid hsl(220,8%,91%)',
+    borderRadius: 16, padding: '24px', marginBottom: 16,
+    boxShadow: '0 1px 3px hsl(220 20% 12%/0.03)',
+  }
+
+  const sectionTitle: React.CSSProperties = {
+    fontFamily: hl, fontWeight: 600, fontSize: '0.92rem',
+    color: 'hsl(220,20%,12%)', margin: '0 0 20px',
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'hsl(220,6%,97.5%)', fontFamily: "'Inter', sans-serif" }}>
+
+      {/* Header */}
+      <header style={{ background: 'white', borderBottom: '1px solid hsl(220,8%,91%)', padding: '0 2rem' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Link href="/" style={{ fontFamily: hl, fontWeight: 700, fontSize: '0.98rem', color: 'hsl(220,20%,12%)', textDecoration: 'none', letterSpacing: '-0.02em' }}>
+            kribbl
+          </Link>
+          <button
+            onClick={() => supabase.auth.signOut().then(() => router.push('/'))}
+            style={{ fontSize: '0.8rem', color: 'hsl(220,8%,52%)', background: 'none', border: 'none', cursor: 'pointer' }}
+          >
+            Déconnexion
+          </button>
+        </div>
+      </header>
+
+      {/* Content */}
+      <div style={{ maxWidth: 800, margin: '0 auto', padding: '36px 2rem 60px' }}>
+
+        <h1 style={{ fontFamily: hl, fontWeight: 700, fontSize: '1.5rem', letterSpacing: '-0.025em', color: 'hsl(220,20%,12%)', margin: '0 0 6px' }}>
+          Profil agence
+        </h1>
+        <p style={{ fontSize: '0.88rem', color: 'hsl(220,8%,52%)', margin: '0 0 28px' }}>
+          Ces informations permettent à Leman de personnaliser le scoring.
+        </p>
+
+        {saved && (
+          <div style={{ background: 'hsl(145,60%,94%)', color: 'hsl(145,70%,30%)', borderRadius: 10, padding: '12px 16px', fontSize: '0.85rem', marginBottom: 20 }}>
+            Profil sauvegardé.
+          </div>
+        )}
+        {error && (
+          <div style={{ background: 'hsl(0,80%,95%)', color: 'hsl(0,70%,40%)', borderRadius: 10, padding: '12px 16px', fontSize: '0.85rem', marginBottom: 20 }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSave}>
+
+          {/* 1 — Infos de base */}
+          <div style={sectionStyle}>
+            <h2 style={sectionTitle}>Informations de base</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <div>
+                <label style={labelStyle}>Nom de l'agence</label>
+                <input style={inputStyle} value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))} placeholder="Atelier Dupont" />
+              </div>
+              <div>
+                <label style={labelStyle}>Ville</label>
+                <input style={inputStyle} value={profile.city} onChange={e => setProfile(p => ({ ...p, city: e.target.value }))} placeholder="Paris" />
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div>
+                <label style={labelStyle}>Taille équipe</label>
+                <select style={inputStyle} value={profile.team_size} onChange={e => setProfile(p => ({ ...p, team_size: e.target.value }))}>
+                  {['1-5','6-15','16-50','50+'].map(v => <option key={v} value={v}>{v} personnes</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>CA annuel</label>
+                <select style={inputStyle} value={profile.annual_revenue} onChange={e => setProfile(p => ({ ...p, annual_revenue: e.target.value }))}>
+                  {['<300k','300k-600k','600k-1.5M','1.5M-5M','5M+'].map(v => <option key={v} value={v}>{v} €</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* 2 — Spécialisations */}
+          <div style={sectionStyle}>
+            <h2 style={sectionTitle}>Spécialisations</h2>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {SPECIALISATIONS.map(({ value, label }) => {
+                const active = profile.project_types.includes(value)
+                return (
+                  <button key={value} type="button"
+                    onClick={() => setProfile(p => ({ ...p, project_types: toggleArray(p.project_types, value) }))}
+                    style={{
+                      padding: '7px 16px', borderRadius: 999, fontSize: '0.82rem', fontWeight: 400, cursor: 'pointer',
+                      border: active ? '1px solid hsl(220,20%,12%)' : '1px solid hsl(220,8%,88%)',
+                      background: active ? 'hsl(220,20%,12%)' : 'white',
+                      color: active ? 'white' : 'hsl(220,20%,32%)',
+                      transition: 'all .15s',
+                    }}>
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* 3 — Zones géographiques */}
+          <div style={sectionStyle}>
+            <h2 style={sectionTitle}>Zones géographiques</h2>
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Régions / départements préférés</label>
+              <input style={inputStyle} value={profile.preferred_regions}
+                onChange={e => setProfile(p => ({ ...p, preferred_regions: e.target.value }))}
+                placeholder="Île-de-France, Grand Est, 69..." />
+            </div>
+            <div>
+              <label style={labelStyle}>Pays</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {PAYS.map(pays => {
+                  const active = profile.preferred_countries.includes(pays)
+                  return (
+                    <button key={pays} type="button"
+                      onClick={() => setProfile(p => ({ ...p, preferred_countries: toggleArray(p.preferred_countries, pays) }))}
+                      style={{
+                        padding: '7px 16px', borderRadius: 999, fontSize: '0.82rem', fontWeight: 400, cursor: 'pointer',
+                        border: active ? '1px solid hsl(220,20%,12%)' : '1px solid hsl(220,8%,88%)',
+                        background: active ? 'hsl(220,20%,12%)' : 'white',
+                        color: active ? 'white' : 'hsl(220,20%,32%)',
+                        transition: 'all .15s',
+                      }}>
+                      {pays}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* 4 — Références */}
+          <div style={sectionStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h2 style={{ ...sectionTitle, margin: 0 }}>Références</h2>
+              <button type="button"
+                onClick={() => setProfile(p => ({ ...p, references: [...p.references, { ...EMPTY_REF }] }))}
+                style={{
+                  fontSize: '0.8rem', fontWeight: 500, padding: '7px 16px', borderRadius: 999,
+                  background: 'white', border: '1px solid hsl(220,8%,88%)', cursor: 'pointer',
+                  color: 'hsl(220,20%,32%)',
+                }}>
+                + Ajouter une référence
+              </button>
+            </div>
+            {profile.references.length === 0 && (
+              <p style={{ fontSize: '0.85rem', color: 'hsl(220,8%,62%)', margin: 0 }}>Aucune référence ajoutée.</p>
+            )}
+            {profile.references.map((ref, i) => (
+              <div key={i} style={{ background: 'hsl(220,8%,97.5%)', borderRadius: 12, padding: '16px', marginBottom: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px 140px 32px', gap: 10, alignItems: 'end' }}>
+                  <div>
+                    <label style={labelStyle}>Type</label>
+                    <select style={inputStyle} value={ref.type} onChange={e => updateRef(i, 'type', e.target.value)}>
+                      {SPECIALISATIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Localisation</label>
+                    <input style={inputStyle} value={ref.location} onChange={e => updateRef(i, 'location', e.target.value)} placeholder="Lyon" />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Année</label>
+                    <input style={inputStyle} type="number" value={ref.year} onChange={e => updateRef(i, 'year', e.target.value)} placeholder="2022" min="1980" max="2030" />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Montant estimé</label>
+                    <select style={inputStyle} value={ref.budget} onChange={e => updateRef(i, 'budget', e.target.value)}>
+                      {REF_BUDGETS.map(v => <option key={v} value={v}>{v} €</option>)}
+                    </select>
+                  </div>
+                  <button type="button"
+                    onClick={() => setProfile(p => ({ ...p, references: p.references.filter((_, j) => j !== i) }))}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'hsl(220,8%,62%)', fontSize: '1.1rem', paddingBottom: 2 }}
+                  >×</button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Sauvegarder */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button type="submit" disabled={saving} style={{
+              padding: '11px 28px', borderRadius: 999, border: 'none',
+              background: 'hsl(220,20%,12%)', color: 'white',
+              fontSize: '0.88rem', fontWeight: 500, cursor: saving ? 'not-allowed' : 'pointer',
+              opacity: saving ? 0.6 : 1,
+            }}>
+              {saving ? 'Sauvegarde...' : 'Sauvegarder le profil'}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  )
+}

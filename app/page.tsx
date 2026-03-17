@@ -1,9 +1,10 @@
 import { supabase } from "../lib/supabase"
 import TendersGrid, { type Tender } from "./components/TendersGrid"
+import HeaderAuth from "./components/HeaderAuth"
 import {
   ArrowRight, Sparkles, Trophy,
   Filter, BarChart3, Search, Target, Clock, Eye, Zap,
-  User, Heart, Bell, ArrowUpRight,
+  ArrowUpRight,
 } from "lucide-react"
 
 // ─── Helpers (server-only, used in hero card) ─────────────────────────────────
@@ -108,17 +109,8 @@ export default async function Home() {
               ))}
             </nav>
             {/* Actions */}
-            <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: "auto" }}>
-              {[Heart, Bell, User].map((Icon, i) => (
-                <button key={i} style={{ padding: 6, borderRadius: 999, border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center" }}>
-                  <Icon style={{ width: 15, height: 15, color: "hsl(220,8%,62%)" }} strokeWidth={1.5} />
-                </button>
-              ))}
-              <button style={{
-                marginLeft: 8, fontSize: "0.78rem", fontWeight: 500,
-                color: "hsl(220,20%,12%)", background: "hsl(220,8%,95%)",
-                border: "none", padding: "6px 16px", borderRadius: 999, cursor: "pointer",
-              }}>Commencer</button>
+            <div style={{ marginLeft: "auto" }}>
+              <HeaderAuth />
             </div>
           </div>
         </div>
