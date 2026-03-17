@@ -77,7 +77,7 @@ export default function ProfilPage() {
           project_types:      p.project_types ?? [],
           preferred_countries:p.preferred_countries ?? [],
           preferred_regions:  '',
-          references:         (p.references ?? []).map((r: Reference) => ({
+          references:         (p.agency_references ?? []).map((r: Reference) => ({
             type: r.type ?? 'housing', location: r.location ?? '',
             year: String(r.year ?? ''), budget: r.budget ?? '<500k',
           })),
@@ -115,7 +115,7 @@ export default function ProfilPage() {
         if (t === 'competition') return 'COMPETITIONS'
         return 'ARCHITECTURE_BUILDING'
       }).filter((v, i, a) => a.indexOf(v) === i),
-      references: profile.references,
+      agency_references: profile.references,
     }
 
     const { error: err } = await supabase
