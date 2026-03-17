@@ -2,27 +2,49 @@
 
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 
 const hl = "'Outfit', 'Inter', sans-serif"
 
 const SPECIALISATIONS = [
-  { value: 'housing',       label: 'Logement' },
-  { value: 'school',        label: 'École' },
-  { value: 'heritage',      label: 'Patrimoine' },
-  { value: 'rehabilitation',label: 'Réhabilitation' },
-  { value: 'museum',        label: 'Musée / Culture' },
+  { value: 'housing',        label: 'Logement' },
+  { value: 'school',         label: 'École' },
+  { value: 'heritage',       label: 'Patrimoine' },
+  { value: 'rehabilitation', label: 'Réhabilitation' },
+  { value: 'museum',         label: 'Musée / Culture' },
   { value: 'public_building',label: 'Bâtiment public' },
-  { value: 'urbanism',      label: 'Urbanisme' },
-  { value: 'landscape',     label: 'Paysage' },
-  { value: 'amo',           label: 'AMO' },
-  { value: 'competition',   label: 'Concours' },
+  { value: 'urbanism',       label: 'Urbanisme' },
+  { value: 'landscape',      label: 'Paysage' },
+  { value: 'amo',            label: 'AMO' },
+  { value: 'competition',    label: 'Concours' },
 ]
 
 const PAYS = ['France', 'Belgique', 'Suisse', 'Allemagne', 'Italie']
 
 const REF_BUDGETS = ['<500k', '500k-2M', '2M-10M', '10M+']
+
+const REGIONS_FRANCE = [
+  "Île-de-France", "Auvergne-Rhône-Alpes", "Nouvelle-Aquitaine",
+  "Occitanie", "Grand Est", "Hauts-de-France", "Normandie",
+  "Bretagne", "Pays de la Loire", "Bourgogne-Franche-Comté",
+  "Centre-Val de Loire", "Provence-Alpes-Côte d'Azur",
+  "Corse", "Guadeloupe", "Martinique", "Guyane", "La Réunion",
+  "Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse",
+  "Nantes", "Strasbourg", "Lille", "Grenoble", "Rennes",
+  "Montpellier", "Nice", "Toulon", "Nîmes", "Clermont-Ferrand",
+  "Le Havre", "Dijon", "Angers", "Saint-Étienne", "Caen",
+  "69", "75", "13", "33", "31", "44", "67", "59", "38", "35"
+]
+
+const VILLES_FRANCE = [
+  "Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse",
+  "Nantes", "Strasbourg", "Lille", "Grenoble", "Rennes",
+  "Montpellier", "Nice", "Toulon", "Nîmes", "Clermont-Ferrand",
+  "Le Havre", "Dijon", "Angers", "Saint-Étienne", "Caen",
+  "Amiens", "Reims", "Tours", "Limoges", "Metz", "Brest",
+  "Perpignan", "Orléans", "Besançon", "Mulhouse",
+]
 
 interface Reference {
   type: string
@@ -38,17 +60,150 @@ interface Profile {
   annual_revenue: string
   project_types: string[]
   preferred_countries: string[]
-  preferred_regions: string
+  preferred_regions: string[]
   references: Reference[]
 }
 
 const EMPTY: Profile = {
   name: '', city: '', team_size: '6-15', annual_revenue: '300k-600k',
-  project_types: [], preferred_countries: [], preferred_regions: '',
+  project_types: [], preferred_countries: [], preferred_regions: [],
   references: [],
 }
 
 const EMPTY_REF: Reference = { type: 'housing', location: '', year: '', budget: '<500k' }
+
+function MultiSelect({ selected, suggestions, placeholder, onAdd, onRemove, inputStyle }: {
+  selected: string[]
+  suggestions: string[]
+  placeholder: string
+  onAdd: (v: string) => void
+  onRemove: (v: string) => void
+  inputStyle: React.CSSProperties
+}) {
+  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [])
+
+  const filtered = query.length > 0
+    ? suggestions.filter(s => s.toLowerCase().includes(query.toLowerCase()) && !selected.includes(s))
+    : []
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      {selected.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+          {selected.map(v => (
+            <span key={v} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              padding: '3px 10px', borderRadius: 999, fontSize: '0.78rem',
+              background: 'hsl(220,20%,12%)', color: 'white',
+            }}>
+              {v}
+              <button
+                type="button" onClick={() => onRemove(v)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'white', fontSize: '0.9rem', lineHeight: 1, padding: 0 }}
+              >×</button>
+            </span>
+          ))}
+        </div>
+      )}
+      <input
+        style={inputStyle}
+        value={query}
+        onChange={e => { setQuery(e.target.value); setOpen(true) }}
+        onFocus={() => { if (query.length > 0) setOpen(true) }}
+        placeholder={selected.length === 0 ? placeholder : 'Ajouter...'}
+      />
+      {open && filtered.length > 0 && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
+          background: 'white', border: '1px solid hsl(220,8%,88%)', borderRadius: 10,
+          boxShadow: '0 4px 16px hsl(220 20% 12%/0.08)', marginTop: 4,
+          maxHeight: 200, overflowY: 'auto',
+        }}>
+          {filtered.map(s => (
+            <button
+              key={s} type="button"
+              onMouseDown={e => { e.preventDefault(); onAdd(s); setQuery(''); setOpen(false) }}
+              style={{
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '8px 12px', background: 'none', border: 'none',
+                cursor: 'pointer', fontSize: '0.85rem', color: 'hsl(220,20%,12%)',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'hsl(220,8%,97%)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+            >{s}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function CitySelect({ value, suggestions, placeholder, onChange, inputStyle }: {
+  value: string
+  suggestions: string[]
+  placeholder: string
+  onChange: (v: string) => void
+  inputStyle: React.CSSProperties
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [])
+
+  const filtered = value.length > 0
+    ? suggestions.filter(s => s.toLowerCase().includes(value.toLowerCase()))
+    : []
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <input
+        style={inputStyle}
+        value={value}
+        onChange={e => { onChange(e.target.value); setOpen(true) }}
+        onFocus={() => { if (value.length > 0) setOpen(true) }}
+        placeholder={placeholder}
+      />
+      {open && filtered.length > 0 && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
+          background: 'white', border: '1px solid hsl(220,8%,88%)', borderRadius: 10,
+          boxShadow: '0 4px 16px hsl(220 20% 12%/0.08)', marginTop: 4,
+          maxHeight: 200, overflowY: 'auto',
+        }}>
+          {filtered.map(s => (
+            <button
+              key={s} type="button"
+              onMouseDown={e => { e.preventDefault(); onChange(s); setOpen(false) }}
+              style={{
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '8px 12px', background: 'none', border: 'none',
+                cursor: 'pointer', fontSize: '0.85rem', color: 'hsl(220,20%,12%)',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'hsl(220,8%,97%)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+            >{s}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function ProfilPage() {
   const router = useRouter()
@@ -70,14 +225,14 @@ export default function ProfilPage() {
         .single()
       if (p) {
         setProfile({
-          name:               p.name ?? '',
-          city:               p.city ?? '',
-          team_size:          String(p.team_size ?? '6-15'),
-          annual_revenue:     String(p.annual_revenue ?? '300k-600k'),
-          project_types:      p.project_types ?? [],
-          preferred_countries:p.preferred_countries ?? [],
-          preferred_regions:  '',
-          references:         (p.agency_references ?? []).map((r: Reference) => ({
+          name:                p.name ?? '',
+          city:                p.city ?? '',
+          team_size:           String(p.team_size ?? '6-15'),
+          annual_revenue:      String(p.annual_revenue ?? '300k-600k'),
+          project_types:       p.project_types ?? [],
+          preferred_countries: p.preferred_countries ?? [],
+          preferred_regions:   Array.isArray(p.preferred_regions) ? p.preferred_regions : [],
+          references:          (p.agency_references ?? []).map((r: Reference) => ({
             type: r.type ?? 'housing', location: r.location ?? '',
             year: String(r.year ?? ''), budget: r.budget ?? '<500k',
           })),
@@ -101,28 +256,39 @@ export default function ProfilPage() {
     if (!userId) return
     setSaving(true); setError(null); setSaved(false)
 
-    const payload = {
-      user_id:             userId,
+    const profileData = {
       name:                profile.name,
       city:                profile.city,
       team_size:           profile.team_size,
       annual_revenue:      profile.annual_revenue,
       project_types:       profile.project_types,
       preferred_countries: profile.preferred_countries,
+      preferred_regions:   profile.preferred_regions,
       preferred_categories: profile.project_types.map(t => {
-        if (['urbanism','landscape'].includes(t)) return 'URBANISM_LANDSCAPE'
-        if (t === 'amo')       return 'AMO_PROGRAMMING'
+        if (['urbanism', 'landscape'].includes(t)) return 'URBANISM_LANDSCAPE'
+        if (t === 'amo')         return 'AMO_PROGRAMMING'
         if (t === 'competition') return 'COMPETITIONS'
         return 'ARCHITECTURE_BUILDING'
       }).filter((v, i, a) => a.indexOf(v) === i),
       agency_references: profile.references,
     }
 
-    const { error: err } = await supabase
+    const { data: existing } = await supabase
       .from('agency_profiles')
-      .upsert(payload, { onConflict: 'user_id' })
+      .select('id')
+      .eq('user_id', userId)
+      .single()
 
-    if (err) setError(err.message)
+    let saveError
+    if (existing) {
+      const { error: e } = await supabase.from('agency_profiles').update(profileData).eq('user_id', userId)
+      saveError = e
+    } else {
+      const { error: e } = await supabase.from('agency_profiles').insert({ ...profileData, user_id: userId })
+      saveError = e
+    }
+
+    if (saveError) setError(saveError.message)
     else setSaved(true)
     setSaving(false)
   }
@@ -196,12 +362,18 @@ export default function ProfilPage() {
             <h2 style={sectionTitle}>Informations de base</h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
               <div>
-                <label style={labelStyle}>Nom de l'agence</label>
+                <label style={labelStyle}>Nom de l&apos;agence</label>
                 <input style={inputStyle} value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))} placeholder="Atelier Dupont" />
               </div>
               <div>
                 <label style={labelStyle}>Ville</label>
-                <input style={inputStyle} value={profile.city} onChange={e => setProfile(p => ({ ...p, city: e.target.value }))} placeholder="Paris" />
+                <CitySelect
+                  value={profile.city}
+                  suggestions={VILLES_FRANCE}
+                  placeholder="Paris"
+                  onChange={v => setProfile(p => ({ ...p, city: v }))}
+                  inputStyle={inputStyle}
+                />
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -248,9 +420,14 @@ export default function ProfilPage() {
             <h2 style={sectionTitle}>Zones géographiques</h2>
             <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>Régions / départements préférés</label>
-              <input style={inputStyle} value={profile.preferred_regions}
-                onChange={e => setProfile(p => ({ ...p, preferred_regions: e.target.value }))}
-                placeholder="Île-de-France, Grand Est, 69..." />
+              <MultiSelect
+                selected={profile.preferred_regions}
+                suggestions={REGIONS_FRANCE}
+                placeholder="Île-de-France, Grand Est, 69..."
+                onAdd={v => setProfile(p => ({ ...p, preferred_regions: [...p.preferred_regions, v] }))}
+                onRemove={v => setProfile(p => ({ ...p, preferred_regions: p.preferred_regions.filter(r => r !== v) }))}
+                inputStyle={inputStyle}
+              />
             </div>
             <div>
               <label style={labelStyle}>Pays</label>

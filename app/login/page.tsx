@@ -27,9 +27,13 @@ export default function LoginPage() {
       if (error) { setError(error.message); setLoading(false); return }
       router.push('/profil')
     } else {
-      const { error } = await supabase.auth.signUp({ email, password })
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: 'https://kribbl.app/profil' },
+      })
       if (error) { setError(error.message); setLoading(false); return }
-      setSuccess('Compte créé — vérifiez votre email pour confirmer, puis connectez-vous.')
+      setSuccess('Un email de confirmation a été envoyé à votre adresse. Cliquez sur le lien pour activer votre compte.')
       setMode('login')
     }
     setLoading(false)
