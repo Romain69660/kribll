@@ -480,7 +480,13 @@ export default function ProfilPage() {
                   </div>
                   <div>
                     <label style={labelStyle}>Localisation</label>
-                    <input style={inputStyle} value={ref.location} onChange={e => updateRef(i, 'location', e.target.value)} placeholder="Lyon" />
+                    <CitySelect
+                      value={ref.location}
+                      suggestions={VILLES_FRANCE}
+                      placeholder="Lyon"
+                      onChange={v => updateRef(i, 'location', v)}
+                      inputStyle={inputStyle}
+                    />
                   </div>
                   <div>
                     <label style={labelStyle}>Année</label>
