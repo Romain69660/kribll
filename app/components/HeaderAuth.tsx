@@ -1,13 +1,12 @@
 'use client'
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '../../lib/supabase'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function HeaderAuth() {
-  const supabase = createClientComponentClient()
-  const router   = useRouter()
+  const router = useRouter()
   const [label,   setLabel]   = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 

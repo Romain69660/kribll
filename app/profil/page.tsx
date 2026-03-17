@@ -1,6 +1,6 @@
 'use client'
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -51,8 +51,7 @@ const EMPTY: Profile = {
 const EMPTY_REF: Reference = { type: 'housing', location: '', year: '', budget: '<500k' }
 
 export default function ProfilPage() {
-  const supabase = createClientComponentClient()
-  const router   = useRouter()
+  const router = useRouter()
 
   const [userId,  setUserId]  = useState<string | null>(null)
   const [profile, setProfile] = useState<Profile>(EMPTY)
