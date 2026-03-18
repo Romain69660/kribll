@@ -51,8 +51,11 @@ export default function LoginPage() {
 
       {/* Header minimal */}
       <header style={{ padding: '20px 2rem' }}>
-        <Link href="/" style={{ fontFamily: hl, fontWeight: 700, fontSize: '0.98rem', color: 'hsl(220,20%,12%)', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          kribbl
+        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+          <img src="/file.svg" alt="Kribbl" width={22} height={22} style={{ display: 'block' }} />
+          <span style={{ fontFamily: hl, fontWeight: 700, fontSize: '0.98rem', color: 'hsl(220,20%,12%)', letterSpacing: '-0.02em' }}>
+            kribbl
+          </span>
         </Link>
       </header>
 

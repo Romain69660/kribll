@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { supabase } from "../lib/supabase"
 import TendersGrid, { type Tender } from "./components/TendersGrid"
 import HeaderAuth from "./components/HeaderAuth"
@@ -97,9 +98,12 @@ export default async function Home() {
             boxShadow: "0 1px 3px hsl(220 20% 12%/0.04)",
           }}>
             {/* Logo */}
-            <span style={{ fontFamily: hl, fontWeight: 700, fontSize: "0.98rem", color: "hsl(220,20%,12%)", marginRight: 36, letterSpacing: "-0.02em" }}>
-              kribbl
-            </span>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginRight: 36 }}>
+              <Image src="/logokribbl.png" alt="Kribbl" width={28} height={28} style={{ objectFit: "contain" }} />
+              <span style={{ fontFamily: hl, fontWeight: 700, fontSize: "0.98rem", color: "hsl(220,20%,12%)", letterSpacing: "-0.02em" }}>
+                kribbl
+              </span>
+            </div>
             {/* Nav */}
             <nav style={{ display: "flex", alignItems: "center", gap: 24 }}>
               {["Découvrir", "Fonctionnement", "Tarifs"].map(l => (
