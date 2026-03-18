@@ -65,11 +65,30 @@ print(df.head(3).to_dict(orient="records"))
 # Build payload rows
 # -----------------------------------
 
+# -----------------------------------
+# Supprimer les anciennes entrées pour ces user_ids
+# -----------------------------------
+
+user_ids = df['user_id'].dropna().unique().tolist() if 'user_id' in df.columns else []
+print("USER IDS TO REFRESH:", user_ids)
+
+for uid in user_ids:
+    del_resp = requests.delete(
+        f"{SUPABASE_URL}/rest/v1/{TABLE_NAME}?user_id=eq.{uid}",
+        headers=headers,
+    )
+    print(f"DELETE user_id={uid} → {del_resp.status_code}")
+
+# -----------------------------------
+# Build payload rows
+# -----------------------------------
+
 rows = []
 
 for _, row in df.iterrows():
     payload = {
         "rank": clean_value(row.get("rank")),
+        "user_id": clean_value(row.get("user_id")),
         "verdict": clean_value(row.get("verdict")),
         "final_score": clean_value(row.get("final_score")),
         "relevance_score": clean_value(row.get("relevance_score")),

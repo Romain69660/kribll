@@ -175,6 +175,7 @@ top.insert(0, "rank", range(1, len(top) + 1))
 
 final_cols = [
     "rank",
+    "user_id",
     "verdict",
     "final_score",
     "relevance_score",

@@ -24,15 +24,31 @@ function isFrance(t: Tender) {
 
 type Tab = "france" | "europe"
 
-export default function TendersGrid({ tenders }: { tenders: Tender[] }) {
-  const [tab,         setTab]         = useState<Tab>("france")
-  const [isLoggedIn,  setIsLoggedIn]  = useState<boolean | null>(null)
+export default function TendersGrid({ tenders: initialTenders }: { tenders: Tender[] }) {
+  const [tab,        setTab]        = useState<Tab>("france")
+  const [tenders,    setTenders]    = useState<Tender[]>(initialTenders)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setIsLoggedIn(!!data.session)
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (data.session) {
+        setIsLoggedIn(true)
+        // Re-fetch tenders filtrés par user_id
+        const { data: userTenders } = await supabase
+          .from('tenders')
+          .select('*')
+          .eq('user_id', data.session.user.id)
+          .order('final_score', { ascending: false })
+          .limit(50)
+        if (userTenders && userTenders.length > 0) {
+          setTenders(userTenders as Tender[])
+        }
+      } else {
+        setIsLoggedIn(false)
+        // Garde les tenders de démo passés en props
+      }
     })
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const france  = tenders.filter(isFrance)
   const europe  = tenders.filter(t => !isFrance(t))
