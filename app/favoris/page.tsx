@@ -5,52 +5,36 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
-import { OpportunityCard, type Tender } from '../components/TendersGrid'
+import OpportunityCard, { type Tender } from '../components/OpportunityCard'
 
 const hl = "'Outfit', 'Inter', sans-serif"
 
 export default function FavorisPage() {
   const router  = useRouter()
-  const [tenders,     setTenders]     = useState<Tender[]>([])
-  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set())
-  const [userId,      setUserId]      = useState<string | null>(null)
-  const [loading,     setLoading]     = useState(true)
+  const [tenders, setTenders] = useState<Tender[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) { router.push('/login'); return }
-      const uid = data.session.user.id
-      setUserId(uid)
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: favs } = await supabase
         .from('favorites')
-        .select('tender_id, tenders(*)')
-        .eq('user_id', uid)
+        .select('tenders(*)')
+        .eq('user_id', data.session.user.id)
         .order('created_at', { ascending: false })
 
       if (favs) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const list = (favs as any[])
-          .map((f: { tenders: Tender | Tender[] | null }) => Array.isArray(f.tenders) ? f.tenders[0] : f.tenders)
+          .map((f: any) => Array.isArray(f.tenders) ? f.tenders[0] : f.tenders)
           .filter(Boolean) as Tender[]
         setTenders(list)
-        setFavoriteIds(new Set(list.map(t => t.id)))
       }
       setLoading(false)
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  async function toggleFavorite(tenderId: number) {
-    if (!userId) return
-    if (favoriteIds.has(tenderId)) {
-      await supabase.from('favorites').delete().eq('user_id', userId).eq('tender_id', tenderId)
-      setFavoriteIds(prev => { const n = new Set(prev); n.delete(tenderId); return n })
-      setTenders(prev => prev.filter(t => t.id !== tenderId))
-    } else {
-      await supabase.from('favorites').insert({ user_id: userId, tender_id: tenderId })
-      setFavoriteIds(prev => new Set([...prev, tenderId]))
-    }
-  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'white', fontFamily: "'Inter', sans-serif" }}>
@@ -111,13 +95,7 @@ export default function FavorisPage() {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
               {tenders.map((t, i) => (
-                <OpportunityCard
-                  key={t.id ?? i}
-                  tender={t}
-                  isFavorite={favoriteIds.has(t.id)}
-                  onToggleFavorite={() => toggleFavorite(t.id)}
-                  userId={userId}
-                />
+                <OpportunityCard key={t.id ?? i} tender={t} />
               ))}
             </div>
           )}
