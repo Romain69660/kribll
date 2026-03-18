@@ -6,7 +6,8 @@
       "Bash(python -c \":*)",
       "Bash(python scripts/04_ai_summary.py)",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''Next:'''', d.get\\(''''dependencies'''',{}\\).get\\(''''next'''',''''''''\\)\\); print\\(''''React:'''', d.get\\(''''dependencies'''',{}\\).get\\(''''react'''',''''''''\\)\\)\")",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X DELETE \"https://lqzhdgfcjfwzinttaprr.supabase.co/rest/v1/tenders?id=not.is.null\" -H \"apikey: sb_publishable_rZiOdPgSfGiS_aDIhUJbvQ_8vE8hv8D\" -H \"Authorization: Bearer sb_publishable_rZiOdPgSfGiS_aDIhUJbvQ_8vE8hv8D\" -H \"Prefer: return=minimal\")"
     ]
   }
 }
