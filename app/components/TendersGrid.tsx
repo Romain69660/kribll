@@ -94,38 +94,35 @@ export default function TendersGrid({ tenders }: { tenders: Tender[] }) {
 
       {/* Grid */}
       {visible.length > 0 ? (
-        <div style={{ position: "relative" }}>
+        <div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
             {visible.map((t, i) => (
               <div
                 key={t.id ?? i}
-                style={{
-                  filter:        !loggedIn && i >= 2 ? `blur(${Math.min((i - 1) * 3, 12)}px)` : "none",
-                  pointerEvents: !loggedIn && i >= 2 ? "none" : "auto",
-                  userSelect:    !loggedIn && i >= 2 ? "none" : "auto",
-                  transition:    "filter 0.3s ease",
-                }}
+                style={{ position: "relative" }}
               >
                 <OpportunityCard tender={t} showFlag={tab === "europe"} />
+                {!loggedIn && i >= 2 && (
+                  <div style={{
+                    position: "absolute",
+                    inset: 0,
+                    borderRadius: 20,
+                    backdropFilter: "blur(8px)",
+                    WebkitBackdropFilter: "blur(8px)",
+                    background: "rgba(255, 255, 255, 0.45)",
+                    border: "1px solid rgba(255, 255, 255, 0.6)",
+                    pointerEvents: "none",
+                  }} />
+                )}
               </div>
             ))}
           </div>
 
-          {/* Overlay CTA si non connecté */}
+          {/* CTA si non connecté */}
           {!loggedIn && (
             <div style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "60%",
-              background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.95))",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              paddingBottom: 40,
-              gap: 12,
+              display: "flex", flexDirection: "column", alignItems: "center",
+              gap: 12, marginTop: 32, paddingTop: 8,
             }}>
               <p style={{ fontSize: "1.1rem", fontWeight: 600, color: "hsl(220,20%,12%)", margin: 0 }}>
                 Créez un compte pour voir toutes les opportunités
