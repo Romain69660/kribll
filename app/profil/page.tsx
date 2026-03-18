@@ -324,8 +324,15 @@ export default function ProfilPage() {
 
     if (saveError) setError(saveError.message)
     else {
+      // Lancer l'analyse en background
+      fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: userIdToSave }),
+      }).catch(err => console.error('Analyze error:', err))
+
       setSaved(true)
-      setTimeout(() => router.push('/'), 1000)
+      setTimeout(() => router.push('/'), 3000)
     }
     setSaving(false)
   }
@@ -383,7 +390,7 @@ export default function ProfilPage() {
 
         {saved && (
           <div style={{ background: 'hsl(145,60%,94%)', color: 'hsl(145,70%,30%)', borderRadius: 10, padding: '12px 16px', fontSize: '0.85rem', marginBottom: 20 }}>
-            Profil sauvegardé. Redirection...
+            Profil sauvegardé ! Vos opportunités personnalisées seront prêtes dans 2-3 minutes.
           </div>
         )}
         {error && (

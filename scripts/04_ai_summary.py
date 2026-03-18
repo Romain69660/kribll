@@ -14,6 +14,7 @@ if not OPENAI_API_KEY:
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+TARGET_USER_ID = os.getenv("TARGET_USER_ID")  # Si défini, analyse seulement ce profil
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -38,6 +39,9 @@ def load_all_profiles():
         if not profiles:
             print("Aucun profil — fallback fichier")
             return [load_profile_from_file()]
+        if TARGET_USER_ID:
+            profiles = [p for p in profiles if p.get("user_id") == TARGET_USER_ID]
+            print(f"Mode single-user: analyse pour {TARGET_USER_ID}")
         print(f"{len(profiles)} profil(s) trouvé(s)")
         return [normalize_supabase_profile(p) for p in profiles]
     except Exception as e:
