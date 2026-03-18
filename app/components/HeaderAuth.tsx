@@ -39,13 +39,18 @@ export default function HeaderAuth() {
   }
 
   if (label) {
+    const linkStyle: React.CSSProperties = {
+      fontSize: '0.78rem', fontWeight: 500, padding: '6px 16px',
+      borderRadius: 999, border: 'none', cursor: 'pointer',
+      background: 'transparent', color: 'hsl(220,8%,52%)',
+      textDecoration: 'none', display: 'inline-block',
+    }
+
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Link href="/profil" style={{
-          ...btnBase, background: 'transparent', color: 'hsl(220,8%,52%)',
-          textDecoration: 'none', display: 'inline-block',
-        }}>
-          {label}
+        <span style={{ ...linkStyle, cursor: 'default' }}>{label}</span>
+        <Link href="/profil" style={linkStyle}>
+          Mon profil
         </Link>
         <button
           onClick={async () => {
