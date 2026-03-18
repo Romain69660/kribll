@@ -111,57 +111,63 @@ export default function TendersGrid({ tenders: initialTenders }: { tenders: Tend
       {/* Grid */}
       {visible.length > 0 ? (
         <div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
-            {visible.map((t, i) => (
-              <div
-                key={t.id ?? i}
-                style={{ position: "relative" }}
-              >
-                <OpportunityCard tender={t} showFlag={tab === "europe"} />
-                {!loggedIn && i >= 2 && (
-                  <div style={{
-                    position: "absolute",
-                    inset: 0,
-                    borderRadius: 20,
-                    backdropFilter: "blur(8px)",
-                    WebkitBackdropFilter: "blur(8px)",
-                    background: "rgba(255, 255, 255, 0.45)",
-                    border: "1px solid rgba(255, 255, 255, 0.6)",
-                    pointerEvents: "none",
-                  }} />
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* CTA si non connecté */}
-          {!loggedIn && (
-            <div style={{
-              display: "flex", flexDirection: "column", alignItems: "center",
-              gap: 12, marginTop: 32, paddingTop: 8,
-            }}>
-              <p style={{ fontSize: "1.1rem", fontWeight: 600, color: "hsl(220,20%,12%)", margin: 0 }}>
-                Créez un compte pour voir toutes les opportunités
-              </p>
-              <p style={{ fontSize: "0.88rem", color: "hsl(220,8%,52%)", maxWidth: "36ch", textAlign: "center", margin: 0 }}>
-                Scorées et personnalisées par Leman selon votre profil agence.
-              </p>
-              <div style={{ display: "flex", gap: 12 }}>
-                <a href="/login" style={{
-                  padding: "10px 24px", borderRadius: 999, background: "hsl(220,20%,12%)",
-                  color: "white", textDecoration: "none", fontSize: "0.88rem", fontWeight: 500,
-                }}>
-                  Créer un compte gratuit →
-                </a>
-                <a href="/login" style={{
-                  padding: "10px 24px", borderRadius: 999, border: "1px solid hsl(220,8%,88%)",
-                  color: "hsl(220,8%,52%)", textDecoration: "none", fontSize: "0.88rem",
-                }}>
-                  Se connecter
-                </a>
-              </div>
+          <div style={{ position: "relative" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+              {(loggedIn ? visible : visible.slice(0, 6)).map((t, i) => (
+                <div key={t.id ?? i} style={{ position: "relative" }}>
+                  <OpportunityCard tender={t} showFlag={tab === "europe"} />
+                  {!loggedIn && (
+                    <div style={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: 20,
+                      backdropFilter: "blur(8px)",
+                      WebkitBackdropFilter: "blur(8px)",
+                      background: "rgba(255, 255, 255, 0.45)",
+                      border: "1px solid rgba(255, 255, 255, 0.6)",
+                      pointerEvents: "none",
+                    }} />
+                  )}
+                </div>
+              ))}
             </div>
-          )}
+
+            {/* CTA overlay si non connecté */}
+            {!loggedIn && (
+              <div style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 12,
+                zIndex: 10,
+              }}>
+                <p style={{ fontSize: "1.1rem", fontWeight: 600, color: "hsl(220,20%,12%)", margin: 0, textAlign: "center" }}>
+                  Créez un compte pour voir toutes les opportunités
+                </p>
+                <p style={{ fontSize: "0.88rem", color: "hsl(220,30%,30%)", maxWidth: "36ch", textAlign: "center", margin: 0 }}>
+                  Scorées et personnalisées par Leman selon votre profil agence.
+                </p>
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+                  <a href="/login" style={{
+                    padding: "10px 24px", borderRadius: 999, background: "hsl(220,20%,12%)",
+                    color: "white", textDecoration: "none", fontSize: "0.88rem", fontWeight: 500,
+                  }}>
+                    Créer un compte gratuit →
+                  </a>
+                  <a href="/login" style={{
+                    padding: "10px 24px", borderRadius: 999, border: "1px solid hsl(220,8%,88%)",
+                    color: "hsl(220,8%,52%)", textDecoration: "none", fontSize: "0.88rem",
+                    background: "rgba(255,255,255,0.8)",
+                  }}>
+                    Se connecter
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         <div style={{ textAlign: "center", padding: "48px 0", color: "hsl(220,8%,52%)", fontSize: "0.88rem" }}>

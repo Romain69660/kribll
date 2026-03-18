@@ -2,7 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import ShareButtons from './ShareButtons'
+import ShareButton from './ShareButtons'
+import HeaderAuth from '../../components/HeaderAuth'
 
 const hl = "'Outfit', 'Inter', sans-serif"
 
@@ -111,13 +112,7 @@ export default async function AnnoncePage({ params }: { params: Promise<{ id: st
               ← Retour aux opportunités
             </Link>
             <div style={{ marginLeft: 'auto' }}>
-              <ShareButtons
-                id={tender.id}
-                title={tender.title}
-                location={tender.location || tender.country}
-                score={tender.final_score}
-                summary={tender.summary}
-              />
+              <HeaderAuth />
             </div>
           </div>
         </div>
@@ -260,13 +255,7 @@ export default async function AnnoncePage({ params }: { params: Promise<{ id: st
             <h2 style={{ fontFamily: hl, fontWeight: 600, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'hsl(220,8%,52%)', margin: '0 0 14px' }}>
               Partager cette opportunité
             </h2>
-            <ShareButtons
-              id={tender.id}
-              title={tender.title}
-              location={tender.location || tender.country}
-              score={tender.final_score}
-              summary={tender.summary}
-            />
+            <ShareButton id={tender.id} title={tender.title} summary={tender.summary} />
           </section>
 
         </div>
