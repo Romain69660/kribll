@@ -40,6 +40,14 @@ def clean_value(v):
         return None
     return v
 
+def fix_encoding(value):
+    if not isinstance(value, str):
+        return value
+    try:
+        return value.encode('latin-1').decode('utf-8')
+    except (UnicodeDecodeError, UnicodeEncodeError):
+        return value
+
 # -----------------------------------
 # Load CSV
 # -----------------------------------
@@ -69,18 +77,18 @@ for _, row in df.iterrows():
         "source": clean_value(row.get("source")),
         "publication_number": clean_value(row.get("publication_number")),
         "publication_date": clean_value(row.get("publication_date")),
-        "title": clean_value(row.get("title")),
-        "buyer_name": clean_value(row.get("buyer_name")),
+        "title": fix_encoding(clean_value(row.get("title"))),
+        "buyer_name": fix_encoding(clean_value(row.get("buyer_name"))),
         "country": clean_value(row.get("country")),
         "category": clean_value(row.get("category")),
         "priority_bucket": clean_value(row.get("priority_bucket")),
         "cpv_code": clean_value(row.get("cpv_code")),
         "url": clean_value(row.get("url")),
-        "summary": clean_value(row.get("summary")),
-        "why_it_matters": clean_value(row.get("why_it_matters")),
-        "location": clean_value(row.get("location")),
+        "summary": fix_encoding(clean_value(row.get("summary"))),
+        "why_it_matters": fix_encoding(clean_value(row.get("why_it_matters"))),
+        "location": fix_encoding(clean_value(row.get("location"))),
         "procedure_type": clean_value(row.get("procedure_type")),
-        "main_discipline": clean_value(row.get("main_discipline")),
+        "main_discipline": fix_encoding(clean_value(row.get("main_discipline"))),
         "estimated_budget": clean_value(row.get("estimated_budget")),
         "project_type": clean_value(row.get("project_type")),
         "program": clean_value(row.get("program")),
