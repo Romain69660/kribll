@@ -1,5 +1,6 @@
 import Image from "next/image"
-import { createServerSupabase } from "../lib/supabase-server"
+import { cookies } from "next/headers"
+import { createClient } from "@supabase/supabase-js"
 import TendersGrid, { type Tender } from "./components/TendersGrid"
 import HeaderAuth from "./components/HeaderAuth"
 import {
@@ -73,12 +74,23 @@ function LemanBadge({ text }: { text: string }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function Home() {
-  const supabase = await createServerSupabase()
+  const cookieStore = await cookies()
+  const authCookie = cookieStore.get("sb-lqzhdgfcjfwzinttaprr-auth-token")
 
-  const { data: { session } } = await supabase.auth.getSession()
-  const userId = session?.user?.id
+  const supabaseServer = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  )
 
-  let tendersQuery = supabase
+  let userId: string | null = null
+  if (authCookie) {
+    try {
+      const tokenData = JSON.parse(decodeURIComponent(authCookie.value))
+      userId = tokenData?.user?.id || null
+    } catch {}
+  }
+
+  let tendersQuery = supabaseServer
     .from("tenders")
     .select("*")
     .order("final_score", { ascending: false })
@@ -88,7 +100,7 @@ export default async function Home() {
     tendersQuery = tendersQuery.eq("user_id", userId)
   }
 
-  let countQuery = supabase
+  let countQuery = supabaseServer
     .from("tenders")
     .select("*", { count: "exact", head: true })
 

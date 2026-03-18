@@ -9,7 +9,10 @@
       "Bash(npm install:*)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X DELETE \"https://lqzhdgfcjfwzinttaprr.supabase.co/rest/v1/tenders?id=not.is.null\" -H \"apikey: sb_publishable_rZiOdPgSfGiS_aDIhUJbvQ_8vE8hv8D\" -H \"Authorization: Bearer sb_publishable_rZiOdPgSfGiS_aDIhUJbvQ_8vE8hv8D\" -H \"Prefer: return=minimal\")",
       "Bash(npx tsc:*)",
-      "Bash(node -e \"const m = require\\(''@supabase/auth-helpers-nextjs''\\); console.log\\(Object.keys\\(m\\)\\)\")"
+      "Bash(node -e \"const m = require\\(''@supabase/auth-helpers-nextjs''\\); console.log\\(Object.keys\\(m\\)\\)\")",
+      "Bash(python -c \"import pandas as pd; df = pd.read_csv\\(''data/kribll_agency_feed.csv'', nrows=2\\); print\\(''COLUMNS:'', list\\(df.columns\\)\\); print\\(''user_id sample:'', df.get\\(''user_id'', ''MISSING''\\)\\)\")",
+      "Bash(python -c \"import pandas as pd; df = pd.read_csv\\(''data/kribll_top_feed.csv''\\); print\\(''user_id sample:''\\); print\\(df[[''rank'',''user_id'',''verdict'']].head\\(5\\).to_string\\(\\)\\)\")",
+      "Bash(python scripts/06_upload_supabase.py)"
     ]
   }
 }

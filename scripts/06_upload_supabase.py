@@ -77,7 +77,7 @@ for uid in user_ids:
         f"{SUPABASE_URL}/rest/v1/{TABLE_NAME}?user_id=eq.{uid}",
         headers=headers,
     )
-    print(f"DELETE user_id={uid} → {del_resp.status_code}")
+    print(f"DELETE user_id={uid} -> {del_resp.status_code}")
 
 # -----------------------------------
 # Build payload rows
