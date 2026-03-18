@@ -317,7 +317,10 @@ export default function ProfilPage() {
     console.log('supabase response:', saveError)
 
     if (saveError) setError(saveError.message)
-    else setSaved(true)
+    else {
+      setSaved(true)
+      setTimeout(() => router.push('/'), 1000)
+    }
     setSaving(false)
   }
 
@@ -374,7 +377,7 @@ export default function ProfilPage() {
 
         {saved && (
           <div style={{ background: 'hsl(145,60%,94%)', color: 'hsl(145,70%,30%)', borderRadius: 10, padding: '12px 16px', fontSize: '0.85rem', marginBottom: 20 }}>
-            Profil sauvegardé.
+            Profil sauvegardé. Redirection...
           </div>
         )}
         {error && (
