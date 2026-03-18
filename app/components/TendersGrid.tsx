@@ -112,7 +112,7 @@ export default function TendersGrid({ tenders: initialTenders }: { tenders: Tend
       {visible.length > 0 ? (
         <div>
           <div style={{ position: "relative" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+            <div className="kb-tenders-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
               {(loggedIn ? visible : visible.slice(0, 6)).map((t, i) => (
                 <div key={t.id ?? i} style={{ position: "relative" }}>
                   <OpportunityCard tender={t} showFlag={tab === "europe"} />

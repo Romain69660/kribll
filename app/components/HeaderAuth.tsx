@@ -55,8 +55,8 @@ export default function HeaderAuth() {
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={nameStyle}>{label}</span>
-        <Link href="/favoris" style={linkStyle}>
+        <span className="kb-auth-name" style={nameStyle}>{label}</span>
+        <Link className="kb-auth-favoris" href="/favoris" style={linkStyle}>
           ♥ Favoris
         </Link>
         <Link href="/profil" style={linkStyle}>

@@ -125,3 +125,31 @@ body {
   margin: 0 auto;
   padding: 0 2rem;
 }
+
+/* ─── Responsive utilities ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Header */
+  .kb-nav            { display: none !important; }
+  .kb-header-inner   { padding: 0 1rem !important; }
+  /* Hero */
+  .kb-hero-cols      { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .kb-hero-right     { display: none !important; }
+  /* Grids */
+  .kb-tenders-grid   { grid-template-columns: 1fr !important; }
+  .kb-3col-grid      { grid-template-columns: 1fr !important; }
+  .kb-4col-grid      { grid-template-columns: repeat(2, 1fr) !important; }
+  /* Forms */
+  .kb-form-2col      { grid-template-columns: 1fr !important; }
+  .kb-ref-grid       { grid-template-columns: 1fr 1fr !important; }
+  .kb-ref-del        { grid-column: 1 / -1 !important; display: flex !important; justify-content: flex-end !important; }
+  .kb-save-row       { justify-content: stretch !important; }
+  .kb-save-row > button { width: 100% !important; }
+  .kb-profil-content { padding: 24px 1rem 60px !important; }
+  /* Auth header */
+  .kb-auth-name      { display: none !important; }
+  .kb-auth-favoris   { display: none !important; }
+  /* Detail page */
+  .kb-detail-content { padding: 0 1rem !important; }
+  .kb-detail-cta     { display: block !important; text-align: center !important;
+                        box-sizing: border-box !important; width: 100% !important; }
+}

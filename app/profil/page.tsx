@@ -379,7 +379,7 @@ export default function ProfilPage() {
       </header>
 
       {/* Content */}
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '36px 2rem 60px' }}>
+      <div className="kb-profil-content" style={{ maxWidth: 800, margin: '0 auto', padding: '36px 2rem 60px' }}>
 
         <h1 style={{ fontFamily: hl, fontWeight: 700, fontSize: '1.5rem', letterSpacing: '-0.025em', color: 'hsl(220,20%,12%)', margin: '0 0 6px' }}>
           Profil agence
@@ -404,7 +404,7 @@ export default function ProfilPage() {
           {/* 1 — Infos de base */}
           <div style={sectionStyle}>
             <h2 style={sectionTitle}>Informations de base</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="kb-form-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
               <div>
                 <label style={labelStyle}>Nom de l&apos;agence</label>
                 <input style={inputStyle} value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))} placeholder="Atelier Dupont" />
@@ -420,7 +420,7 @@ export default function ProfilPage() {
                 />
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="kb-form-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
                 <label style={labelStyle}>Taille équipe</label>
                 <select style={inputStyle} value={profile.team_size} onChange={e => setProfile(p => ({ ...p, team_size: e.target.value }))}>
@@ -515,7 +515,7 @@ export default function ProfilPage() {
             )}
             {profile.references.map((ref, i) => (
               <div key={i} style={{ background: 'hsl(220,8%,97.5%)', borderRadius: 12, padding: '16px', marginBottom: 12 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px 140px 32px', gap: 10, alignItems: 'end' }}>
+                <div className="kb-ref-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px 140px 32px', gap: 10, alignItems: 'end' }}>
                   <div>
                     <label style={labelStyle}>Type</label>
                     <select style={inputStyle} value={ref.type} onChange={e => updateRef(i, 'type', e.target.value)}>
@@ -542,7 +542,7 @@ export default function ProfilPage() {
                       {REF_BUDGETS.map(v => <option key={v} value={v}>{v} €</option>)}
                     </select>
                   </div>
-                  <button type="button"
+                  <button className="kb-ref-del" type="button"
                     onClick={() => setProfile(p => ({ ...p, references: p.references.filter((_, j) => j !== i) }))}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'hsl(220,8%,62%)', fontSize: '1.1rem', paddingBottom: 2 }}
                   >×</button>
@@ -552,7 +552,7 @@ export default function ProfilPage() {
           </div>
 
           {/* Sauvegarder */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <div className="kb-save-row" style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <button type="submit" disabled={saving} style={{
               padding: '11px 28px', borderRadius: 999, border: 'none',
               background: 'hsl(220,20%,12%)', color: 'white',

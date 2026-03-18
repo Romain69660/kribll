@@ -122,7 +122,7 @@ export default async function Home() {
           HEADER — glassmorphism pill fixé en haut
       ══════════════════════════════════════════════════════════════════════ */}
       <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, paddingTop: 16 }}>
-        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
+        <div className="kb-header-inner" style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
           <div style={{
             display: "flex", alignItems: "center", height: 44, padding: "0 20px",
             background: "rgba(255,255,255,0.82)", backdropFilter: "blur(20px)",
@@ -137,7 +137,7 @@ export default async function Home() {
               </span>
             </div>
             {/* Nav */}
-            <nav style={{ display: "flex", alignItems: "center", gap: 24 }}>
+            <nav className="kb-nav" style={{ display: "flex", alignItems: "center", gap: 24 }}>
               {["Découvrir", "Fonctionnement", "Tarifs"].map(l => (
                 <a key={l} href="#" style={{ fontSize: "0.82rem", color: "hsl(220,8%,52%)", textDecoration: "none", fontWeight: 400, transition: "color .2s" }}>
                   {l}
@@ -157,7 +157,7 @@ export default async function Home() {
       ══════════════════════════════════════════════════════════════════════ */}
       <section style={{ paddingTop: 100, paddingBottom: 0, overflow: "hidden" }}>
         <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 48, alignItems: "center", marginBottom: 40 }}>
+          <div className="kb-hero-cols" style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 48, alignItems: "center", marginBottom: 40 }}>
 
             {/* Left — copy */}
             <div>
@@ -205,7 +205,7 @@ export default async function Home() {
             </div>
 
             {/* Right — featured card */}
-            <div style={{
+            <div className="kb-hero-right" style={{
               background: "white", border: "1px solid hsl(220,8%,91%)", borderRadius: 20,
               padding: "22px 24px", boxShadow: "0 10px 36px hsl(220 20%12%/0.08), 0 3px 10px hsl(220 20%12%/0.03)",
             }}>
@@ -346,7 +346,7 @@ export default async function Home() {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+          <div className="kb-3col-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
             {[
               { Icon: Filter,   title: "Filtrage intelligent",   desc: "Analyse chaque publication et ne garde que celles qui correspondent à votre profil." },
               { Icon: BarChart3, title: "Scoring automatique",   desc: "Score basé sur vos références, compétences et localisation." },
@@ -391,7 +391,7 @@ export default async function Home() {
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+            <div className="kb-3col-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
               {[
                 { Icon: Search,   n: "01", title: "Kribbl collecte", desc: "Des milliers d'appels d'offres récupérés chaque jour depuis BOAMP et TED." },
                 { Icon: Sparkles, n: "02", title: "Leman analyse",   desc: "Notre IA filtre, résume et score chaque opportunité selon votre profil." },
@@ -422,7 +422,7 @@ export default async function Home() {
       ══════════════════════════════════════════════════════════════════════ */}
       <section style={{ padding: "48px 0" }}>
         <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 2rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+          <div className="kb-4col-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
             {[
               { Icon: Clock,  value: "5h",  label: "gagnées / semaine" },
               { Icon: Filter, value: "84%", label: "de bruit en moins" },

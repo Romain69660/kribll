@@ -120,7 +120,7 @@ export default async function AnnoncePage({ params }: { params: Promise<{ id: st
 
       {/* Content */}
       <main style={{ paddingTop: 100, paddingBottom: 64 }}>
-        <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 2rem' }}>
+        <div className="kb-detail-content" style={{ maxWidth: 800, margin: '0 auto', padding: '0 2rem' }}>
 
           {/* Top row — source, verdict, score */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
@@ -235,6 +235,7 @@ export default async function AnnoncePage({ params }: { params: Promise<{ id: st
           {tender.url && (
             <section style={{ marginBottom: 40 }}>
               <a
+                className="kb-detail-cta"
                 href={tender.url}
                 target="_blank"
                 rel="noopener noreferrer"
