@@ -99,7 +99,7 @@ export default async function Home() {
           }}>
             {/* Logo */}
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginRight: 36 }}>
-              <Image src="/logokribbl.png" alt="Kribbl" width={28} height={28} style={{ objectFit: "contain" }} />
+              <Image src="/logokribbl.png" alt="Kribbl" width={24} height={24} />
               <span style={{ fontFamily: hl, fontWeight: 700, fontSize: "0.98rem", color: "hsl(220,20%,12%)", letterSpacing: "-0.02em" }}>
                 kribbl
               </span>
@@ -135,7 +135,7 @@ export default async function Home() {
                 fontSize: "0.75rem", fontWeight: 500, padding: "6px 14px", borderRadius: 999,
                 background: "hsl(220,85%,96%)", color: "hsl(220,90%,56%)", marginBottom: 24,
               }}>
-                <Sparkles style={{ width: 12, height: 12 }} strokeWidth={1.5} />
+                <Image src="/logokribbl.png" alt="Kribbl" width={16} height={16} />
                 Propulsé par Leman AI
               </span>
 

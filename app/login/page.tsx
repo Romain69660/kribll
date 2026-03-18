@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -51,8 +52,8 @@ export default function LoginPage() {
 
       {/* Header minimal */}
       <header style={{ padding: '20px 2rem' }}>
-        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <img src="/file.svg" alt="Kribbl" width={22} height={22} style={{ display: 'block' }} />
+        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+          <Image src="/logokribbl.png" alt="Kribbl" width={24} height={24} />
           <span style={{ fontFamily: hl, fontWeight: 700, fontSize: '0.98rem', color: 'hsl(220,20%,12%)', letterSpacing: '-0.02em' }}>
             kribbl
           </span>
@@ -63,6 +64,9 @@ export default function LoginPage() {
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
         <div style={{ width: '100%', maxWidth: 400 }}>
 
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+            <Image src="/logokribbl.png" alt="Kribbl" width={48} height={48} />
+          </div>
           <h1 style={{ fontFamily: hl, fontWeight: 700, fontSize: '1.6rem', letterSpacing: '-0.025em', color: 'hsl(220,20%,12%)', margin: '0 0 6px' }}>
             {mode === 'login' ? 'Connexion' : 'Créer un compte'}
           </h1>
