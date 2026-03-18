@@ -1,6 +1,7 @@
 'use client'
 
 import { supabase } from '../../lib/supabase'
+import type { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
@@ -208,6 +209,7 @@ function CitySelect({ value, suggestions, placeholder, onChange, inputStyle }: {
 export default function ProfilPage() {
   const router = useRouter()
 
+  const [user, setUser]   = useState<User | null>(null)
   const [userId,  setUserId]  = useState<string | null>(null)
   const [profile, setProfile] = useState<Profile>(EMPTY)
   const [saving,  setSaving]  = useState(false)
@@ -215,13 +217,11 @@ export default function ProfilPage() {
   const [error,   setError]   = useState<string | null>(null)
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (!data.session) { router.push('/login'); return }
-      setUserId(data.session.user.id)
+    async function fetchProfile(uid: string) {
       const { data: p } = await supabase
         .from('agency_profiles')
         .select('*')
-        .eq('user_id', data.session.user.id)
+        .eq('user_id', uid)
         .single()
       if (p) {
         setProfile({
@@ -238,7 +238,29 @@ export default function ProfilPage() {
           })),
         })
       }
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const user = session?.user
+      setUser(user ?? null)
+      setUserId(user?.id ?? null)
+
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      fetchProfile(user.id)
     })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const user = session?.user
+      setUser(user ?? null)
+      setUserId(user?.id ?? null)
+      if (user) fetchProfile(user.id)
+    })
+
+    return () => subscription.unsubscribe()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function toggleArray(arr: string[], val: string) {
@@ -253,7 +275,9 @@ export default function ProfilPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    if (!userId) return
+    const currentUser = user
+    console.log('user:', currentUser)
+    if (!currentUser) return
     setSaving(true); setError(null); setSaved(false)
 
     const profileData = {
@@ -272,21 +296,25 @@ export default function ProfilPage() {
       }).filter((v, i, a) => a.indexOf(v) === i),
       agency_references: profile.references,
     }
+    console.log('profileData:', profileData)
 
+    const userIdToSave = userId ?? currentUser.id
     const { data: existing } = await supabase
       .from('agency_profiles')
       .select('id')
-      .eq('user_id', userId)
+      .eq('user_id', userIdToSave)
       .single()
 
     let saveError
     if (existing) {
-      const { error: e } = await supabase.from('agency_profiles').update(profileData).eq('user_id', userId)
+      const { error: e } = await supabase.from('agency_profiles').update(profileData).eq('user_id', userIdToSave)
       saveError = e
     } else {
-      const { error: e } = await supabase.from('agency_profiles').insert({ ...profileData, user_id: userId })
+      const { error: e } = await supabase.from('agency_profiles').insert({ ...profileData, user_id: userIdToSave })
       saveError = e
     }
+
+    console.log('supabase response:', saveError)
 
     if (saveError) setError(saveError.message)
     else setSaved(true)
