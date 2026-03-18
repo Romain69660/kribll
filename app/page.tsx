@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { supabase } from "../lib/supabase"
+import { createServerSupabase } from "../lib/supabase-server"
 import TendersGrid, { type Tender } from "./components/TendersGrid"
 import HeaderAuth from "./components/HeaderAuth"
 import {
@@ -73,10 +73,30 @@ function LemanBadge({ text }: { text: string }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function Home() {
-  const [tendersRes, countRes] = await Promise.all([
-    supabase.from("tenders").select("*").order("final_score", { ascending: false }).limit(50),
-    supabase.from("tenders").select("*", { count: "exact", head: true }),
-  ])
+  const supabase = await createServerSupabase()
+
+  const { data: { session } } = await supabase.auth.getSession()
+  const userId = session?.user?.id
+
+  let tendersQuery = supabase
+    .from("tenders")
+    .select("*")
+    .order("final_score", { ascending: false })
+    .limit(50)
+
+  if (userId) {
+    tendersQuery = tendersQuery.eq("user_id", userId)
+  }
+
+  let countQuery = supabase
+    .from("tenders")
+    .select("*", { count: "exact", head: true })
+
+  if (userId) {
+    countQuery = countQuery.eq("user_id", userId)
+  }
+
+  const [tendersRes, countRes] = await Promise.all([tendersQuery, countQuery])
   const tenders      = (tendersRes.data as Tender[]) || []
   const totalTenders = countRes.count ?? tenders.length
   const featured     = tenders[0]
