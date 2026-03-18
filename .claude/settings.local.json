@@ -12,7 +12,8 @@
       "Bash(node -e \"const m = require\\(''@supabase/auth-helpers-nextjs''\\); console.log\\(Object.keys\\(m\\)\\)\")",
       "Bash(python -c \"import pandas as pd; df = pd.read_csv\\(''data/kribll_agency_feed.csv'', nrows=2\\); print\\(''COLUMNS:'', list\\(df.columns\\)\\); print\\(''user_id sample:'', df.get\\(''user_id'', ''MISSING''\\)\\)\")",
       "Bash(python -c \"import pandas as pd; df = pd.read_csv\\(''data/kribll_top_feed.csv''\\); print\\(''user_id sample:''\\); print\\(df[[''rank'',''user_id'',''verdict'']].head\\(5\\).to_string\\(\\)\\)\")",
-      "Bash(python scripts/06_upload_supabase.py)"
+      "Bash(python scripts/06_upload_supabase.py)",
+      "Bash(node -e \"const pkg=require\\(''./package.json''\\); console.log\\(''next:'', pkg.dependencies.next\\)\")"
     ]
   }
 }

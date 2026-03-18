@@ -76,11 +76,12 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
   )
 }
 
-export default async function AnnoncePage({ params }: { params: { id: string } }) {
+export default async function AnnoncePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const { data: tender, error } = await supabase
     .from('tenders')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!tender || error) notFound()
