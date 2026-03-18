@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { MapPin, Calendar, Building2, Users, TrendingUp, Share2 } from "lucide-react"
+import { MapPin, Calendar, Building2, Users, TrendingUp } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -146,26 +146,14 @@ function MetaPill({ icon, label }: { icon: React.ReactNode; label: string }) {
 // ─── OpportunityCard ──────────────────────────────────────────────────────────
 
 function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: boolean }) {
-  const router    = useRouter()
-  const vp        = verdictPill(tender.verdict)
-  const catLabel  = categoryLabel(tender.category)
-  const revenue   = formatRevenue(tender.minimum_revenue_required)
-  const [shareOpen, setShareOpen] = useState(false)
-  const [copied, setCopied]       = useState(false)
+  const router   = useRouter()
+  const vp       = verdictPill(tender.verdict)
+  const catLabel = categoryLabel(tender.category)
+  const revenue  = formatRevenue(tender.minimum_revenue_required)
 
-  const pageUrl      = `https://kribbl.app/annonce/${tender.id}`
-  const loc          = tender.location || tender.country || ''
-  const sumShort     = tender.summary ? tender.summary.slice(0, 200) + (tender.summary.length > 200 ? '…' : '') : ''
-  const emailSubject = `Une opportunité Kribbl pour vous — ${tender.title}`
-  const emailBody    = `Bonjour,\n\nJ'ai trouvé cette opportunité sur Kribbl :\n\n${tender.title}\n${loc} — Score Leman : ${tender.final_score}\n\n${sumShort}\n\nVoir l'annonce : ${pageUrl}\n\nCordialement`
-  const waText       = `Opportunité Kribbl 🏗️\n\n${tender.title}\n${loc}\nScore : ${tender.final_score}/100\n\n${sumShort}\n\n${pageUrl}`
-
-  async function handleCopy(e: React.MouseEvent) {
-    e.stopPropagation()
-    await navigator.clipboard.writeText(pageUrl)
-    setCopied(true)
-    setTimeout(() => { setCopied(false); setShareOpen(false) }, 1800)
-  }
+  const pageUrl  = `https://kribbl.app/annonce/${tender.id}`
+  const loc      = tender.location || tender.country || ''
+  const sumShort = tender.summary ? tender.summary.slice(0, 200) + (tender.summary.length > 200 ? '…' : '') : ''
 
   return (
     <article
@@ -269,85 +257,37 @@ function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: bool
         )}
       </div>
 
-      {/* Footer — lien + partage */}
+      {/* Footer — détail + partage */}
       <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        borderTop: "1px solid hsl(220,8%,93%)", paddingTop: 10, marginTop: 4,
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        marginTop: 12, paddingTop: 12, borderTop: "1px solid hsl(220,8%,91%)",
       }}>
-        {tender.url ? (
-          <a
-            href={tender.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={e => e.stopPropagation()}
-            style={{ fontSize: "0.72rem", color: "hsl(220,8%,52%)", textDecoration: "none" }}
-          >
-            Voir l&apos;annonce →
-          </a>
-        ) : <span />}
-
-        {/* Share button */}
-        <div style={{ position: "relative" }}>
+        <a
+          href={`/annonce/${tender.id}`}
+          onClick={e => e.stopPropagation()}
+          style={{ fontSize: "0.78rem", color: "hsl(220,8%,52%)", textDecoration: "none" }}
+        >
+          Voir le détail →
+        </a>
+        <div style={{ display: "flex", gap: 8 }}>
           <button
-            onClick={e => { e.stopPropagation(); setShareOpen(o => !o) }}
-            style={{
-              display: "inline-flex", alignItems: "center", justifyContent: "center",
-              width: 28, height: 28, borderRadius: 999,
-              border: "1px solid hsl(220,8%,91%)", background: "white",
-              cursor: "pointer", color: "hsl(220,8%,52%)",
-            }}
+            onClick={e => { e.stopPropagation(); window.open(`mailto:?subject=${encodeURIComponent(`Opportunité Kribbl — ${tender.title}`)}&body=${encodeURIComponent(`Bonjour,\n\nJ'ai trouvé cette opportunité sur Kribbl :\n\n${tender.title}\n${loc}\n\n${sumShort}\n\nVoir l'annonce : ${pageUrl}\n\nCordialement`)}`) }}
+            style={{ fontSize: "0.72rem", padding: "4px 10px", borderRadius: 999, border: "1px solid hsl(220,8%,88%)", background: "white", cursor: "pointer", color: "hsl(220,8%,52%)" }}
           >
-            <Share2 style={{ width: 12, height: 12 }} strokeWidth={1.5} />
+            ✉ Email
           </button>
-
-          {shareOpen && (
-            <div
-              onClick={e => e.stopPropagation()}
-              style={{
-                position: "absolute", bottom: 36, right: 0, zIndex: 10,
-                background: "white", border: "1px solid hsl(220,8%,91%)",
-                borderRadius: 12, padding: "6px", boxShadow: "0 4px 16px hsl(220,20%,12%,0.10)",
-                display: "flex", flexDirection: "column", gap: 2, minWidth: 160,
-              }}
-            >
-              {[
-                {
-                  label: "📧 Email",
-                  href: `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`,
-                },
-                {
-                  label: "💬 WhatsApp",
-                  href: `https://wa.me/?text=${encodeURIComponent(waText)}`,
-                  blank: true,
-                },
-              ].map(({ label, href, blank }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target={blank ? "_blank" : undefined}
-                  rel={blank ? "noopener noreferrer" : undefined}
-                  onClick={() => setShareOpen(false)}
-                  style={{
-                    fontSize: "0.78rem", color: "hsl(220,20%,12%)", textDecoration: "none",
-                    padding: "8px 12px", borderRadius: 8, display: "block",
-                    background: "transparent",
-                  }}
-                >
-                  {label}
-                </a>
-              ))}
-              <button
-                onClick={handleCopy}
-                style={{
-                  fontSize: "0.78rem", color: "hsl(220,20%,12%)", textAlign: "left",
-                  padding: "8px 12px", borderRadius: 8, border: "none",
-                  background: "transparent", cursor: "pointer",
-                }}
-              >
-                {copied ? "✓ Lien copié" : "🔗 Copier le lien"}
-              </button>
-            </div>
-          )}
+          <button
+            onClick={e => { e.stopPropagation(); window.open(`https://wa.me/?text=${encodeURIComponent(`Opportunité Kribbl 🏗️\n\n${tender.title}\n${loc}\n\n${sumShort}\n\n${pageUrl}`)}`, "_blank") }}
+            style={{ fontSize: "0.72rem", padding: "4px 10px", borderRadius: 999, border: "1px solid hsl(220,8%,88%)", background: "white", cursor: "pointer", color: "hsl(220,8%,52%)" }}
+          >
+            💬 WhatsApp
+          </button>
+          <button
+            onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(pageUrl).then(() => alert("Lien copié !")) }}
+            style={{ fontSize: "0.72rem", padding: "4px 10px", borderRadius: 999, border: "1px solid hsl(220,8%,88%)", background: "white", cursor: "pointer", color: "hsl(220,8%,52%)" }}
+          >
+            🔗 Copier
+          </button>
         </div>
       </div>
     </article>

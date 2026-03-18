@@ -99,7 +99,7 @@ export default async function Home() {
           }}>
             {/* Logo */}
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginRight: 36 }}>
-              <Image src="/logokribbl.png" alt="Kribbl" width={24} height={24} />
+              <Image src="/logokribbl.png" alt="Kribbl" width={24} height={24} style={{ display: "block" }} />
               <span style={{ fontFamily: hl, fontWeight: 700, fontSize: "0.98rem", color: "hsl(220,20%,12%)", letterSpacing: "-0.02em" }}>
                 kribbl
               </span>
