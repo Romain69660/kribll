@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { supabase } from "../../lib/supabase"
 import OpportunityCard from "./OpportunityCard"
 export type { Tender } from "./OpportunityCard"
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 import type { Tender } from "./OpportunityCard"
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function isFrance(t: Tender) {
   const country  = (t.country  || "").toLowerCase()
@@ -24,11 +25,21 @@ function isFrance(t: Tender) {
 type Tab = "france" | "europe"
 
 export default function TendersGrid({ tenders }: { tenders: Tender[] }) {
-  const [tab, setTab] = useState<Tab>("france")
+  const [tab,         setTab]         = useState<Tab>("france")
+  const [isLoggedIn,  setIsLoggedIn]  = useState<boolean | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setIsLoggedIn(!!data.session)
+    })
+  }, [])
 
   const france  = tenders.filter(isFrance)
   const europe  = tenders.filter(t => !isFrance(t))
   const visible = tab === "france" ? france : europe
+
+  // Tant que la session n'est pas déterminée, on considère connecté (pas de flash de blur)
+  const loggedIn = isLoggedIn !== false
 
   return (
     <div>
@@ -83,10 +94,61 @@ export default function TendersGrid({ tenders }: { tenders: Tender[] }) {
 
       {/* Grid */}
       {visible.length > 0 ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
-          {visible.map((t, i) => (
-            <OpportunityCard key={t.id ?? i} tender={t} showFlag={tab === "europe"} />
-          ))}
+        <div style={{ position: "relative" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+            {visible.map((t, i) => (
+              <div
+                key={t.id ?? i}
+                style={{
+                  filter:        !loggedIn && i >= 2 ? `blur(${Math.min((i - 1) * 3, 12)}px)` : "none",
+                  pointerEvents: !loggedIn && i >= 2 ? "none" : "auto",
+                  userSelect:    !loggedIn && i >= 2 ? "none" : "auto",
+                  transition:    "filter 0.3s ease",
+                }}
+              >
+                <OpportunityCard tender={t} showFlag={tab === "europe"} />
+              </div>
+            ))}
+          </div>
+
+          {/* Overlay CTA si non connecté */}
+          {!loggedIn && (
+            <div style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "60%",
+              background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.95))",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              paddingBottom: 40,
+              gap: 12,
+            }}>
+              <p style={{ fontSize: "1.1rem", fontWeight: 600, color: "hsl(220,20%,12%)", margin: 0 }}>
+                Créez un compte pour voir toutes les opportunités
+              </p>
+              <p style={{ fontSize: "0.88rem", color: "hsl(220,8%,52%)", maxWidth: "36ch", textAlign: "center", margin: 0 }}>
+                Scorées et personnalisées par Leman selon votre profil agence.
+              </p>
+              <div style={{ display: "flex", gap: 12 }}>
+                <a href="/login" style={{
+                  padding: "10px 24px", borderRadius: 999, background: "hsl(220,20%,12%)",
+                  color: "white", textDecoration: "none", fontSize: "0.88rem", fontWeight: 500,
+                }}>
+                  Créer un compte gratuit →
+                </a>
+                <a href="/login" style={{
+                  padding: "10px 24px", borderRadius: 999, border: "1px solid hsl(220,8%,88%)",
+                  color: "hsl(220,8%,52%)", textDecoration: "none", fontSize: "0.88rem",
+                }}>
+                  Se connecter
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div style={{ textAlign: "center", padding: "48px 0", color: "hsl(220,8%,52%)", fontSize: "0.88rem" }}>
