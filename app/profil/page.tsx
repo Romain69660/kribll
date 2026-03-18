@@ -225,12 +225,24 @@ export default function ProfilPage() {
         .single()
 
       if (p) {
-        // Profil déjà rempli : on redirige vers la page d'accueil
-        router.push('/')
+        // Profil existant : on pré-remplit le formulaire pour édition
+        setProfile({
+          name:                p.name ?? '',
+          city:                p.city ?? '',
+          team_size:           String(p.team_size ?? '6-15'),
+          annual_revenue:      String(p.annual_revenue ?? '300k-600k'),
+          project_types:       p.project_types ?? [],
+          preferred_countries: p.preferred_countries ?? [],
+          preferred_regions:   Array.isArray(p.preferred_regions) ? p.preferred_regions : [],
+          references:          (p.agency_references ?? []).map((r: Reference) => ({
+            type: r.type ?? 'housing', location: r.location ?? '',
+            year: String(r.year ?? ''), budget: r.budget ?? '<500k',
+          })),
+        })
         return
       }
 
-      // Premier accès : on reste sur /profil pour remplir le profil
+      // Premier accès : profil vide
       setProfile(EMPTY)
     }
 

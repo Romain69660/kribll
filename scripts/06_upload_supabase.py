@@ -22,6 +22,7 @@ headers = {
     "Authorization": f"Bearer {SUPABASE_KEY}",
     "Content-Type": "application/json",
     "Prefer": "return=representation",
+    "Accept-Charset": "utf-8",
 }
 
 # -----------------------------------
@@ -45,7 +46,7 @@ def clean_value(v):
 
 print("Loading final shortlist:", CSV_FILE)
 
-df = pd.read_csv(CSV_FILE, low_memory=False)
+df = pd.read_csv(CSV_FILE, low_memory=False, encoding="utf-8-sig")
 
 print("SOURCE COLUMNS:", list(df.columns))
 print("ROWS:", len(df))

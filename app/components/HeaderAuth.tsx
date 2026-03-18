@@ -39,6 +39,13 @@ export default function HeaderAuth() {
   }
 
   if (label) {
+    const nameStyle: React.CSSProperties = {
+      fontSize: '0.78rem', fontWeight: 600, padding: '6px 16px',
+      borderRadius: 999, border: 'none', cursor: 'default',
+      background: 'transparent', color: 'hsl(220,20%,12%)',
+      textDecoration: 'none', display: 'inline-block',
+    }
+
     const linkStyle: React.CSSProperties = {
       fontSize: '0.78rem', fontWeight: 500, padding: '6px 16px',
       borderRadius: 999, border: 'none', cursor: 'pointer',
@@ -48,7 +55,7 @@ export default function HeaderAuth() {
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ ...linkStyle, cursor: 'default' }}>{label}</span>
+        <span style={nameStyle}>{label}</span>
         <Link href="/profil" style={linkStyle}>
           Mon profil
         </Link>
