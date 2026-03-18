@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { MapPin, Calendar, Building2, Users, TrendingUp } from "lucide-react"
+import { MapPin, Calendar, Building2, Users, TrendingUp, Heart, Share2 } from "lucide-react"
+import { supabase } from "../../lib/supabase"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -78,7 +79,7 @@ function FlagImg({ country }: { country?: string }) {
   )
 }
 
-function categoryLabel(cat?: string) {
+export function categoryLabel(cat?: string) {
   if (!cat) return null
   return CATEGORY_LABELS[cat] ?? cat
 }
@@ -97,7 +98,7 @@ function formatRevenue(v?: number | null) {
   return `CA minimum : ${v}€`
 }
 
-function verdictPill(v?: string) {
+export function verdictPill(v?: string) {
   const up = v?.toUpperCase()
   if (up === "GO")    return { background: "hsl(145,60%,94%)", color: "hsl(145,70%,38%)", label: "GO" }
   if (up === "MAYBE") return { background: "hsl(48,90%,93%)",  color: "hsl(40,80%,42%)",  label: "À étudier" }
@@ -107,7 +108,7 @@ function verdictPill(v?: string) {
 
 // ─── ScoreGauge ───────────────────────────────────────────────────────────────
 
-function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
+export function ScoreGauge({ score, size = 40 }: { score: number; size?: number }) {
   const s   = Math.min(Math.round(score), 100)
   const r   = (size - 6) / 2
   const c   = 2 * Math.PI * r
@@ -145,15 +146,42 @@ function MetaPill({ icon, label }: { icon: React.ReactNode; label: string }) {
 
 // ─── OpportunityCard ──────────────────────────────────────────────────────────
 
-function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: boolean }) {
+interface CardProps {
+  tender: Tender
+  showFlag?: boolean
+  isFavorite?: boolean
+  onToggleFavorite?: () => void
+  userId?: string | null
+}
+
+export function OpportunityCard({ tender, showFlag, isFavorite = false, onToggleFavorite, userId }: CardProps) {
   const router   = useRouter()
   const vp       = verdictPill(tender.verdict)
   const catLabel = categoryLabel(tender.category)
   const revenue  = formatRevenue(tender.minimum_revenue_required)
+  const [copied, setCopied] = useState(false)
 
   const pageUrl  = `https://kribbl.app/annonce/${tender.id}`
   const loc      = tender.location || tender.country || ''
   const sumShort = tender.summary ? tender.summary.slice(0, 200) + (tender.summary.length > 200 ? '…' : '') : ''
+
+  async function handleShare(e: React.MouseEvent) {
+    e.stopPropagation()
+    const text = `${tender.title}\n${loc}\nScore Leman : ${tender.final_score}/100\n\n${sumShort}`
+    if (navigator.share) {
+      await navigator.share({ title: tender.title, text, url: pageUrl })
+    } else {
+      await navigator.clipboard.writeText(pageUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
+  function handleFavorite(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!userId) { router.push('/login'); return }
+    onToggleFavorite?.()
+  }
 
   return (
     <article
@@ -172,7 +200,7 @@ function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: bool
         position: "relative",
       }}>
 
-      {/* Source + category + score */}
+      {/* Source + category + score + heart */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
           {tender.source && (
@@ -190,7 +218,26 @@ function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: bool
           )}
           {showFlag && <FlagImg country={tender.country} />}
         </div>
-        {typeof tender.final_score === "number" && <ScoreGauge score={tender.final_score} size={40} />}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          <button
+            onClick={handleFavorite}
+            title={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              width: 28, height: 28, borderRadius: 999,
+              border: "1px solid hsl(220,8%,91%)", background: "white",
+              cursor: "pointer", color: isFavorite ? "hsl(0,70%,55%)" : "hsl(220,8%,72%)",
+              transition: "color .2s, border-color .2s",
+            }}
+          >
+            <Heart
+              style={{ width: 13, height: 13 }}
+              fill={isFavorite ? "currentColor" : "none"}
+              strokeWidth={1.8}
+            />
+          </button>
+          {typeof tender.final_score === "number" && <ScoreGauge score={tender.final_score} size={40} />}
+        </div>
       </div>
 
       {/* Verdict pill */}
@@ -260,7 +307,7 @@ function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: bool
       {/* Footer — détail + partage */}
       <div style={{
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        marginTop: 12, paddingTop: 12, borderTop: "1px solid hsl(220,8%,91%)",
+        marginTop: 4, paddingTop: 10, borderTop: "1px solid hsl(220,8%,91%)",
       }}>
         <a
           href={`/annonce/${tender.id}`}
@@ -269,26 +316,18 @@ function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: bool
         >
           Voir le détail →
         </a>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={e => { e.stopPropagation(); window.open(`mailto:?subject=${encodeURIComponent(`Opportunité Kribbl — ${tender.title}`)}&body=${encodeURIComponent(`Bonjour,\n\nJ'ai trouvé cette opportunité sur Kribbl :\n\n${tender.title}\n${loc}\n\n${sumShort}\n\nVoir l'annonce : ${pageUrl}\n\nCordialement`)}`) }}
-            style={{ fontSize: "0.72rem", padding: "4px 10px", borderRadius: 999, border: "1px solid hsl(220,8%,88%)", background: "white", cursor: "pointer", color: "hsl(220,8%,52%)" }}
-          >
-            ✉ Email
-          </button>
-          <button
-            onClick={e => { e.stopPropagation(); window.open(`https://wa.me/?text=${encodeURIComponent(`Opportunité Kribbl 🏗️\n\n${tender.title}\n${loc}\n\n${sumShort}\n\n${pageUrl}`)}`, "_blank") }}
-            style={{ fontSize: "0.72rem", padding: "4px 10px", borderRadius: 999, border: "1px solid hsl(220,8%,88%)", background: "white", cursor: "pointer", color: "hsl(220,8%,52%)" }}
-          >
-            💬 WhatsApp
-          </button>
-          <button
-            onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(pageUrl).then(() => alert("Lien copié !")) }}
-            style={{ fontSize: "0.72rem", padding: "4px 10px", borderRadius: 999, border: "1px solid hsl(220,8%,88%)", background: "white", cursor: "pointer", color: "hsl(220,8%,52%)" }}
-          >
-            🔗 Copier
-          </button>
-        </div>
+        <button
+          onClick={handleShare}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 5,
+            fontSize: "0.72rem", color: "hsl(220,8%,52%)", cursor: "pointer",
+            background: "white", border: "1px solid hsl(220,8%,91%)",
+            borderRadius: 999, padding: "4px 12px",
+          }}
+        >
+          <Share2 style={{ width: 11, height: 11 }} strokeWidth={1.5} />
+          {copied ? "Lien copié ✓" : "Partager"}
+        </button>
       </div>
     </article>
   )
@@ -310,7 +349,33 @@ function isFrance(t: Tender) {
 }
 
 export default function TendersGrid({ tenders }: { tenders: Tender[] }) {
-  const [tab, setTab] = useState<Tab>("france")
+  const [tab,         setTab]         = useState<Tab>("france")
+  const [userId,      setUserId]      = useState<string | null>(null)
+  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set())
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) return
+      const uid = data.session.user.id
+      setUserId(uid)
+      const { data: favs } = await supabase
+        .from('favorites')
+        .select('tender_id')
+        .eq('user_id', uid)
+      if (favs) setFavoriteIds(new Set(favs.map((f: { tender_id: number }) => f.tender_id)))
+    })
+  }, [])
+
+  async function toggleFavorite(tenderId: number) {
+    if (!userId) return
+    if (favoriteIds.has(tenderId)) {
+      await supabase.from('favorites').delete().eq('user_id', userId).eq('tender_id', tenderId)
+      setFavoriteIds(prev => { const n = new Set(prev); n.delete(tenderId); return n })
+    } else {
+      await supabase.from('favorites').insert({ user_id: userId, tender_id: tenderId })
+      setFavoriteIds(prev => new Set([...prev, tenderId]))
+    }
+  }
 
   const france  = tenders.filter(isFrance)
   const europe  = tenders.filter(t => !isFrance(t))
@@ -371,7 +436,14 @@ export default function TendersGrid({ tenders }: { tenders: Tender[] }) {
       {visible.length > 0 ? (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
           {visible.map((t, i) => (
-            <OpportunityCard key={t.id ?? i} tender={t} showFlag={tab === "europe"} />
+            <OpportunityCard
+              key={t.id ?? i}
+              tender={t}
+              showFlag={tab === "europe"}
+              isFavorite={favoriteIds.has(t.id)}
+              onToggleFavorite={() => toggleFavorite(t.id)}
+              userId={userId}
+            />
           ))}
         </div>
       ) : (

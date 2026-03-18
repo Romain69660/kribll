@@ -47,3 +47,23 @@ drop trigger if exists agency_profiles_updated_at on agency_profiles;
 create trigger agency_profiles_updated_at
   before update on agency_profiles
   for each row execute procedure update_updated_at();
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Table favoris
+-- ─────────────────────────────────────────────────────────────────────────────
+
+create table if not exists favorites (
+  id         uuid    primary key default gen_random_uuid(),
+  user_id    uuid    references auth.users(id) on delete cascade,
+  tender_id  integer references tenders(id)   on delete cascade,
+  created_at timestamp default now(),
+  unique(user_id, tender_id)
+);
+
+alter table favorites enable row level security;
+
+drop policy if exists "Users manage own favorites" on favorites;
+create policy "Users manage own favorites"
+  on favorites for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
