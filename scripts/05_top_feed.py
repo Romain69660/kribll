@@ -228,7 +228,12 @@ if "category" in top.columns:
     print(top["category"].value_counts(dropna=False))
     print()
 
+VERDICT_DISPLAY = {"GO": "GO", "MAYBE": "À étudier", "NO": "Non pertinent"}
+
 print("Top 20 preview:")
-print(top.head(20).to_string(index=False))
+preview = top.head(20).copy()
+if "verdict" in preview.columns:
+    preview["verdict"] = preview["verdict"].map(lambda v: VERDICT_DISPLAY.get(v, v))
+print(preview.to_string(index=False))
 print()
 print("Export completed ->", OUTPUT_FILE)

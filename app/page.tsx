@@ -28,8 +28,8 @@ function categoryLabel(cat?: string) {
 function verdictPill(v?: string) {
   const up = v?.toUpperCase()
   if (up === "GO")    return { background: "hsl(145,60%,94%)", color: "hsl(145,70%,38%)", label: "GO" }
-  if (up === "MAYBE") return { background: "hsl(48,90%,93%)",  color: "hsl(40,80%,42%)",  label: "MAYBE" }
-  if (up === "NO")    return { background: "hsl(0,80%,95%)",   color: "hsl(0,70%,45%)",   label: "NO" }
+  if (up === "MAYBE") return { background: "hsl(48,90%,93%)",  color: "hsl(40,80%,42%)",  label: "À étudier" }
+  if (up === "NO")    return { background: "hsl(0,80%,95%)",   color: "hsl(0,70%,45%)",   label: "Non pertinent" }
   return { background: "hsl(220,8%,95%)", color: "hsl(220,8%,52%)", label: up ?? "—" }
 }
 
@@ -135,7 +135,7 @@ export default async function Home() {
                 fontSize: "0.75rem", fontWeight: 500, padding: "6px 14px", borderRadius: 999,
                 background: "hsl(220,85%,96%)", color: "hsl(220,90%,56%)", marginBottom: 24,
               }}>
-                <Image src="/logokribbl.png" alt="Kribbl" width={16} height={16} />
+                <Image src="/logokribbl.png" alt="Kribbl" width={16} height={16} style={{ filter: 'invert(39%) sepia(98%) saturate(400%) hue-rotate(200deg) brightness(95%)' }} />
                 Propulsé par Leman AI
               </span>
 

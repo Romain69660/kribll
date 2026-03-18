@@ -62,11 +62,9 @@ export default function LoginPage() {
 
       {/* Form */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-        <div style={{ width: '100%', maxWidth: 400 }}>
+        <div style={{ width: '100%', maxWidth: 400, textAlign: 'center' }}>
 
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
-            <Image src="/logokribbl.png" alt="Kribbl" width={48} height={48} />
-          </div>
+          <Image src="/logokribbl.png" alt="Kribbl" width={48} height={48} style={{ marginBottom: 20 }} />
           <h1 style={{ fontFamily: hl, fontWeight: 700, fontSize: '1.6rem', letterSpacing: '-0.025em', color: 'hsl(220,20%,12%)', margin: '0 0 6px' }}>
             {mode === 'login' ? 'Connexion' : 'Créer un compte'}
           </h1>
@@ -86,7 +84,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left' }}>
             <div>
               <label style={{ fontSize: '0.78rem', fontWeight: 500, color: 'hsl(220,20%,32%)', display: 'block', marginBottom: 6 }}>
                 Email

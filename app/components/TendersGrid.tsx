@@ -99,8 +99,8 @@ function formatRevenue(v?: number | null) {
 function verdictPill(v?: string) {
   const up = v?.toUpperCase()
   if (up === "GO")    return { background: "hsl(145,60%,94%)", color: "hsl(145,70%,38%)", label: "GO" }
-  if (up === "MAYBE") return { background: "hsl(48,90%,93%)",  color: "hsl(40,80%,42%)",  label: "MAYBE" }
-  if (up === "NO")    return { background: "hsl(0,80%,95%)",   color: "hsl(0,70%,45%)",   label: "NO" }
+  if (up === "MAYBE") return { background: "hsl(48,90%,93%)",  color: "hsl(40,80%,42%)",  label: "À étudier" }
+  if (up === "NO")    return { background: "hsl(0,80%,95%)",   color: "hsl(0,70%,45%)",   label: "Non pertinent" }
   return { background: "hsl(220,8%,95%)", color: "hsl(220,8%,52%)", label: up ?? "—" }
 }
 
@@ -246,6 +246,22 @@ function OpportunityCard({ tender, showFlag }: { tender: Tender; showFlag?: bool
           />
         )}
       </div>
+
+      {/* Lien source */}
+      {tender.url && (
+        <a
+          href={tender.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontSize: "0.72rem", color: "hsl(220,8%,52%)", textDecoration: "none",
+            display: "inline-flex", alignItems: "center", gap: 4, marginTop: 4,
+            borderTop: "1px solid hsl(220,8%,93%)", paddingTop: 10,
+          }}
+        >
+          Voir l&apos;annonce →
+        </a>
+      )}
     </article>
   )
 }
