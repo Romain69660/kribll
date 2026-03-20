@@ -75,7 +75,10 @@ function LemanBadge({ text }: { text: string }) {
 
 export default async function Home() {
   const cookieStore = await cookies()
-  const authCookie = cookieStore.get("sb-lqzhdgfcjfwzinttaprr-auth-token")
+  const allCookies = cookieStore.getAll()
+  const authCookie = allCookies.find(
+    c => c.name.includes("auth-token") && !c.name.includes("code")
+  )
 
   const supabaseServer = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -85,10 +88,25 @@ export default async function Home() {
   let userId: string | null = null
   if (authCookie) {
     try {
-      const tokenData = JSON.parse(decodeURIComponent(authCookie.value))
-      userId = tokenData?.user?.id || null
-    } catch {}
+      const decoded = decodeURIComponent(authCookie.value)
+      const parsed  = JSON.parse(decoded)
+      if (Array.isArray(parsed)) {
+        // Format: [access_token, refresh_token] — décoder le JWT
+        const accessToken = parsed[0]
+        const payload = JSON.parse(atob(accessToken.split(".")[1]))
+        userId = payload.sub ?? null
+      } else if (parsed?.user?.id) {
+        userId = parsed.user.id
+      } else if (parsed?.access_token) {
+        const payload = JSON.parse(atob(parsed.access_token.split(".")[1]))
+        userId = payload.sub ?? null
+      }
+    } catch (e) {
+      console.log("Cookie parse error:", e)
+    }
   }
+
+  console.log("userId from cookie:", userId)
 
   let tendersQuery = supabaseServer
     .from("tenders")
