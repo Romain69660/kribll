@@ -1,4 +1,4 @@
-name: Kribbl Pipeline
+name: Kribbl GBADW Pipeline
 
 on:
   schedule:
@@ -14,6 +14,8 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      GBADW_USER_ID: ${{ secrets.GBADW_USER_ID }}
+      LEMAN_MODEL: ${{ vars.LEMAN_MODEL || 'gpt-4o' }}
 
     steps:
       - name: Checkout repository
@@ -25,32 +27,18 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install pandas openai requests
+        run: pip install pandas openai requests
 
-      - name: 01 — BOAMP Scraper
-        run: python scripts/01_boamp_scraper.py
+      - name: GBADW pipeline (BOAMP + TED, préfiltre, Leman, Supabase)
+        run: python scripts/gbadw_pipeline.py
 
-      - name: 02 — TED Scraper
-        run: python scripts/02_ted_scraper.py
-
-      - name: 03 — Master Pipeline
-        run: python scripts/03_master_pipeline.py
-
-      - name: 04 — AI Summary (Leman)
-        run: python scripts/04_ai_summary.py
-
-      - name: 05 — Top Feed
-        run: python scripts/05_top_feed.py
-
-      - name: 06 — Vider Supabase et uploader
-        run: |
-          python -c "
-          import requests, os
-          url = os.environ['SUPABASE_URL']
-          key = os.environ['SUPABASE_KEY']
-          headers = {'apikey': key, 'Authorization': f'Bearer {key}'}
-          r = requests.delete(f'{url}/rest/v1/tenders?id=gte.0', headers=headers)
-          print('DELETE status:', r.status_code)
-          "
-          python scripts/06_upload_supabase.py
+      - name: Récap et feed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gbadw-rundown
+          path: |
+            data/gbadw_rundown.md
+            data/gbadw_feed.csv
+            data/gbadw_prefiltered.csv
+          if-no-files-found: warn
