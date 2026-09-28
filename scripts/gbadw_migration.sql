@@ -7,3 +7,4 @@ alter table tenders add column if not exists sector          text;
 alter table tenders add column if not exists eligibility     text;
 alter table tenders add column if not exists blocking_points text;
 alter table tenders add column if not exists summary_en      text;
+alter table tenders add column if not exists contract_type   text;
