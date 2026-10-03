@@ -25,6 +25,13 @@ Type de contrat : chaque avis reçoit un type, affiché en tête de fiche.
                  mène l'équipe, l'architecte est sous-traitant. Gardé dans le feed
                  mais signalé clairement et jamais GO.
 Toujours exclus : marchés de travaux seuls, fournitures, services hors conception.
+
+Toutes typologies (octobre 2026) : Pablo et Jaime veulent voir TOUT ce qui sort en
+architecture, pas seulement les trois cibles. Chaque avis reçoit donc :
+  typology  le type de bâtiment (EDUCATION, HOUSING, SPORT, CULTURE... ou une des 3 cibles)
+  fit       CORE     cœur de métier GBADW (les 3 cibles)
+            PARTNER  autre typologie, jouable avec un partenaire spécialisé
+            NO       pas une mission d'architecte
 """
 
 AGENCY = {
@@ -157,6 +164,78 @@ SECTORS = {
     },
 }
 
+# ---------------------------------------------------------------------------
+# Autres typologies (hors cibles) : gardées et classées, fit = PARTNER.
+# Un avis hors cible n'est gardé que si son TITRE (ou son CPV) annonce clairement une
+# mission d'architecte, pour ne pas ramasser l'informatique ou les études diverses.
+# ---------------------------------------------------------------------------
+CORE_SECTORS = ["TRANSPORT", "MAINTENANCE", "HEALTH"]
+
+TYPOLOGIES = {
+    "EDUCATION": [
+        "ecole", "ecoles", "groupe scolaire", "college", "colleges", "lycee", "lycees", "universite",
+        "campus", "creche", "multi accueil", "periscolaire", "restaurant scolaire", "cantine",
+        "centre de formation", "internat", "enseignement", "maternelle", "elementaire",
+        "accueil de loisirs", "pole enfance", "petite enfance", "cfa",
+    ],
+    "HOUSING": [
+        "logements", "logement", "residence", "residences", "habitat", "habitation", "lotissement",
+        "foyer de jeunes travailleurs", "residence etudiante", "pension de famille", "beguinage",
+    ],
+    "SPORT": [
+        "gymnase", "piscine", "centre aquatique", "stade", "complexe sportif", "salle de sport",
+        "salle omnisports", "equipement sportif", "halle sportive", "dojo", "patinoire", "tennis",
+        "vestiaires", "tribune", "skatepark",
+    ],
+    "CULTURE": [
+        "mediatheque", "bibliotheque", "musee", "salle de spectacle", "theatre", "conservatoire",
+        "ecole de musique", "cinema", "centre culturel", "salle polyvalente", "salle des fetes",
+        "tiers lieu", "espace culturel", "auditorium", "archives", "office de tourisme",
+    ],
+    "PUBLIC_OFFICES": [
+        "mairie", "hotel de ville", "hotel de region", "hotel du departement", "siege", "bureaux",
+        "tribunal", "palais de justice", "gendarmerie", "commissariat", "hotel de police",
+        "centre administratif", "maison france services", "prefecture", "cite administrative",
+        "maison des associations", "pole administratif",
+    ],
+    "HERITAGE": [
+        "monument historique", "monuments historiques", "eglise", "chateau", "abbaye", "cathedrale",
+        "patrimoine", "restauration du", "chapelle", "remparts",
+    ],
+    "COMMERCE_TOURISM": [
+        "halle", "halles", "marche couvert", "commerce", "commerces", "hotel", "camping",
+        "centre de congres", "parc des expositions", "restaurant", "capitainerie", "port de plaisance",
+    ],
+    "URBAN_LANDSCAPE": [
+        "espaces publics", "espace public", "amenagement urbain", "centre bourg", "coeur de ville",
+        "place", "parc", "requalification urbaine", "zac", "ecoquartier", "front de mer",
+    ],
+}
+
+TYPOLOGY_LABELS = {
+    "TRANSPORT": "Transport",
+    "MAINTENANCE": "Industrial and maintenance",
+    "HEALTH": "Healthcare",
+    "EDUCATION": "Education",
+    "HOUSING": "Housing",
+    "SPORT": "Sport",
+    "CULTURE": "Culture",
+    "PUBLIC_OFFICES": "Public buildings and offices",
+    "HERITAGE": "Heritage",
+    "COMMERCE_TOURISM": "Commerce and tourism",
+    "URBAN_LANDSCAPE": "Urban design and landscape",
+    "OTHER": "Other",
+}
+
+# Signal fort de mission d'architecte, exigé dans le TITRE pour les avis hors cible
+STRICT_MOE_TERMS = [
+    "concours", "maitrise d oeuvre", "maitrise d uvre", "maitre d oeuvre", "moe",
+    "architecte", "architectes", "mission de base", "conception realisation",
+    "equipe de maitrise", "marche global",
+]
+# CPV d'architecture (et pas d'ingénierie générale) : suffisent aussi hors cible
+ARCHITECTURE_CPV_PREFIXES = ("7122", "71200000", "71210000", "71240000", "71250000")
+
 # Les termes de planification seuls (schéma directeur, masterplan) ne classent un avis
 # en TRANSPORT que s'il contient aussi un terme de transport.
 TRANSPORT_TERMS = [
@@ -241,6 +320,16 @@ VERDICT_RULES = """
 Modèle GBADW : l'agence veut être l'architecte mandataire (concours d'architecture, marché de
 maîtrise d'œuvre) ou le prestataire principal d'une étude de planification.
 
+L'agence veut aussi voir les autres typologies (scolaire, logement, sport, culture, bureaux
+publics, patrimoine...) pour y répondre avec des partenaires spécialisés.
+
+Adéquation (fit), à donner pour chaque avis :
+- CORE : mission d'architecte ou d'étude dans une des trois cibles (TRANSPORT, MAINTENANCE, HEALTH).
+- PARTNER : mission d'architecte (concours, maîtrise d'œuvre, conception-réalisation) pour un
+  bâtiment d'une autre typologie. Jouable avec un partenaire qui a les références.
+- NO : pas une mission d'architecte (ingénierie pure, informatique, AMO seule, contrôle,
+  diagnostics, travaux seuls, fournitures, voirie seule sans bâtiment).
+
 Type de contrat (contract_type), à déterminer en premier et avec soin :
 - ARCHITECT_LED : concours ou marché de maîtrise d'œuvre, l'architecte est mandataire.
 - STUDY : étude, schéma directeur, plan-guide, programmation.
@@ -248,7 +337,7 @@ Type de contrat (contract_type), à déterminer en premier et avec soin :
   par une entreprise de travaux où l'architecte est sous-traitant ou cotraitant.
 - OTHER : autre ou impossible à dire.
 
-GO (uniquement ARCHITECT_LED ou STUDY) :
+GO (uniquement ARCHITECT_LED ou STUDY, fit CORE) :
 - Projet dans une des trois cibles :
   TRANSPORT : gares, haltes, pôles d'échanges multimodaux, gares routières, stations de métro
     ou de tram, aéroports, parkings silo et parcs relais liés au transport, et schémas
@@ -266,13 +355,17 @@ MAYBE :
 - ARCHITECT_LED ou STUDY dans les cibles, mais références exigées que GBADW n'a pas
   (ex. EHPAD ou hôpitaux livrés de moins de 5 ans) : à monter avec une agence française.
 - Étude de transport où l'architecture n'est qu'une partie de l'équipe.
+- Autre typologie (fit PARTNER), ARCHITECT_LED : toujours MAYBE, jamais GO. Dans blocking_points,
+  dire quelles références de la typologie sont exigées et quel type de partenaire il faut.
 - DESIGN_BUILD dans les cibles : jamais GO, toujours MAYBE au maximum, pour information
   seulement. Le premier point bloquant doit dire que l'équipe est menée par une entreprise
   de travaux et que GBADW serait sous-traitant.
 
-NO :
+NO (fit NO) :
 - Marché de travaux seuls ou de fournitures.
-- Hors des trois cibles (logement, scolaire, sport, culture, bureaux, voirie seule…).
+- Voirie, réseaux ou espaces publics seuls, sans bâtiment ni mission d'architecte.
+- Patrimoine exigeant un architecte du patrimoine ou un architecte en chef des monuments
+  historiques comme mandataire : MAYBE avec ce point bloquant, pas NO.
 - AMO seule hors schéma directeur, OPC, CSPS, contrôle technique, diagnostics, sols.
 - Mission d'ingénierie pure sans rôle d'architecte ou de planificateur.
 """

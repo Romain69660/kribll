@@ -52,7 +52,9 @@ TODAY = datetime.now(ZoneInfo("Europe/Paris")).date()
 BOAMP_BASE = "https://boamp-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets/boamp"
 TED_SEARCH = "https://api.ted.europa.eu/v3/notices/search"
 
-MAX_LEMAN = 150          # plafond d'avis envoyés à Leman par run
+MAX_LEMAN = 500          # plafond de NOUVEAUX avis envoyés à Leman par run (les anciens sont repris du cache)
+LEMAN_WORKERS = 8        # appels Leman en parallèle
+PLATFORM_TABLE = "gbadw_tenders"  # table de la plateforme agence (une ligne par avis, clé publication_number)
 LEMAN_TEXT_CHARS = 7000  # texte d'avis transmis à Leman
 TED_LOOKBACK_DAYS = 150  # fenêtre de publication TED (le filtre "live" se fait sur la date limite)
 
@@ -567,7 +569,26 @@ def prefilter(row):
     best = max(scores, key=lambda k: scores[k][0])
     best_score, matched = scores[best]
     if best_score < P.SECTOR_MIN_SCORE:
-        return False, "hors secteurs cibles", "", best_score, "", ""
+        # hors cible : gardé seulement si le titre ou le CPV annonce une vraie mission d'architecte
+        cpvs_all = [c.strip() for c in str(row["cpv_code"]).split("|") if c.strip()]
+        strict = hits(title_n, P.STRICT_MOE_TERMS) or any(c.startswith(P.ARCHITECTURE_CPV_PREFIXES) for c in cpvs_all)
+        if not strict:
+            return False, "hors cibles et pas de mission d'architecte dans le titre", "", best_score, "", ""
+        typo, tmatched = "OTHER", []
+        for name, terms in P.TYPOLOGIES.items():
+            h = hits(title_n, terms)
+            if h:
+                typo, tmatched = name, h
+                break
+        if typo == "OTHER":
+            for name, terms in P.TYPOLOGIES.items():
+                h = hits(text_n, terms)
+                if len(h) >= 2:
+                    typo, tmatched = name, h
+                    break
+        bonus = 10 if hits(title_n, ["concours"]) else 0
+        why = "ok autre typologie"
+        return True, why, typo, 1 + bonus, ", ".join(sorted(set(tmatched))[:8]), ctype
 
     bonus = 10 if hits(title_n, ["concours"]) else 0
     bonus += 5 if hits(title_n, ["maitrise d oeuvre", "moe"]) else 0
@@ -608,7 +629,8 @@ def leman_prompt(row):
 === AGENCE ===
 {P.AGENCY['name']} ({P.AGENCY['city']}, Espagne), fondée par {P.AGENCY['founders']}.
 Spécialité : {P.AGENCY['specialty']}.
-Cibles en France : bâtiments de transport et schémas directeurs de transport (gares, pôles d'échanges, aéroports), bâtiments industriels et de maintenance, tous les bâtiments liés à la santé.
+Cibles en France (cœur de métier) : bâtiments de transport et schémas directeurs de transport (gares, pôles d'échanges, aéroports), bâtiments industriels et de maintenance, tous les bâtiments liés à la santé.
+Autres typologies : l'agence veut aussi les voir, pour y répondre avec des partenaires.
 Éligibilité en France : {P.AGENCY['france_eligibility']}
 
 Références :
@@ -643,13 +665,18 @@ Réponds UNIQUEMENT avec un objet JSON :
   "team_lead": "qui mène l'équipe candidate : architecte | entreprise de travaux | bureau d'études | inconnu",
   "verdict": "GO" | "MAYBE" | "NO",
   "relevance_score": 0-100 (utilise toute l'échelle),
+  "fit": "CORE" | "PARTNER" | "NO",
   "sector": "TRANSPORT" | "MAINTENANCE" | "HEALTH" | "OTHER",
+  "typology": "TRANSPORT" | "MAINTENANCE" | "HEALTH" | "EDUCATION" | "HOUSING" | "SPORT" | "CULTURE" | "PUBLIC_OFFICES" | "HERITAGE" | "COMMERCE_TOURISM" | "URBAN_LANDSCAPE" | "OTHER",
   "project_type": "type de bâtiment/ouvrage, court",
   "program": "programme en une phrase",
   "location": "ville (département)",
   "procedure_type": "concours restreint | concours ouvert | procédure avec négociation | appel d'offres ouvert | conception-réalisation | marché global | autre",
   "mission": "mission demandée (ex : MOE mission de base + EXE)",
   "estimated_budget": "montant travaux ou honoraires si indiqué, sinon null",
+  "budget_eur": montant des travaux en euros HT sous forme de nombre entier si indiqué, sinon null,
+  "prize_eur": montant de la prime de concours en euros HT (nombre entier) si indiqué, sinon null,
+  "teams_shortlisted": nombre d'équipes admises à concourir (nombre entier) si indiqué, sinon null,
   "deadline_type": "candidatures | offres | inconnu",
   "required_references": ["références exigées"],
   "minimum_revenue_required": "CA minimum exigé si indiqué, sinon null",
@@ -658,71 +685,118 @@ Réponds UNIQUEMENT avec un objet JSON :
   "eligibility": "comment GBADW peut candidater (mandataire LPS, cotraitant d'une agence française, non éligible…)",
   "blocking_points": ["points bloquants concrets"],
   "summary_en": "2-3 phrases en ANGLAIS pour Pablo : le projet et pourquoi c'est (ou non) pour GBADW",
-  "summary_fr": "même chose en français"
+  "summary_fr": "même chose en français",
+  "summary_es": "même chose en ESPAGNOL"
 }}"""
 
 
-def leman_run(rows, model):
+def leman_one(row, model):
     from openai import OpenAI
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-    out = []
-    for i, row in enumerate(rows, 1):
-        log(f"  Leman {i}/{len(rows)} — {row['title'][:80]}")
-        result = {}
-        for attempt in range(3):
-            try:
-                resp = client.chat.completions.create(
-                    model=model,
-                    temperature=0,
-                    response_format={"type": "json_object"},
-                    messages=[{"role": "user", "content": leman_prompt(row)}],
-                )
-                result = json.loads(resp.choices[0].message.content)
-                break
-            except Exception as e:
-                log(f"    erreur ({attempt + 1}/3) : {e}")
-                time.sleep(3 * (attempt + 1))
-        merged = dict(row)
-        # côté prudent : si le préfiltre ou Leman voit une conception-réalisation, elle est marquée
-        ctype = str(result.get("contract_type") or "").upper()
-        if ctype not in P.CONTRACT_LABELS:
-            ctype = row.get("contract_type") or "OTHER"
-        if row.get("contract_type") == "DESIGN_BUILD":
-            ctype = "DESIGN_BUILD"
-        verdict = str(result.get("verdict") or "").upper() or "ERROR"
-        if ctype == "DESIGN_BUILD" and verdict == "GO":
-            verdict = "MAYBE"
-        merged.update({
-            "contract_type": ctype,
-            "team_lead": result.get("team_lead"),
-            "verdict": verdict,
-            "relevance_score": result.get("relevance_score"),
-            "leman_sector": result.get("sector"),
-            "project_type": result.get("project_type"),
-            "program": result.get("program"),
-            "location": result.get("location"),
-            "procedure_type": result.get("procedure_type"),
-            "mission": result.get("mission"),
-            "estimated_budget": result.get("estimated_budget"),
-            "deadline_type": result.get("deadline_type"),
-            "required_references": json.dumps(result.get("required_references") or [], ensure_ascii=False),
-            "minimum_revenue_required": result.get("minimum_revenue_required"),
-            "architect_mandatory": result.get("architect_mandatory"),
-            "consortium_required": result.get("consortium_required"),
-            "eligibility": result.get("eligibility"),
-            "blocking_points": json.dumps(result.get("blocking_points") or [], ensure_ascii=False),
-            "summary_en": result.get("summary_en"),
-            "summary": result.get("summary_fr"),
-        })
-        out.append(merged)
-    return out
+    result = {}
+    for attempt in range(3):
+        try:
+            resp = client.chat.completions.create(
+                model=model,
+                temperature=0,
+                response_format={"type": "json_object"},
+                messages=[{"role": "user", "content": leman_prompt(row)}],
+            )
+            result = json.loads(resp.choices[0].message.content)
+            break
+        except Exception as e:
+            log(f"    erreur ({attempt + 1}/3) : {e}")
+            time.sleep(3 * (attempt + 1))
+    merged = dict(row)
+    # côté prudent : si le préfiltre ou Leman voit une conception-réalisation, elle est marquée
+    ctype = str(result.get("contract_type") or "").upper()
+    if ctype not in P.CONTRACT_LABELS:
+        ctype = row.get("contract_type") or "OTHER"
+    if row.get("contract_type") == "DESIGN_BUILD":
+        ctype = "DESIGN_BUILD"
+    verdict = str(result.get("verdict") or "").upper() or "ERROR"
+    fit = str(result.get("fit") or "").upper()
+    typology = str(result.get("typology") or "").upper()
+    if typology not in P.TYPOLOGY_LABELS:
+        typology = row.get("sector") if row.get("sector") in P.TYPOLOGY_LABELS else "OTHER"
+    if fit not in ("CORE", "PARTNER", "NO"):
+        fit = "CORE" if typology in P.CORE_SECTORS else "PARTNER"
+    if typology in P.CORE_SECTORS and fit == "PARTNER":
+        fit = "CORE"
+    if typology not in P.CORE_SECTORS and fit == "CORE":
+        fit = "PARTNER"
+    if verdict == "NO":
+        fit = "NO"
+    if fit == "NO":
+        verdict = "NO"
+    if verdict == "GO" and (ctype == "DESIGN_BUILD" or fit != "CORE"):
+        verdict = "MAYBE"
+
+    def _int(v):
+        try:
+            return int(float(str(v).replace(" ", "").replace(",", ".")))
+        except Exception:
+            return None
+
+    merged.update({
+        "contract_type": ctype,
+        "team_lead": result.get("team_lead"),
+        "verdict": verdict,
+        "fit": fit,
+        "typology": typology,
+        "relevance_score": result.get("relevance_score"),
+        "leman_sector": result.get("sector"),
+        "project_type": result.get("project_type"),
+        "program": result.get("program"),
+        "location": result.get("location"),
+        "procedure_type": result.get("procedure_type"),
+        "mission": result.get("mission"),
+        "estimated_budget": result.get("estimated_budget"),
+        "budget_eur": _int(result.get("budget_eur")),
+        "prize_eur": _int(result.get("prize_eur")),
+        "teams_shortlisted": _int(result.get("teams_shortlisted")),
+        "deadline_type": result.get("deadline_type"),
+        "required_references": json.dumps(result.get("required_references") or [], ensure_ascii=False),
+        "minimum_revenue_required": result.get("minimum_revenue_required"),
+        "architect_mandatory": result.get("architect_mandatory"),
+        "consortium_required": result.get("consortium_required"),
+        "eligibility": result.get("eligibility"),
+        "blocking_points": json.dumps(result.get("blocking_points") or [], ensure_ascii=False),
+        "summary_en": result.get("summary_en"),
+        "summary_es": result.get("summary_es"),
+        "summary": result.get("summary_fr"),
+        "analysed": bool(result),
+    })
+    return merged
+
+
+def leman_run(rows, model, light_model=None):
+    """Analyse en parallèle. Les avis hors cible passent par le modèle léger."""
+    from concurrent.futures import ThreadPoolExecutor
+    light_model = light_model or model
+
+    def work(args):
+        i, row = args
+        m = model if row.get("sector") in P.CORE_SECTORS else light_model
+        log(f"  Leman {i}/{len(rows)} [{m}] {row['title'][:70]}")
+        return leman_one(row, m)
+
+    with ThreadPoolExecutor(max_workers=LEMAN_WORKERS) as ex:
+        return list(ex.map(work, enumerate(rows, 1)))
 
 
 # ===========================================================================
 # 5. Sorties
 # ===========================================================================
 
-SECTOR_LABEL_EN = P.SECTOR_LABELS
+TYPO_LABEL = P.TYPOLOGY_LABELS
+
+ANALYSIS_FIELDS = [
+    "contract_type", "team_lead", "verdict", "fit", "typology", "relevance_score",
+    "project_type", "program", "location", "procedure_type", "mission", "estimated_budget",
+    "budget_eur", "prize_eur", "teams_shortlisted", "deadline_type", "required_references",
+    "eligibility", "blocking_points", "summary_en", "summary_es", "summary",
+]
 
 
 def days_left(d):
@@ -730,73 +804,131 @@ def days_left(d):
     return (d - TODAY).days if d else None
 
 
+def _s(v):
+    return v if isinstance(v, str) and v.strip() else ""
+
+
+def _money(v):
+    try:
+        v = float(v)
+        if math.isnan(v) or v <= 0:
+            return ""
+    except Exception:
+        return ""
+    return f"€{round(v / 1e6, 1):g}M" if v >= 1e6 else f"€{round(v / 1e3, 1):g}k"
+
+
 def _entries(sub, lines):
     sub = sub.assign(_v=sub["verdict"].map({"GO": 0, "MAYBE": 1}).fillna(2),
                      _d=pd.to_datetime(sub["deadline"], errors="coerce"))
     for _, r in sub.sort_values(["_v", "_d"]).iterrows():
-        dl = r.get("deadline") or "?"
+        dl = _s(r.get("deadline")) or "?"
         left = days_left(dl)
         left_s = f" ({left} days left)" if left is not None else ""
-        ctype = r.get("contract_type") or "OTHER"
+        ctype = _s(r.get("contract_type")) or "OTHER"
         if ctype == "DESIGN_BUILD":
             tag = "DESIGN-AND-BUILD"
+        elif r.get("fit") == "PARTNER":
+            tag = "With partner"
         else:
             tag = "GO" if r.get("verdict") == "GO" else "To study"
-        lines.append(f"### [{tag}] {r['title']}")
-        lines.append(f"- **Contract:** {P.CONTRACT_LABELS.get(ctype, ctype)}"
-                     + (f" (team led by: {r['team_lead']})" if isinstance(r.get("team_lead"), str) and r["team_lead"] else ""))
-        lines.append(f"- **Sector:** {SECTOR_LABEL_EN.get(r.get('sector'), r.get('sector'))}")
-        lines.append(f"- **Client:** {r['buyer_name']}" + (f", {r['location']}" if isinstance(r.get("location"), str) and r["location"] else ""))
-        meta = [x for x in [r.get("procedure_type"), r.get("mission")] if isinstance(x, str) and x]
+        new = " · NEW" if r.get("is_new") is True else ""
+        lines.append(f"### [{tag}]{new} {r['title']}")
+        lead = _s(r.get("team_lead"))
+        lines.append(f"- **Contract:** {P.CONTRACT_LABELS.get(ctype, ctype)}" + (f" (team led by: {lead})" if lead else ""))
+        lines.append(f"- **Typology:** {TYPO_LABEL.get(r.get('typology'), r.get('typology'))}")
+        lines.append(f"- **Client:** {r['buyer_name']}" + (f", {_s(r.get('location'))}" if _s(r.get("location")) else ""))
+        meta = [x for x in [_s(r.get("procedure_type")), _s(r.get("mission"))] if x]
         if meta:
             lines.append(f"- **Procedure:** {' / '.join(meta)}")
-        if isinstance(r.get("estimated_budget"), str) and r["estimated_budget"]:
-            lines.append(f"- **Budget:** {r['estimated_budget']}")
-        lines.append(f"- **Deadline:** {dl}{left_s}" + (f", {r['deadline_type']}" if isinstance(r.get('deadline_type'), str) and r['deadline_type'] not in ('', 'inconnu') else ""))
-        if isinstance(r.get("summary_en"), str) and r["summary_en"]:
+        money = [x for x in [
+            (f"works {_money(r.get('budget_eur'))}" if _money(r.get("budget_eur")) else _s(r.get("estimated_budget"))),
+            (f"prize {_money(r.get('prize_eur'))}" if _money(r.get("prize_eur")) else ""),
+        ] if x]
+        if money:
+            lines.append(f"- **Budget:** {', '.join(money)}")
+        dtype = _s(r.get("deadline_type"))
+        lines.append(f"- **Deadline:** {dl}{left_s}" + (f", {dtype}" if dtype not in ("", "inconnu") else ""))
+        if _s(r.get("summary_en")):
             lines.append(f"- {r['summary_en']}")
         try:
             blocks = json.loads(r.get("blocking_points") or "[]")
         except Exception:
             blocks = []
         if blocks:
-            lines.append(f"- **Watch out:** {'; '.join(blocks)}")
+            lines.append(f"- **Watch out:** {'; '.join(str(b) for b in blocks)}")
         lines.append(f"- {r['url']}")
         lines.append("")
 
 
 def write_rundown(df):
     lines = [
-        f"# Live competitions in France: {TODAY.strftime('%d %B %Y')}",
+        f"# Architecture tenders in France: {TODAY.strftime('%d %B %Y')}",
         "",
-        "Transport buildings and master plans, industrial and maintenance buildings, all healthcare buildings. "
-        "Only notices whose deadline has not passed. Every notice shows its contract type; "
-        "design-and-build notices are listed separately at the end.",
+        "All building typologies, live notices only. Three groups: core business (transport, industrial and "
+        "maintenance, healthcare), other typologies to consider with a partner, and design-and-build (contractor-led).",
         "",
     ]
-    keep = df[df["verdict"].isin(["GO", "MAYBE"])] if "verdict" in df.columns else df
-    if "contract_type" not in keep.columns:
-        keep = keep.assign(contract_type="OTHER")
-    db = keep[keep["contract_type"] == "DESIGN_BUILD"]
-    arch = keep[keep["contract_type"] != "DESIGN_BUILD"]
+    for col in ("verdict", "contract_type", "fit", "typology", "is_new"):
+        if col not in df.columns:
+            df = df.assign(**{col: None})
+    keep = df[df["verdict"].isin(["GO", "MAYBE"])]
     if keep.empty:
         lines.append("_No relevant live notice found today._")
-    else:
-        counts = arch["verdict"].value_counts().to_dict() if "verdict" in arch.columns else {}
-        lines += [f"**{counts.get('GO', 0)} GO**, **{counts.get('MAYBE', 0)} to study**, "
-                  f"**{len(db)} design-and-build** (for information only).", ""]
+        _write_rundown_text("\n".join(lines))
+        return
+    db = keep[keep["contract_type"] == "DESIGN_BUILD"]
+    rest = keep[keep["contract_type"] != "DESIGN_BUILD"]
+    core = rest[rest["fit"] != "PARTNER"]
+    partner = rest[rest["fit"] == "PARTNER"]
+    new = keep[keep["is_new"] == True]  # noqa: E712
+    lines += [f"**{len(core)} core business** ({int((core['verdict'] == 'GO').sum())} GO, "
+              f"{int((core['verdict'] == 'MAYBE').sum())} to study), **{len(partner)} with a partner**, "
+              f"**{len(db)} design-and-build**. **{len(new)} new today.**", ""]
 
-    for sector in list(P.SECTORS):
-        sub = arch[arch["sector"] == sector]
+    # tableau de synthèse : une ligne par avis, trié par date limite
+    lines += ["## Overview by deadline", "",
+              "| Deadline | Group | Typology | Project | Client | Works | Contract |",
+              "|---|---|---|---|---|---|---|"]
+    ov = keep.assign(_d=pd.to_datetime(keep["deadline"], errors="coerce")).sort_values("_d")
+    for _, r in ov.iterrows():
+        grp = "Design-build" if r["contract_type"] == "DESIGN_BUILD" else ("Partner" if r["fit"] == "PARTNER" else "Core")
+        title = str(r["title"]).replace("|", "/")
+        title = re.sub(r"^\s*France\s*[-–]\s*[^-–]+[-–]\s*", "", title)[:90]
+        lines.append(f"| {_s(r.get('deadline')) or '?'} | {grp}{' · NEW' if r.get('is_new') is True else ''} | "
+                     f"{TYPO_LABEL.get(r.get('typology'), r.get('typology'))} | [{title}]({r['url']}) | "
+                     f"{str(r['buyer_name']).replace('|', '/')[:40]} | {_money(r.get('budget_eur')) or _s(r.get('estimated_budget'))[:20]} | "
+                     f"{_s(r.get('procedure_type'))[:30]} |")
+    lines.append("")
+
+    if not new.empty:
+        lines += [f"## New today ({len(new)})", ""]
+        _entries(new, lines)
+
+    lines += ["# Core business", ""]
+    for sector in P.CORE_SECTORS:
+        sub = core[core["typology"] == sector]
         if sub.empty:
             continue
-        lines += [f"## {SECTOR_LABEL_EN[sector]} ({len(sub)})", ""]
+        lines += [f"## {TYPO_LABEL[sector]} ({len(sub)})", ""]
         _entries(sub, lines)
+    other_core = core[~core["typology"].isin(P.CORE_SECTORS)]
+    if not other_core.empty:
+        lines += [f"## Other ({len(other_core)})", ""]
+        _entries(other_core, lines)
+
+    if not partner.empty:
+        lines += ["# Other typologies, with a partner", ""]
+        for typo in [t for t in TYPO_LABEL if t not in P.CORE_SECTORS]:
+            sub = partner[partner["typology"] == typo]
+            if sub.empty:
+                continue
+            lines += [f"## {TYPO_LABEL[typo]} ({len(sub)})", ""]
+            _entries(sub, lines)
 
     if not db.empty:
-        lines += [f"## Design-and-build: contractor-led, not GBADW's model ({len(db)})", "",
-                  "_A construction company leads the team and the architect is a subcontractor. "
-                  "Listed for information only._", ""]
+        lines += [f"# Design-and-build: contractor-led ({len(db)})", "",
+                  "_A construction company leads the team and the architect is a subcontractor._", ""]
         _entries(db, lines)
 
     _write_rundown_text("\n".join(lines))
@@ -807,8 +939,9 @@ def _write_rundown_text(text):
         f.write(text)
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path:
+        # le résumé GitHub est limité à 1 Mo : on tronque proprement
         with open(summary_path, "a", encoding="utf-8") as f:
-            f.write(text + "\n")
+            f.write(text[:900_000] + "\n")
     log(f"Récap : {RUNDOWN_MD}")
 
 
@@ -908,6 +1041,132 @@ def supabase_upload(df):
 
 
 # ===========================================================================
+# 6. Table de la plateforme (gbadw_tenders) : cache des analyses et suivi "nouveau"
+# ===========================================================================
+
+def _sb():
+    url, key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_KEY")
+    if not url or not key:
+        return None, None
+    return url.rstrip("/"), {"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+
+
+def platform_load():
+    """Avis déjà connus, par publication_number. {} si la table n'existe pas encore."""
+    url, headers = _sb()
+    if not url:
+        return {}
+    known, offset = {}, 0
+    while True:
+        r = HTTP.get(f"{url}/rest/v1/{PLATFORM_TABLE}", headers=headers, timeout=60,
+                     params={"select": "*", "limit": 1000, "offset": offset})
+        if r.status_code != 200:
+            log(f"Table {PLATFORM_TABLE} illisible ({r.status_code}) : {r.text[:200]}")
+            log("  → lancer scripts/gbadw_platform.sql dans Supabase. Le run continue sans cache.")
+            return {}
+        batch = r.json()
+        for row in batch:
+            known[str(row.get("publication_number"))] = row
+        if len(batch) < 1000:
+            break
+        offset += 1000
+    log(f"Cache : {len(known)} avis déjà connus dans {PLATFORM_TABLE}")
+    return known
+
+
+def from_cache(row, cached):
+    """Reprend l'analyse stockée pour un avis déjà analysé."""
+    merged = dict(row)
+    for f in ANALYSIS_FIELDS:
+        merged[f] = cached.get("summary_fr" if f == "summary" else f)
+    for f in ("required_references", "blocking_points"):
+        v = merged.get(f)
+        merged[f] = json.dumps(v, ensure_ascii=False) if isinstance(v, (list, dict)) else (v or "[]")
+    merged["analysed"] = True
+    merged["first_seen"] = cached.get("first_seen")
+    return merged
+
+
+def platform_upload(df):
+    url, headers = _sb()
+    if not url:
+        log("Supabase non configuré, upload plateforme ignoré")
+        return
+    rows = []
+    for _, r in df.iterrows():
+        def j(v):
+            try:
+                return json.loads(v) if isinstance(v, str) else (v if isinstance(v, list) else [])
+            except Exception:
+                return []
+        buyer_uri = r.get("buyer_profile_uri") if isinstance(r.get("buyer_profile_uri"), str) else ""
+        row = {
+            "publication_number": str(r.get("publication_number")),
+            "source": r.get("source"),
+            "title": r.get("title"),
+            "buyer_name": r.get("buyer_name"),
+            "location": r.get("location"),
+            "departement": r.get("departement"),
+            "url": r.get("url"),
+            "dce_url": buyer_uri or None,
+            "platform": "AWS" if "marches-publics.info" in buyer_uri else ("PLACE" if "marches-publics.gouv.fr" in buyer_uri else None),
+            "publication_date": r.get("publication_date") or None,
+            "deadline": r.get("deadline") or None,
+            "deadline_type": r.get("deadline_type"),
+            "typology": r.get("typology"),
+            "fit": r.get("fit"),
+            "contract_type": r.get("contract_type"),
+            "team_lead": r.get("team_lead"),
+            "verdict": r.get("verdict"),
+            "score": r.get("final_score"),
+            "relevance_score": r.get("relevance_score"),
+            "procedure_type": r.get("procedure_type"),
+            "mission": r.get("mission"),
+            "estimated_budget": r.get("estimated_budget"),
+            "budget_eur": r.get("budget_eur"),
+            "prize_eur": r.get("prize_eur"),
+            "teams_shortlisted": r.get("teams_shortlisted"),
+            "project_type": r.get("project_type"),
+            "program": r.get("program"),
+            "required_references": j(r.get("required_references")),
+            "eligibility": r.get("eligibility"),
+            "blocking_points": j(r.get("blocking_points")),
+            "summary_fr": r.get("summary"),
+            "summary_en": r.get("summary_en"),
+            "summary_es": r.get("summary_es"),
+            "cpv_code": r.get("cpv_code"),
+            "is_live": True,
+            "first_seen": r.get("first_seen") or str(TODAY),
+            "last_seen": str(TODAY),
+        }
+        row = {k: clean(v) for k, v in row.items()}
+        for k in ("budget_eur", "prize_eur", "teams_shortlisted", "score", "relevance_score"):
+            if row.get(k) is not None:
+                try:
+                    row[k] = int(float(row[k]))
+                except Exception:
+                    row[k] = None
+        row["required_references"] = row.get("required_references") or []
+        row["blocking_points"] = row.get("blocking_points") or []
+        rows.append(row)
+
+    # tout ce qui n'est plus dans le run du jour n'est plus "live"
+    r = HTTP.patch(f"{url}/rest/v1/{PLATFORM_TABLE}?is_live=eq.true", headers={**headers, "Prefer": "return=minimal"},
+                   json={"is_live": False}, timeout=60)
+    log(f"Plateforme : remise à zéro des avis live → {r.status_code}")
+    if r.status_code >= 400:
+        log(f"  {r.text[:300]}")
+        log(f"  → lancer scripts/gbadw_platform.sql dans Supabase pour créer la table {PLATFORM_TABLE}")
+        return
+    for i in range(0, len(rows), 200):
+        r = HTTP.post(f"{url}/rest/v1/{PLATFORM_TABLE}?on_conflict=publication_number",
+                      headers={**headers, "Prefer": "resolution=merge-duplicates,return=minimal"},
+                      json=rows[i:i + 200], timeout=120)
+        log(f"Plateforme : upsert {i}-{i + len(rows[i:i + 200])} → {r.status_code} {r.text[:200]}")
+        r.raise_for_status()
+
+
+# ===========================================================================
 # Main
 # ===========================================================================
 
@@ -915,6 +1174,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-ai", action="store_true")
     ap.add_argument("--no-upload", action="store_true")
+    ap.add_argument("--no-cache", action="store_true", help="réanalyser tous les avis")
     ap.add_argument("--source", choices=["all", "boamp", "ted"], default="all")
     args = ap.parse_args()
 
@@ -946,39 +1206,73 @@ def main():
     for k, v in sorted(reasons.items(), key=lambda x: -x[1]):
         log(f"  {v:>5}  {k}")
 
-    df = pd.DataFrame(kept)
-    if df.empty:
+    if not kept:
         log("Aucun avis retenu.")
-        df = pd.DataFrame(columns=["title", "sector", "verdict", "deadline"])
-        write_rundown(df)
+        write_rundown(pd.DataFrame(columns=["title", "verdict", "deadline"]))
         return
-    df = df.sort_values("prefilter_score", ascending=False).head(MAX_LEMAN)
-    df.drop(columns=["full_text"]).to_csv(PREFILTER_CSV, index=False, encoding="utf-8-sig")
-    log(f"\n{len(df)} avis envoyés à Leman ({df['sector'].value_counts().to_dict()})")
+    pd.DataFrame(kept).drop(columns=["full_text"]).to_csv(PREFILTER_CSV, index=False, encoding="utf-8-sig")
+    log(f"\n{len(kept)} avis après préfiltre "
+        f"({pd.Series([r['sector'] for r in kept]).value_counts().to_dict()})")
+
+    # cache : on ne réanalyse que les avis jamais vus
+    known = {} if (args.no_cache or args.no_ai) else platform_load()
+    first_run = not known
+    done, todo = [], []
+    for r in kept:
+        c = known.get(str(r["publication_number"]))
+        if c and c.get("verdict") and c.get("verdict") != "ERROR":
+            done.append(from_cache(r, c))
+        else:
+            todo.append(r)
+    todo.sort(key=lambda r: (0 if r["sector"] in P.CORE_SECTORS else 1, -r["prefilter_score"]))
+    skipped = todo[MAX_LEMAN:]
+    todo = todo[:MAX_LEMAN]
+    log(f"{len(done)} repris du cache, {len(todo)} nouveaux à analyser"
+        + (f", {len(skipped)} reportés au prochain run (plafond {MAX_LEMAN})" if skipped else ""))
 
     if args.no_ai:
-        df["verdict"] = "MAYBE"
-    else:
+        for r in todo:
+            r.update({"verdict": "MAYBE", "typology": r["sector"],
+                      "fit": "CORE" if r["sector"] in P.CORE_SECTORS else "PARTNER"})
+        analysed = todo
+    elif todo:
         model = os.environ.get("LEMAN_MODEL", "gpt-4o")
-        df = pd.DataFrame(leman_run(df.to_dict("records"), model))
-        # Leman peut reclasser le secteur ; hors secteurs => NO
-        df["sector"] = df["leman_sector"].where(df["leman_sector"].isin(list(P.SECTORS)), df["sector"])
-        df.loc[df["leman_sector"] == "OTHER", "verdict"] = "NO"
+        light = os.environ.get("LEMAN_MODEL_LIGHT", "gpt-4o-mini")
+        analysed = leman_run(todo, model, light)
+        analysed = [r for r in analysed if r.get("analysed")] or analysed
+    else:
+        analysed = []
+    for r in analysed:
+        r["first_seen"] = str(TODAY)
 
-    df["relevance_score"] = pd.to_numeric(df.get("relevance_score"), errors="coerce").fillna(50)
+    df = pd.DataFrame(done + analysed)
+    for col in ANALYSIS_FIELDS + ["first_seen", "buyer_profile_uri"]:
+        if col not in df.columns:
+            df[col] = None
+    # au tout premier run, rien n'est "nouveau" : tout vient d'être découvert d'un coup
+    df["is_new"] = (df["first_seen"].astype(str) == str(TODAY)) & (not first_run)
+    df["sector"] = df["typology"]
+    df["relevance_score"] = pd.to_numeric(df["relevance_score"], errors="coerce").fillna(50)
     df["final_score"] = (df["relevance_score"]
                          + df["verdict"].map({"GO": 20, "MAYBE": 5}).fillna(0)
+                         - (df["fit"] == "PARTNER") * 15
                          - (df["contract_type"] == "DESIGN_BUILD") * 40).clip(0, 100).round().astype(int)
     df = df.sort_values(["final_score"], ascending=False)
 
     df.drop(columns=["full_text"], errors="ignore").to_csv(FEED_CSV, index=False, encoding="utf-8-sig")
     log(f"Feed : {FEED_CSV}")
     log(f"Verdicts : {df['verdict'].value_counts().to_dict()}")
+    log(f"Groupes : {df['fit'].value_counts().to_dict()}")
+    log(f"Typologies : {df['typology'].value_counts().to_dict()}")
 
     write_rundown(df)
 
     if not args.no_upload and not args.no_ai:
-        supabase_upload(df)
+        platform_upload(df)
+        try:
+            supabase_upload(df[df["fit"] == "CORE"])   # ancien feed du site : cœur de métier seulement
+        except Exception as e:
+            log(f"Ancien feed (table tenders) non mis à jour : {e}")
 
     log("\nTerminé.")
 
