@@ -8,7 +8,7 @@ on:
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -16,6 +16,7 @@ jobs:
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       GBADW_USER_ID: ${{ secrets.GBADW_USER_ID }}
       LEMAN_MODEL: ${{ vars.LEMAN_MODEL || 'gpt-4o' }}
+      LEMAN_MODEL_LIGHT: ${{ vars.LEMAN_MODEL_LIGHT || 'gpt-4o-mini' }}
 
     steps:
       - name: Checkout repository
