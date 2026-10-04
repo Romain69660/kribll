@@ -53,7 +53,10 @@ BOAMP_BASE = "https://boamp-datadila.opendatasoft.com/api/explore/v2.1/catalog/d
 TED_SEARCH = "https://api.ted.europa.eu/v3/notices/search"
 
 MAX_LEMAN = 500          # plafond de NOUVEAUX avis envoyés à Leman par run (les anciens sont repris du cache)
-LEMAN_WORKERS = 8        # appels Leman en parallèle
+LEMAN_WORKERS = 4        # appels Leman en parallèle (au-delà, OpenAI limite le débit)
+LEMAN_RETRIES = 6
+NO_CREDIT = {"hit": False}   # passe à True dès qu'OpenAI répond "plus de crédit" : on arrête d'appeler
+SEED_CSV = os.path.join(DATA_DIR, "gbadw_seed.csv")   # analyses d'un run précédent, pour amorcer le cache
 PLATFORM_TABLE = "gbadw_tenders"  # table de la plateforme agence (une ligne par avis, clé publication_number)
 LEMAN_TEXT_CHARS = 7000  # texte d'avis transmis à Leman
 TED_LOOKBACK_DAYS = 150  # fenêtre de publication TED (le filtre "live" se fait sur la date limite)
@@ -574,6 +577,9 @@ def prefilter(row):
         strict = hits(title_n, P.STRICT_MOE_TERMS) or any(c.startswith(P.ARCHITECTURE_CPV_PREFIXES) for c in cpvs_all)
         if not strict:
             return False, "hors cibles et pas de mission d'architecte dans le titre", "", best_score, "", ""
+        nb = hits(title_n, P.NON_BUILDING_TITLE_TERMS)
+        if nb:
+            return False, "hors cibles : infrastructure ou lot technique", "", best_score, "", ""
         typo, tmatched = "OTHER", []
         for name, terms in P.TYPOLOGIES.items():
             h = hits(title_n, terms)
@@ -665,6 +671,7 @@ Réponds UNIQUEMENT avec un objet JSON :
   "team_lead": "qui mène l'équipe candidate : architecte | entreprise de travaux | bureau d'études | inconnu",
   "verdict": "GO" | "MAYBE" | "NO",
   "relevance_score": 0-100 (utilise toute l'échelle),
+  "architect_mission": true | false,
   "fit": "CORE" | "PARTNER" | "NO",
   "sector": "TRANSPORT" | "MAINTENANCE" | "HEALTH" | "OTHER",
   "typology": "TRANSPORT" | "MAINTENANCE" | "HEALTH" | "EDUCATION" | "HOUSING" | "SPORT" | "CULTURE" | "PUBLIC_OFFICES" | "HERITAGE" | "COMMERCE_TOURISM" | "URBAN_LANDSCAPE" | "OTHER",
@@ -694,7 +701,9 @@ def leman_one(row, model):
     from openai import OpenAI
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     result = {}
-    for attempt in range(3):
+    for attempt in range(LEMAN_RETRIES):
+        if NO_CREDIT["hit"]:
+            break
         try:
             resp = client.chat.completions.create(
                 model=model,
@@ -705,7 +714,16 @@ def leman_one(row, model):
             result = json.loads(resp.choices[0].message.content)
             break
         except Exception as e:
-            log(f"    erreur ({attempt + 1}/3) : {e}")
+            msg = str(e)
+            if "insufficient_quota" in msg or "credit_balance" in msg or "no credits remaining" in msg:
+                if not NO_CREDIT["hit"]:
+                    log("    OpenAI : plus de crédit sur le compte. Les avis restants seront analysés au prochain run.")
+                NO_CREDIT["hit"] = True
+                break
+            if "rate_limit" in msg or "429" in msg:
+                time.sleep(min(60, 4 * (attempt + 1)))   # limite de débit : on attend, sans bruit
+                continue
+            log(f"    erreur ({attempt + 1}/{LEMAN_RETRIES}) : {msg[:200]}")
             time.sleep(3 * (attempt + 1))
     merged = dict(row)
     # côté prudent : si le préfiltre ou Leman voit une conception-réalisation, elle est marquée
@@ -719,18 +737,26 @@ def leman_one(row, model):
     typology = str(result.get("typology") or "").upper()
     if typology not in P.TYPOLOGY_LABELS:
         typology = row.get("sector") if row.get("sector") in P.TYPOLOGY_LABELS else "OTHER"
-    if fit not in ("CORE", "PARTNER", "NO"):
-        fit = "CORE" if typology in P.CORE_SECTORS else "PARTNER"
-    if typology in P.CORE_SECTORS and fit == "PARTNER":
-        fit = "CORE"
-    if typology not in P.CORE_SECTORS and fit == "CORE":
-        fit = "PARTNER"
-    if verdict == "NO":
-        fit = "NO"
+    # le groupe se décide ici, pas dans la réponse de l'IA : une autre typologie n'est jamais un "non"
+    arch = result.get("architect_mission")
+    if isinstance(arch, str):
+        arch = arch.strip().lower() in ("true", "vrai", "oui", "yes")
+    if arch is None:
+        arch = ctype in ("ARCHITECT_LED", "DESIGN_BUILD") and bool(result)
+    if typology in P.CORE_SECTORS:
+        fit = "NO" if (verdict == "NO" or (arch is False and ctype != "STUDY")) else "CORE"
+    else:
+        fit = "PARTNER" if arch else "NO"
     if fit == "NO":
         verdict = "NO"
-    if verdict == "GO" and (ctype == "DESIGN_BUILD" or fit != "CORE"):
+    elif fit == "PARTNER":
         verdict = "MAYBE"
+    elif verdict == "GO" and ctype == "DESIGN_BUILD":
+        verdict = "MAYBE"
+    elif verdict not in ("GO", "MAYBE"):
+        verdict = "MAYBE"
+    if not result:   # appel raté : ni verdict ni cache, l'avis sera réanalysé au prochain run
+        verdict, fit = "ERROR", ("CORE" if typology in P.CORE_SECTORS else "PARTNER")
 
     def _int(v):
         try:
@@ -1063,7 +1089,7 @@ def platform_load():
         if r.status_code != 200:
             log(f"Table {PLATFORM_TABLE} illisible ({r.status_code}) : {r.text[:200]}")
             log("  → lancer scripts/gbadw_platform.sql dans Supabase. Le run continue sans cache.")
-            return {}
+            return seed_load()
         batch = r.json()
         for row in batch:
             known[str(row.get("publication_number"))] = row
@@ -1071,6 +1097,28 @@ def platform_load():
             break
         offset += 1000
     log(f"Cache : {len(known)} avis déjà connus dans {PLATFORM_TABLE}")
+    if not known:
+        return seed_load()
+    return known
+
+
+def seed_load():
+    """Amorce le cache avec le feed d'un run précédent (data/gbadw_seed.csv), si la table est vide."""
+    if not os.path.exists(SEED_CSV):
+        return {}
+    try:
+        seed = pd.read_csv(SEED_CSV, dtype={"publication_number": str})
+    except Exception as e:
+        log(f"Seed illisible : {e}")
+        return {}
+    known = {}
+    for _, r in seed.iterrows():
+        d = {k: (None if (isinstance(v, float) and math.isnan(v)) else v) for k, v in r.items()}
+        if d.get("verdict") in ("GO", "MAYBE", "NO"):
+            d["summary_fr"] = d.get("summary")
+            d["first_seen"] = str(TODAY - timedelta(days=1))   # déjà vus : pas "nouveaux" aujourd'hui
+            known[str(d["publication_number"])] = d
+    log(f"Cache amorcé depuis {SEED_CSV} : {len(known)} avis déjà analysés")
     return known
 
 
@@ -1163,6 +1211,10 @@ def platform_upload(df):
                       headers={**headers, "Prefer": "resolution=merge-duplicates,return=minimal"},
                       json=rows[i:i + 200], timeout=120)
         log(f"Plateforme : upsert {i}-{i + len(rows[i:i + 200])} → {r.status_code} {r.text[:200]}")
+        if r.status_code in (401, 403) or "row-level security" in r.text:
+            log("  → la clé SUPABASE_KEY n'a pas le droit d'écrire dans gbadw_tenders.")
+            log("    Mettre la clé 'service_role' de Supabase dans le secret GitHub SUPABASE_KEY.")
+            raise SystemExit(1)
         r.raise_for_status()
 
 

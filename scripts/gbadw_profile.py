@@ -227,6 +227,19 @@ TYPOLOGY_LABELS = {
     "OTHER": "Other",
 }
 
+# Hors cible : titres d'infrastructure ou de lot technique seul, écartés sans appeler l'IA
+NON_BUILDING_TITLE_TERMS = [
+    "eau potable", "assainissement", "eaux usees", "eaux pluviales", "station d epuration", "step", "steps",
+    "endiguement", "digue", "digues", "riviere", "cours d eau", "hydraulique", "fontainerie",
+    "voirie", "voiries", "chaussee", "route", "routes", "rn13", "deviation", "giratoire", "carrefour",
+    "enfouissement", "reseaux", "reseau de chaleur", "eclairage public", "piste cyclable", "pistes cyclables",
+    "ouvrage d art", "ouvrages d art", "pont", "passerelle", "passage superieur", "passage inferieur", "tunnel",
+    "chaudiere", "chaufferie", "traitement d air", "desenfumage", "ascenseur", "ascenseurs", "photovoltaique",
+    "terrain synthetique", "terrain de football", "pelouse", "compteurs", "sols pollues", "depollution",
+    "graphique", "impression", "maitrise d oeuvre urbaine et sociale", "mous", "relogement",
+    "cimetiere", "aire de jeux", "restauration ecologique", "telecommunications", "fibre optique",
+]
+
 # Signal fort de mission d'architecte, exigé dans le TITRE pour les avis hors cible
 STRICT_MOE_TERMS = [
     "concours", "maitrise d oeuvre", "maitrise d uvre", "maitre d oeuvre", "moe",
@@ -323,12 +336,22 @@ maîtrise d'œuvre) ou le prestataire principal d'une étude de planification.
 L'agence veut aussi voir les autres typologies (scolaire, logement, sport, culture, bureaux
 publics, patrimoine...) pour y répondre avec des partenaires spécialisés.
 
-Adéquation (fit), à donner pour chaque avis :
-- CORE : mission d'architecte ou d'étude dans une des trois cibles (TRANSPORT, MAINTENANCE, HEALTH).
-- PARTNER : mission d'architecte (concours, maîtrise d'œuvre, conception-réalisation) pour un
-  bâtiment d'une autre typologie. Jouable avec un partenaire qui a les références.
-- NO : pas une mission d'architecte (ingénierie pure, informatique, AMO seule, contrôle,
-  diagnostics, travaux seuls, fournitures, voirie seule sans bâtiment).
+IMPORTANT : une typologie hors des trois cibles n'est JAMAIS une raison de répondre NO.
+Une école, des logements, un gymnase, une médiathèque, une mairie, des bureaux : si c'est une
+mission de conception d'un bâtiment avec un architecte, c'est PARTNER et MAYBE, pas NO.
+
+architect_mission (vrai ou faux), à donner pour chaque avis :
+- true : la mission porte sur la conception d'un BÂTIMENT (construction neuve, réhabilitation,
+  restructuration, extension) et un architecte est attendu dans l'équipe.
+- false : infrastructure, voirie, réseaux, eau, ouvrages d'art ; lot technique seul (chauffage,
+  ventilation, électricité, toiture, façade seule) ; étude sans conception ; AMO, programmation,
+  contrôle, diagnostics ; travaux seuls ; fournitures ; informatique.
+
+Adéquation (fit) :
+- CORE : architect_mission true (ou étude de planification) dans une des trois cibles.
+- PARTNER : architect_mission true pour un bâtiment d'une autre typologie. Jouable avec un
+  partenaire qui a les références.
+- NO : architect_mission false.
 
 Type de contrat (contract_type), à déterminer en premier et avec soin :
 - ARCHITECT_LED : concours ou marché de maîtrise d'œuvre, l'architecte est mandataire.
@@ -361,11 +384,12 @@ MAYBE :
   seulement. Le premier point bloquant doit dire que l'équipe est menée par une entreprise
   de travaux et que GBADW serait sous-traitant.
 
-NO (fit NO) :
-- Marché de travaux seuls ou de fournitures.
-- Voirie, réseaux ou espaces publics seuls, sans bâtiment ni mission d'architecte.
 - Patrimoine exigeant un architecte du patrimoine ou un architecte en chef des monuments
   historiques comme mandataire : MAYBE avec ce point bloquant, pas NO.
+
+NO (fit NO), uniquement quand architect_mission est false :
+- Marché de travaux seuls ou de fournitures.
+- Voirie, réseaux ou espaces publics seuls, sans bâtiment ni mission d'architecte.
 - AMO seule hors schéma directeur, OPC, CSPS, contrôle technique, diagnostics, sols.
 - Mission d'ingénierie pure sans rôle d'architecte ou de planificateur.
 """
