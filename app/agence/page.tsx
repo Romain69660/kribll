@@ -109,7 +109,6 @@ export default function ListPage() {
 
   return (
     <div className="ag-page">
-      <section className="ag-hero">
       <div className="ag-head">
         <h1>{t('h_list')}</h1>
         {updated && <p className="ag-muted">{t('updated')} {shortDate(updated, lang)}</p>}
@@ -123,7 +122,6 @@ export default function ListPage() {
         <div><dt>{t('k_active')}</dt><dd>{kpi.active}</dd></div>
         <div><dt>{t('k_value')}</dt><dd>{money(total) || '0'}</dd></div>
       </dl>
-      </section>
 
       <Ruler rows={rows} label={t('ruler')} today={t('today')} lang={lang} />
 

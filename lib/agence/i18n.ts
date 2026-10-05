@@ -209,6 +209,8 @@ const D: Dict = {
   di_architecte_local: ['Architecte associé local', 'Local partner architect', 'Arquitecto local asociado'],
   di_entreprise_generale: ['Entreprise générale (conception-réalisation)', 'General contractor (design and build)', 'Constructora (proyecto y obra)'],
   // board / résumé
+  f_open: ['En cours et à faire', 'Open', 'Abiertas'],
+  firms_short: ['{c} confirmées sur {n}', '{c} of {n} confirmed', '{c} de {n} confirmadas'],
   h_board: ['Suivi des candidatures', 'Submission pipeline', 'Seguimiento de candidaturas'],
   board_empty: ['Rien ici', 'Nothing here', 'Nada aquí'],
   board_hint: ['Changez le statut d’une annonce depuis sa fiche ou depuis la liste.', 'Change a tender’s status from its page or from the list.', 'Cambia el estado de una licitación desde su ficha o desde la lista.'],
