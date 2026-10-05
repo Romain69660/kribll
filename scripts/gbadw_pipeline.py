@@ -212,6 +212,56 @@ def donnees_cpvs(raw):
     return sorted(c for c in cpvs if re.match(r"^\d{8}", c))
 
 
+DCE_SKIP_HOSTS = ("boamp.fr", "ted.europa.eu", "europa.eu", "legifrance", "w3.org", "oasis-open", "telerecours",
+                  "chorus-pro", "economie.gouv", "service-public")
+
+
+def donnees_dce_url(raw):
+    """Meilleur lien vers le dossier de consultation trouvé dans l'avis.
+    Priorité : adresse des documents, puis adresse de dépôt, puis profil acheteur."""
+    data = parse_json(raw)
+    found = []
+
+    def walk(obj, path):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                walk(v, path + "/" + str(k))
+        elif isinstance(obj, list):
+            for it in obj:
+                walk(it, path)
+        elif isinstance(obj, str):
+            for u in re.findall(r"https?://[^\s\"'<>|]+", obj):
+                found.append((path, u.rstrip(".,;)")))
+
+    walk(data, "")
+    best, best_score = "", -1
+    for path, u in found:
+        low, pl = u.lower(), path.lower()
+        if any(h in low for h in DCE_SKIP_HOSTS):
+            continue
+        if any(k in pl for k in ("callfortendersdocumentreference", "url_document", "urldocconsul", "document")):
+            score = 100
+        elif any(k in pl for k in ("url_participation", "tenderrecipient", "endpointid", "participation")):
+            score = 60
+        elif any(k in pl for k in ("url_information", "additionalinformation")):
+            score = 50
+        elif any(k in pl for k in ("buyerprofileuri", "url_profil_acheteur")):
+            score = 20
+        else:
+            score = 10
+        rest = re.sub(r"^https?://[^/]+", "", u)
+        if "?" in rest or rest.strip("/").count("/") >= 1 or len(rest.strip("/")) > 12:
+            score += 15   # lien profond : pointe sur la consultation, pas sur l'accueil
+        if score > best_score:
+            best, best_score = u, score
+    return best
+
+
+def is_deep_link(u):
+    rest = re.sub(r"^https?://[^/]+", "", u or "")
+    return bool(u) and ("?" in rest or len(rest.strip("/")) > 12)
+
+
 def donnees_first(raw, key_fragments):
     data = parse_json(raw)
 
@@ -315,6 +365,7 @@ def boamp_to_rows(records):
             "estimated_value": donnees_first(raw_donnees, ["EstimatedOverallContractAmount", "VALEUR_ESTIMEE", "MONTANT"]),
             "url": rec.get("url_avis") or f"https://www.boamp.fr/pages/avis/?q=idweb:{idweb}",
             "buyer_profile_uri": donnees_first(raw_donnees, ["BuyerProfileURI", "URL_PROFIL_ACHETEUR"]),
+            "dce_url": donnees_dce_url(raw_donnees),
             "country": "France",
             "full_text": " | ".join(p for p in [
                 str(rec.get("objet") or ""), resume,
@@ -343,6 +394,7 @@ TED_OPTIONAL_FIELDS = [
     "deadline-receipt-request", "deadline-date-lot", "deadline",
     "notice-type", "procedure-type", "estimated-value-lot", "estimated-value-proc",
     "place-of-performance-city-lot", "organisation-city-buyer", "classification-cpv",
+    "document-url-lot", "submission-url-lot", "buyer-profile",
 ]
 
 
@@ -477,7 +529,9 @@ def ted_to_rows(notices):
             "cpv_code": ted_text(n.get("classification-cpv")),
             "estimated_value": ted_text(n.get("estimated-value-lot")) or ted_text(n.get("estimated-value-proc")),
             "url": url,
-            "buyer_profile_uri": "",
+            "buyer_profile_uri": ted_text(n.get("buyer-profile")),
+            "dce_url": ted_text(n.get("document-url-lot")).split(" | ")[0].split(", ")[0]
+                       or ted_text(n.get("submission-url-lot")).split(" | ")[0].split(", ")[0],
             "country": "France",
             "full_text": f"{title} | {desc}",
         })
@@ -1148,6 +1202,7 @@ def platform_upload(df):
             except Exception:
                 return []
         buyer_uri = r.get("buyer_profile_uri") if isinstance(r.get("buyer_profile_uri"), str) else ""
+        dce = r.get("dce_url") if isinstance(r.get("dce_url"), str) and r.get("dce_url") else buyer_uri
         row = {
             "publication_number": str(r.get("publication_number")),
             "source": r.get("source"),
@@ -1156,8 +1211,8 @@ def platform_upload(df):
             "location": r.get("location"),
             "departement": r.get("departement"),
             "url": r.get("url"),
-            "dce_url": buyer_uri or None,
-            "platform": "AWS" if "marches-publics.info" in buyer_uri else ("PLACE" if "marches-publics.gouv.fr" in buyer_uri else None),
+            "dce_url": dce or None,
+            "platform": "AWS" if "marches-publics.info" in dce else ("PLACE" if "marches-publics.gouv.fr" in dce else None),
             "publication_date": r.get("publication_date") or None,
             "deadline": r.get("deadline") or None,
             "deadline_type": r.get("deadline_type"),
@@ -1298,9 +1353,11 @@ def main():
         r["first_seen"] = str(TODAY)
 
     df = pd.DataFrame(done + analysed)
-    for col in ANALYSIS_FIELDS + ["first_seen", "buyer_profile_uri"]:
+    for col in ANALYSIS_FIELDS + ["first_seen", "buyer_profile_uri", "dce_url"]:
         if col not in df.columns:
             df[col] = None
+    deep = sum(1 for u in df["dce_url"] if isinstance(u, str) and is_deep_link(u))
+    log(f"Dossiers de consultation : {deep} liens directs sur {len(df)} avis")
     # au tout premier run, rien n'est "nouveau" : tout vient d'être découvert d'un coup
     df["is_new"] = (df["first_seen"].astype(str) == str(TODAY)) & (not first_run)
     df["sector"] = df["typology"]

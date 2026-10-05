@@ -9,6 +9,7 @@ create table if not exists gbadw_members (
 );
 insert into gbadw_members (email, name) values
   ('bourgeoisromain6@gmail.com', 'Romain')
+  -- , ('email-de-pablo@exemple.com', 'Pablo')   <- enlever les deux tirets et mettre l'email du compte de Pablo
 on conflict (email) do nothing;
 
 create or replace function is_gbadw_member() returns boolean
@@ -27,14 +28,16 @@ create policy "gbadw_tenders_read" on gbadw_tenders for select to authenticated 
 -- 3. Suivi de chaque annonce.
 create table if not exists gbadw_tracking (
   publication_number text primary key,
-  status      text default 'none',   -- none, shortlist, team, preparing, submitted, selected, won, lost, dropped
+  status      text default 'none',   -- none, shortlist, go, contacted, team, preparing, ready, submitted, selected, won, lost, dropped
   starred     boolean default false,
   owner       text,
   notes       text,
   checklist   jsonb default '{}'::jsonb,
+  suggestions jsonb,                 -- entreprises proposées par la recherche IA
   updated_by  text,
   updated_at  timestamptz default now()
 );
+alter table gbadw_tracking add column if not exists suggestions jsonb;
 alter table gbadw_tracking enable row level security;
 drop policy if exists "gbadw_tracking_all" on gbadw_tracking;
 create policy "gbadw_tracking_all" on gbadw_tracking for all to authenticated

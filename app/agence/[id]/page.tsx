@@ -4,13 +4,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import {
-  CHECKLIST, CONTACT_STATUSES, DISCIPLINES, addContact, asList, daysLeft, downloadFile, emptyTracking, groupOf, icsFor,
+  CHECKLIST, CONTACT_STATUSES, DISCIPLINES, addContact, asList, daysLeft, downloadFile, emptyTracking, groupOf, icsFor, isHomeLink, isSaved,
   loadContacts, loadTender, loadTracking, longDate, money, removeContact, saveTracking, searchFirms, summaryOf, updateContact,
   type Contact, type ContactStatus, type Firm, type Tender, type Tracking,
 } from '../../../lib/agence/core'
 import { tr } from '../../../lib/agence/i18n'
 import { useAgence } from '../Shell'
-import { Days, Star, StatusSelect, Verdict } from '../ui'
+import { Days, Save, StatusSelect, Verdict } from '../ui'
 
 function defaultDisciplines(x: Tender): string[] {
   if (x.contract_type === 'DESIGN_BUILD') return ['entreprise_generale']
@@ -26,6 +26,8 @@ export default function DetailPage() {
   const id = decodeURIComponent(String(useParams().id))
   const [x, setX] = useState<Tender | null | undefined>(undefined)
   const [tk, setTk] = useState<Tracking>(emptyTracking(id))
+  const tkRef = useRef(tk)
+  useEffect(() => { tkRef.current = tk }, [tk])
   const [contacts, setContacts] = useState<Contact[]>([])
   const [error, setError] = useState('')
   const [flash, setFlash] = useState('')
@@ -37,20 +39,22 @@ export default function DetailPage() {
   const [mailFor, setMailFor] = useState<Contact | null>(null)
   const [manual, setManual] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [ready, setReady] = useState(false)
+  const auto = useRef(false)
 
   useEffect(() => {
     loadTender(id).then(r => {
       setX(r)
       if (r) { setPicked(defaultDisciplines(r)); setPlace([r.location, r.departement].filter(Boolean).join(', ')) }
     }).catch(e => { setError(e.message); setX(null) })
-    loadTracking().then(a => a[id] && setTk(a[id])).catch(() => {})
+    loadTracking().then(a => { if (a[id]) { setTk(a[id]); if (a[id].suggestions) setFirms(a[id].suggestions!) } setReady(true) }).catch(() => setReady(true))
     loadContacts(id).then(setContacts).catch(() => {})
   }, [id])
 
   function say(m: string) { setFlash(m); setTimeout(() => setFlash(''), 1800) }
   function patch(p: Partial<Tracking>, debounce = false) {
-    const next = { ...tk, ...p }
-    setTk(next)
+    const next = { ...tkRef.current, ...p, updated_by: user }
+    tkRef.current = next; setTk(next)
     const run = () => saveTracking(next, user).then(() => say(t('saved'))).catch(e => setError(`${t('save_err')} : ${e.message}`))
     if (timer.current) clearTimeout(timer.current)
     if (debounce) timer.current = setTimeout(run, 700); else run()
@@ -59,7 +63,10 @@ export default function DetailPage() {
   async function runSearch() {
     if (!x || !picked.length) return
     setBusy(true); setSearchErr(''); setFirms(null)
-    try { setFirms((await searchFirms(x, picked.map(d => tr('fr', 'di_' + d)), place, lang)).firms) }
+    try {
+      const found = (await searchFirms(x, picked.map(d => tr('fr', 'di_' + d)), place, lang)).firms
+      setFirms(found); patch({ suggestions: found })
+    }
     catch (e) { setSearchErr((e as Error).message) }
     setBusy(false)
   }
@@ -72,6 +79,13 @@ export default function DetailPage() {
     updateContact(c.id, p).catch(e => setError(e.message))
   }
   function drop(c: Contact) { setContacts(s => s.filter(k => k.id !== c.id)); removeContact(c.id).catch(e => setError(e.message)) }
+
+  // Une annonce enregistrée reçoit ses propositions d'entreprises toute seule, une seule fois.
+  useEffect(() => {
+    if (!ready || !x || auto.current || firms || busy || !picked.length || !isSaved(tk)) return
+    auto.current = true
+    runSearch()
+  }) // eslint-disable-line react-hooks/exhaustive-deps
 
   const brief = useMemo(() => {
     if (!x) return ''
@@ -110,16 +124,17 @@ export default function DetailPage() {
           <div><b>{longDate(x.deadline, lang) || '?'}</b><Days deadline={x.deadline} />{x.deadline_type && <span className="ag-muted">{x.deadline_type}</span>}</div>
           <Verdict t={x} />
           <StatusSelect value={tk.status} onChange={s => patch({ status: s })} />
-          <Star on={tk.starred} onClick={() => patch({ starred: !tk.starred })} />
+          <Save label on={tk.starred} onClick={() => patch({ starred: !tk.starred })} />
         </div>
         <div className="ag-actions">
           {x.url && <a className="ag-btn ag-primary" href={x.url} target="_blank" rel="noreferrer">{t('open_notice')}</a>}
-          {x.dce_url && <a className="ag-btn" href={x.dce_url} target="_blank" rel="noreferrer" title={t('dce_hint')}>{t('open_dce')}{x.platform ? ` (${x.platform})` : ''}</a>}
+          {x.dce_url && <a className="ag-btn" href={x.dce_url} target="_blank" rel="noreferrer">{t(isHomeLink(x.dce_url) ? 'dce_home' : 'dce_direct')}{x.platform ? ` (${x.platform})` : ''}</a>}
           {x.deadline && <button className="ag-btn" onClick={() => downloadFile(`deadline_${id}.ics`, icsFor(x), 'text/calendar')}>{t('add_cal')}</button>}
           <button className="ag-btn" onClick={() => navigator.clipboard.writeText(brief).then(() => say(t('copied')))}>{t('copy_brief')}</button>
         </div>
       </header>
 
+      {x.dce_url && isHomeLink(x.dce_url) && <p className="ag-hint">{t('dce_home_hint', { q: x.buyer_name || x.title || '' })}</p>}
       {x.contract_type === 'DESIGN_BUILD' && <p className="ag-warn">{t('db_warning')}</p>}
 
       <div className="ag-cols">
@@ -142,13 +157,13 @@ export default function DetailPage() {
             </div>
             <div className="ag-search">
               <label>{t('place')}<input value={place} onChange={e => setPlace(e.target.value)} /></label>
-              <button className="ag-btn ag-primary" disabled={busy || !picked.length} onClick={runSearch}>{t('find')}</button>
+              <button className="ag-btn ag-primary" disabled={busy || !picked.length} onClick={runSearch}>{firms ? t('search_again') : t('find')}</button>
             </div>
             {busy && <p className="ag-progress" role="status">{t('finding')}</p>}
             {searchErr && <p className="ag-err">{searchErr}</p>}
             {firms && (
               <div className="ag-results">
-                <h3>{t('results')}</h3>
+                <h3>{t('auto_found')}</h3>
                 {firms.length === 0 ? <p className="ag-muted">{t('no_results')}</p> : <>
                   <p className="ag-muted small">{t('verify')}</p>
                   <ul className="ag-firms">

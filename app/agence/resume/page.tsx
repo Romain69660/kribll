@@ -49,7 +49,7 @@ export default function ResumePage() {
       {error && <p className="ag-err">{error}</p>}
       <div className="ag-head">
         <h1>{t('h_resume')} {monthName}</h1>
-        <p className="ag-muted">GIL BARTOLOMÉ ADW. {t('resume_total', { n: rows.length, v: money(total) || '0 €' })}</p>
+        <p className="ag-muted">GilBartolome Architects. {t('resume_total', { n: rows.length, v: money(total) || '0 €' })}</p>
       </div>
       {rows.length === 0 && <p className="ag-empty">{t('empty')}</p>}
       {TYPOLOGIES.map(ty => {

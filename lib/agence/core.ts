@@ -42,7 +42,7 @@ export type Tender = {
   last_seen: string | null
 }
 
-export type Status = 'none' | 'shortlist' | 'team' | 'preparing' | 'submitted' | 'selected' | 'won' | 'lost' | 'dropped'
+export type Status = 'none' | 'shortlist' | 'go' | 'contacted' | 'team' | 'preparing' | 'ready' | 'submitted' | 'selected' | 'won' | 'lost' | 'dropped'
 
 export type Tracking = {
   publication_number: string
@@ -51,6 +51,7 @@ export type Tracking = {
   owner: string | null
   notes: string | null
   checklist: Record<string, boolean>
+  suggestions?: Firm[] | null
   updated_by?: string | null
   updated_at?: string | null
 }
@@ -82,9 +83,22 @@ export const TYPOLOGIES = [
   'TRANSPORT', 'MAINTENANCE', 'HEALTH', 'EDUCATION', 'HOUSING', 'SPORT', 'CULTURE',
   'PUBLIC_OFFICES', 'HERITAGE', 'COMMERCE_TOURISM', 'URBAN_LANDSCAPE', 'OTHER',
 ]
-export const STATUSES: Status[] = ['none', 'shortlist', 'team', 'preparing', 'submitted', 'selected', 'won', 'lost', 'dropped']
-export const BOARD_STATUSES: Status[] = ['shortlist', 'team', 'preparing', 'submitted', 'selected', 'won']
-export const ACTIVE_STATUSES: Status[] = ['shortlist', 'team', 'preparing']
+export const STATUS_GROUPS: { key: string; tone: string; items: Status[] }[] = [
+  { key: 'todo', tone: 'yellow', items: ['shortlist'] },
+  { key: 'doing', tone: 'blue', items: ['go', 'contacted', 'team', 'preparing', 'ready'] },
+  { key: 'done', tone: 'green', items: ['submitted', 'selected', 'won'] },
+  { key: 'closed', tone: 'red', items: ['lost', 'dropped'] },
+]
+export const STATUSES: Status[] = ['none', ...STATUS_GROUPS.flatMap(g => g.items)]
+export const BOARD_STATUSES: Status[] = ['shortlist', 'go', 'contacted', 'team', 'preparing', 'ready', 'submitted', 'selected', 'won']
+export const ACTIVE_STATUSES: Status[] = ['go', 'contacted', 'team', 'preparing', 'ready']
+export function toneOf(s: Status): string { return STATUS_GROUPS.find(g => g.items.includes(s))?.tone || 'grey' }
+export function isSaved(t?: Tracking): boolean { return !!t && (t.starred || (t.status !== 'none' && t.status !== 'dropped')) }
+export function isHomeLink(u: string | null): boolean {
+  if (!u) return true
+  const rest = u.replace(/^https?:\/\/[^/]+/, '')
+  return !(rest.includes('?') || rest.replace(/^\/|\/$/g, '').length > 12)
+}
 export const CONTACT_STATUSES: ContactStatus[] = ['todo', 'contacted', 'interested', 'confirmed', 'declined']
 export const CHECKLIST = ['dc1', 'dc2', 'refs', 'insurance', 'order', 'capacity', 'partners', 'mandate', 'upload']
 export const DISCIPLINES = [
@@ -206,7 +220,7 @@ export async function saveTracking(t: Tracking, by?: string | null): Promise<voi
   }
   const { error } = await sb().from('gbadw_tracking').upsert({
     publication_number: t.publication_number, status: t.status, starred: t.starred, owner: t.owner,
-    notes: t.notes, checklist: t.checklist, updated_by: by || null, updated_at: new Date().toISOString(),
+    notes: t.notes, checklist: t.checklist, suggestions: t.suggestions ?? null, updated_by: by || null, updated_at: new Date().toISOString(),
   })
   if (error) throw new Error(error.message)
 }

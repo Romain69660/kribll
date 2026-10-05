@@ -4,13 +4,13 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  ACTIVE_STATUSES, TYPOLOGIES, daysLeft, downloadFile, emptyTracking, groupOf, isNew, loadTenders, loadTracking,
+  ACTIVE_STATUSES, TYPOLOGIES, isSaved, daysLeft, downloadFile, emptyTracking, groupOf, isNew, loadTenders, loadTracking,
   money, saveTracking, shortDate, summaryOf, toCsv, type Status, type Tender, type Tracking,
 } from '../../lib/agence/core'
 import { useAgence } from './Shell'
-import { Contract, Days, Star, StatusSelect, Verdict } from './ui'
+import { Contract, Days, Save, StatusSelect, Verdict } from './ui'
 
-type Group = 'all' | 'core' | 'partner' | 'db' | 'no'
+type Group = 'all' | 'saved' | 'core' | 'partner' | 'db' | 'no'
 const HORIZON = 56
 
 export default function ListPage() {
@@ -28,7 +28,6 @@ export default function ListPage() {
   const [dept, setDept] = useState('')
   const [verdict, setVerdict] = useState('')
   const [onlyNew, setOnlyNew] = useState(false)
-  const [onlyStar, setOnlyStar] = useState(false)
   const [onlyComp, setOnlyComp] = useState(false)
   const [sort, setSort] = useState('deadline')
 
@@ -53,27 +52,26 @@ export default function ListPage() {
       if (win === 'month') { if (!x.deadline || new Date(x.deadline).getMonth() !== now.getMonth() || new Date(x.deadline).getFullYear() !== now.getFullYear()) return false }
       else if (win && !(d != null && d <= Number(win))) return false
       if (onlyNew && !isNew(x)) return false
-      if (onlyStar && !tracking[x.publication_number]?.starred) return false
       if (onlyComp && !/concours/i.test(x.procedure_type || '')) return false
       return true
     })
-  }, [live, q, typ, dept, verdict, minB, win, onlyNew, onlyStar, onlyComp, tracking])
+  }, [live, q, typ, dept, verdict, minB, win, onlyNew, onlyComp])
 
   const counts = useMemo(() => {
-    const c = { all: 0, core: 0, partner: 0, db: 0, no: 0 }
-    base.forEach(x => { const g = groupOf(x); c[g]++; if (g !== 'no') c.all++ })
+    const c = { all: 0, saved: 0, core: 0, partner: 0, db: 0, no: 0 }
+    base.forEach(x => { const g = groupOf(x); c[g]++; if (g !== 'no') c.all++; if (isSaved(tracking[x.publication_number])) c.saved++ })
     return c
-  }, [base])
+  }, [base, tracking])
 
   const rows = useMemo(() => {
-    const r = base.filter(x => group === 'all' ? groupOf(x) !== 'no' : groupOf(x) === group)
+    const r = base.filter(x => group === 'saved' ? isSaved(tracking[x.publication_number]) : group === 'all' ? groupOf(x) !== 'no' : groupOf(x) === group)
     const far = '9999-12-31'
     return r.sort((a, b) =>
       sort === 'budget' ? (b.budget_eur || 0) - (a.budget_eur || 0)
       : sort === 'score' ? (b.score || b.relevance_score || 0) - (a.score || a.relevance_score || 0)
       : sort === 'recent' ? (b.first_seen || '').localeCompare(a.first_seen || '')
       : (a.deadline || far).localeCompare(b.deadline || far))
-  }, [base, group, sort])
+  }, [base, group, sort, tracking])
 
   const kpi = useMemo(() => {
     const ok = live.filter(x => groupOf(x) !== 'no')
@@ -90,14 +88,14 @@ export default function ListPage() {
   const typs = useMemo(() => TYPOLOGIES.filter(k => live.some(x => x.typology === k)), [live])
   const updated = useMemo(() => live.reduce((m, x) => (x.last_seen || '') > m ? x.last_seen || '' : m, ''), [live])
   const total = rows.reduce((s, x) => s + (x.budget_eur || 0), 0)
-  const filtered = q || typ || win || minB || dept || verdict || onlyNew || onlyStar || onlyComp
+  const filtered = q || typ || win || minB || dept || verdict || onlyNew || onlyComp
 
   function patch(id: string, p: Partial<Tracking>) {
-    const next = { ...(tracking[id] || emptyTracking(id)), ...p }
+    const next = { ...(tracking[id] || emptyTracking(id)), ...p, updated_by: user }
     setTracking(s => ({ ...s, [id]: next }))
     saveTracking(next, user).catch(e => setError(e.message))
   }
-  function reset() { setQ(''); setTyp(''); setWin(''); setMinB(''); setDept(''); setVerdict(''); setOnlyNew(false); setOnlyStar(false); setOnlyComp(false) }
+  function reset() { setQ(''); setTyp(''); setWin(''); setMinB(''); setDept(''); setVerdict(''); setOnlyNew(false); setOnlyComp(false) }
   function exportCsv() {
     const head = ['deadline', 'days', 'group', 'typology', 'title', 'client', 'location', 'dept', 'works_eur', 'prize_eur', 'teams', 'procedure', 'contract', 'rating', 'status', 'summary', 'url']
     const body = rows.map(x => [x.deadline, daysLeft(x.deadline), groupOf(x), t('ty_' + (x.typology || 'OTHER')), x.title, x.buyer_name, x.location, x.departement,
@@ -128,7 +126,7 @@ export default function ListPage() {
       <Ruler rows={rows} label={t('ruler')} today={t('today')} lang={lang} />
 
       <div className="ag-tabs" role="tablist">
-        {(['all', 'core', 'partner', 'db', 'no'] as Group[]).map(g => (
+        {(['all', 'saved', 'core', 'partner', 'db', 'no'] as Group[]).map(g => (
           <button key={g} role="tab" aria-selected={group === g} className={`g-${g}`} onClick={() => setGroup(g)}>
             {t('g_' + g)} <span>{counts[g]}</span>
           </button>
@@ -159,7 +157,6 @@ export default function ListPage() {
         </select>
         <label className="ag-check"><input type="checkbox" checked={onlyComp} onChange={e => setOnlyComp(e.target.checked)} />{t('f_comp')}</label>
         <label className="ag-check"><input type="checkbox" checked={onlyNew} onChange={e => setOnlyNew(e.target.checked)} />{t('f_new')}</label>
-        <label className="ag-check"><input type="checkbox" checked={onlyStar} onChange={e => setOnlyStar(e.target.checked)} />{t('f_star')}</label>
         {filtered && <button className="ag-link" onClick={reset}>{t('f_reset')}</button>}
       </div>
 
@@ -174,12 +171,12 @@ export default function ListPage() {
         <button className="ag-btn" onClick={exportCsv}>{t('export_csv')}</button>
       </div>
 
-      {rows.length === 0 ? <p className="ag-empty">{live.length ? t('empty') : t('empty_data')}</p> : (
+      {rows.length === 0 ? <p className="ag-empty">{!live.length ? t('empty_data') : group === 'saved' ? t('saved_empty') : t('empty')}</p> : (
         <table className="ag-table">
           <thead><tr>
             <th>{t('c_deadline')}</th><th>{t('c_project')}</th><th>{t('c_place')}</th>
             <th className="num">{t('c_works')}</th><th className="num">{t('c_prize')}</th>
-            <th>{t('c_contract')}</th><th>{t('c_rating')}</th><th>{t('c_status')}</th><th aria-label={t('f_star')}></th>
+            <th>{t('c_contract')}</th><th>{t('c_rating')}</th><th>{t('c_status')}</th><th aria-label={t('save')}></th>
           </tr></thead>
           <tbody>
             {rows.map(x => {
@@ -192,7 +189,7 @@ export default function ListPage() {
                     <Link href={`/agence/${encodeURIComponent(x.publication_number)}`} onClick={e => e.stopPropagation()}>{x.title}</Link>
                     <span className="sub">
                       <i className={`ty g-${g}`}>{t('ty_' + (x.typology || 'OTHER'))}</i>
-                      {x.buyer_name}{isNew(x) && <em>{t('new')}</em>}
+                      {x.buyer_name}{isNew(x) && <em>{t('new')}</em>}{group === 'saved' && tk?.updated_by && <span className="by">{t('saved_by', { n: tk.updated_by.split('@')[0] })}</span>}
                     </span>
                   </td>
                   <td className="c-pl">{x.location || (x.departement || '').split(' | ').slice(0, 3).join(', ')}</td>
@@ -201,7 +198,7 @@ export default function ListPage() {
                   <td><Contract t={x} /></td>
                   <td><Verdict t={x} /></td>
                   <td><StatusSelect value={tk?.status || 'none'} onChange={(s: Status) => patch(x.publication_number, { status: s })} /></td>
-                  <td><Star on={!!tk?.starred} onClick={() => patch(x.publication_number, { starred: !tk?.starred })} /></td>
+                  <td><Save on={!!tk?.starred} onClick={() => patch(x.publication_number, { starred: !tk?.starred })} /></td>
                 </tr>
               )
             })}

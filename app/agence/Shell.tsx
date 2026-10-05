@@ -51,7 +51,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   if (user === null) return (
     <div className="ag ag-login">
       <form onSubmit={signIn}>
-        <div className="ag-brand">GIL BARTOLOMÉ <span>ADW</span></div>
+        <div className="ag-brand">GilBartolome Architects.</div>
         <h1>{t('login_title')}</h1>
         <p>{t('login_sub')}</p>
         <label>{t('email')}<input type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" /></label>
@@ -68,7 +68,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     <C.Provider value={{ lang, t, user }}>
       <div className="ag">
         <header className="ag-top">
-          <Link href="/agence" className="ag-brand">GIL BARTOLOMÉ <span>ADW</span></Link>
+          <Link href="/agence" className="ag-brand">GilBartolome Architects.</Link>
           <nav>
             {nav.map(([href, k]) => (
               <Link key={href} href={href} aria-current={(href === '/agence' ? path === href || /^\/agence\/(?!suivi|resume)/.test(path) : path.startsWith(href)) ? 'page' : undefined}>{t(k)}</Link>

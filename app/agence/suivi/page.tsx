@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import {
-  BOARD_STATUSES, CHECKLIST, loadContacts, loadTenderSet, loadTracking, money, saveTracking, shortDate,
+  BOARD_STATUSES, CHECKLIST, toneOf, loadContacts, loadTenderSet, loadTracking, money, saveTracking, shortDate,
   type Contact, type Status, type Tender, type Tracking,
 } from '../../../lib/agence/core'
 import { useAgence } from '../Shell'
@@ -18,7 +18,7 @@ export default function BoardPage() {
 
   useEffect(() => {
     loadTracking().then(async tk => {
-      const ids = Object.values(tk).filter(x => x.status !== 'none').map(x => x.publication_number)
+      const ids = Object.values(tk).filter(x => x.status !== 'none' || x.starred).map(x => x.publication_number)
       const rows = await loadTenderSet(ids)
       setTenders(Object.fromEntries(rows.map(r => [r.publication_number, r])))
       setTracking(tk)
@@ -28,7 +28,7 @@ export default function BoardPage() {
 
   const by = useMemo(() => {
     const m: Record<string, Tracking[]> = {}
-    Object.values(tracking || {}).forEach(x => { if (tenders[x.publication_number]) (m[x.status] ||= []).push(x) })
+    Object.values(tracking || {}).forEach(x => { if (tenders[x.publication_number]) (m[x.status === 'none' ? 'shortlist' : x.status] ||= []).push(x) })
     Object.values(m).forEach(l => l.sort((a, b) => (tenders[a.publication_number].deadline || '9').localeCompare(tenders[b.publication_number].deadline || '9')))
     return m
   }, [tracking, tenders])
@@ -67,8 +67,8 @@ export default function BoardPage() {
       {error && <p className="ag-err">{error}</p>}
       <div className="ag-board">
         {BOARD_STATUSES.map(s => (
-          <section key={s} className={`s-${s}`}>
-            <h2>{t('st_' + s)} <span>{(by[s] || []).length}</span></h2>
+          <section key={s} className={`tone-${toneOf(s)}`}>
+            <h2><span className={`ag-pill tone-${toneOf(s)}`}><i />{t('st_' + s)}</span> <span>{(by[s] || []).length}</span></h2>
             {(by[s] || []).length ? <ul>{by[s].map(card)}</ul> : <p className="ag-muted small">{t('board_empty')}</p>}
           </section>
         ))}
