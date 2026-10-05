@@ -82,3 +82,15 @@ drop policy if exists "gbadw_docs_files_write" on storage.objects;
 create policy "gbadw_docs_files_write" on storage.objects for insert to anon, authenticated with check (bucket_id = 'gbadw-docs');
 drop policy if exists "gbadw_docs_files_delete" on storage.objects;
 create policy "gbadw_docs_files_delete" on storage.objects for delete to anon, authenticated using (bucket_id = 'gbadw-docs');
+
+-- Profil de l'agence : les informations qui servent à remplir les formulaires.
+create table if not exists gbadw_profile (
+  id          text primary key,
+  data        jsonb default '{}'::jsonb,
+  updated_by  text,
+  updated_at  timestamptz default now()
+);
+alter table gbadw_profile enable row level security;
+drop policy if exists "gbadw_profile_all" on gbadw_profile;
+create policy "gbadw_profile_all" on gbadw_profile for all to anon, authenticated using (true) with check (true);
+grant select, insert, update on gbadw_profile to anon;

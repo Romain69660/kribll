@@ -151,7 +151,7 @@ export default function DetailPage() {
           {refs.length > 0 && <section><h2>{t('s_refs')}</h2><ul>{refs.map((b, i) => <li key={i}>{b}</li>)}</ul></section>}
           {x.eligibility && <section><h2>{t('s_elig')}</h2><p>{x.eligibility}</p></section>}
 
-          <Docs tender={x} dossier={tk.dossier} onDossier={d => patch({ dossier: d })} />
+          <Docs tender={x} dossier={tk.dossier} onDossier={d => patch({ dossier: d })} tracking={tk} contacts={contacts} />
 
           <section className="ag-team">
             <h2>{t('s_team')}</h2>

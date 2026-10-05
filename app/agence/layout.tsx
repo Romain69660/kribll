@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import Shell from './Shell'
 import './agence.css'
 
@@ -6,7 +6,10 @@ export const metadata: Metadata = {
   title: 'GilBartolome Architects · Concours France',
   description: "Veille, analyse et suivi des concours d'architecture en France",
   robots: { index: false, follow: false },
+  appleWebApp: { capable: true, title: 'GBA France', statusBarStyle: 'default' },
 }
+
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: '#f4f4f5' }
 
 export default function AgenceLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -359,7 +359,68 @@ export async function analyseDocs(t: Tender, docs: Doc[]): Promise<Dossier> {
   return json.dossier as Dossier
 }
 
+// ───────────────────────────── Profil de l'agence et remplissage ─────────────────────────────
+
+export type Profile = Record<string, string>
+export const PROFILE_FIELDS: [string, string[]][] = [
+  ['identity', ['legal_name', 'trade_name', 'legal_form', 'capital', 'address', 'postal_code', 'city', 'country', 'tax_id', 'vat_id', 'registration', 'founded']],
+  ['signatory', ['rep_name', 'rep_title', 'rep_email', 'rep_phone']],
+  ['contact', ['contact_name', 'contact_email', 'contact_phone', 'website']],
+  ['capacity', ['turnover_y1', 'turnover_y2', 'turnover_y3', 'staff_y1', 'staff_y2', 'staff_y3', 'architects_count']],
+  ['insurance', ['insurer', 'policy_number', 'insured_amount', 'insurance_valid_until']],
+  ['other', ['architect_register', 'bank_iban', 'notes']],
+]
+
+export async function loadProfile(): Promise<Profile> {
+  if (DEMO) return ls.get<Profile>('gbadw-profile', {})
+  const { data, error } = await sb().from('gbadw_profile').select('data').eq('id', 'agency').maybeSingle()
+  if (error) throw new Error(error.message)
+  return (data?.data || {}) as Profile
+}
+
+export async function saveProfile(p: Profile, by?: string | null): Promise<void> {
+  if (DEMO) { ls.set('gbadw-profile', p); return }
+  const { error } = await sb().from('gbadw_profile').upsert({ id: 'agency', data: p, updated_by: by || null, updated_at: new Date().toISOString() })
+  if (error) throw new Error(error.message)
+}
+
+export async function fillDoc(t: Tender, d: Doc, k: Tracking | undefined, contacts: Contact[], user: string | null): Promise<{ doc: Doc; blob: Blob; filled: number; missing: string[] }> {
+  const profile = await loadProfile()
+  const dz = k?.dossier
+  const data = {
+    agence: profile,
+    consultation: {
+      objet: t.title, acheteur: t.buyer_name, lieu: t.location, reference: t.publication_number,
+      date_limite: dz?.deadline || t.deadline, heure_limite: dz?.deadline_time || null,
+      procedure: t.procedure_type, montant_travaux_eur: dz?.works_eur || t.budget_eur,
+    },
+    groupement: {
+      mandataire: profile.legal_name || 'GIL BARTOLOME ADW',
+      cotraitants: contacts.filter(c => c.status === 'confirmed' || c.status === 'interested').map(c => ({ societe: c.company, competence: c.discipline, ville: c.city, telephone: c.phone, email: c.email })),
+    },
+    date_du_jour: new Date().toLocaleDateString('fr-FR'),
+    rempli_par: user,
+  }
+  const res = await fetch('/api/agence/fill', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-agence-code': localStorage.getItem('gbadw-code') || '' },
+    body: JSON.stringify({ url: docUrl(d), name: d.name, data }),
+  })
+  const json = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(json.error || `Erreur ${res.status}`)
+  const bytes = Uint8Array.from(atob(json.file), c => c.charCodeAt(0))
+  const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+  const doc = await addDoc(t.publication_number, json.name, blob, user)
+  return { doc, blob, filled: json.filled, missing: json.missing || [] }
+}
+
 // ───────────────────────────── Exports ─────────────────────────────
+
+export function downloadBlob(name: string, blob: Blob) {
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob); a.download = name; a.click()
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000)
+}
 
 export function downloadFile(name: string, content: string, type: string) {
   const a = document.createElement('a')

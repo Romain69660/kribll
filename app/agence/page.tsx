@@ -30,6 +30,7 @@ export default function ListPage() {
   const [onlyNew, setOnlyNew] = useState(false)
   const [onlyComp, setOnlyComp] = useState(false)
   const [sort, setSort] = useState('deadline')
+  const [showF, setShowF] = useState(false)
 
   useEffect(() => {
     Promise.all([loadTenders(), loadTracking().catch(() => ({}))])
@@ -133,8 +134,9 @@ export default function ListPage() {
         ))}
       </div>
 
-      <div className="ag-filters">
+      <div className={`ag-filters ${showF ? 'open' : ''}`}>
         <input type="search" value={q} onChange={e => setQ(e.target.value)} placeholder={t('search')} aria-label={t('search')} />
+        <button type="button" className="ag-btn ag-ftoggle" aria-expanded={showF} onClick={() => setShowF(v => !v)}>{t('filters')}{filtered ? ' •' : ''}</button>
         <select value={typ} onChange={e => setTyp(e.target.value)} aria-label={t('f_typology')}>
           <option value="">{t('f_all_typ')}</option>
           {typs.map(k => <option key={k} value={k}>{t('ty_' + k)}</option>)}
