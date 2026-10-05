@@ -243,3 +243,4 @@ button.ag-pill { cursor: pointer; } button.ag-pill:hover { filter: brightness(.9
 
 /* suivi : une ligne par annonce */
 .ag-track { margin-top: 16px; } .ag-track .c-pj a { -webkit-line-clamp: 1; } .ag-track td { vertical-align: middle; } .ag-track .c-n { white-space: nowrap; color: var(--mute); } .ag-track .c-dl b { display: inline; margin-right: 8px; }
+.ag-dhead .orig { color: var(--faint); font-size: 13.5px; margin: -4px 0 10px; max-width: 80ch; }

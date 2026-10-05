@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  CHECKLIST, STATUS_GROUPS, loadContacts, loadTenderSet, loadTracking, money, saveTracking, shortDate,
+  CHECKLIST, STATUS_GROUPS, loadContacts, loadTenderSet, loadTracking, money, saveTracking, shortDate, titleOf,
   type Contact, type Status, type Tender, type Tracking,
 } from '../../../lib/agence/core'
 import { useAgence } from '../Shell'
@@ -72,7 +72,7 @@ export default function BoardPage() {
               const href = `/agence/${encodeURIComponent(x.publication_number)}`
               return (
                 <tr key={k.publication_number} onClick={() => router.push(href)}>
-                  <td className="c-pj"><Link href={href} onClick={e => e.stopPropagation()}>{x.title}</Link><span className="sub">{x.buyer_name}{x.location ? `, ${x.location}` : ''}</span></td>
+                  <td className="c-pj"><Link href={href} onClick={e => e.stopPropagation()}>{titleOf(x, lang)}</Link><span className="sub">{x.buyer_name}{x.location ? `, ${x.location}` : ''}</span></td>
                   <td className="c-dl"><b>{shortDate(x.deadline, lang)}</b><Days deadline={x.deadline} /></td>
                   <td className="num">{money(x.budget_eur)}</td>
                   <td className="c-n">{cs.length ? t('firms_short', { c: ok, n: cs.length }) : <span className="ag-muted">0</span>}</td>

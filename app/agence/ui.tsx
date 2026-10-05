@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { daysLeft, STATUS_GROUPS, toneOf, type Status, type Tender } from '../../lib/agence/core'
+import { term } from '../../lib/agence/i18n'
 import { useAgence } from './Shell'
 
 export function Days({ deadline }: { deadline: string | null }) {
@@ -19,9 +20,9 @@ export function Verdict({ t: tender }: { t: Tender }) {
 }
 
 export function Contract({ t: tender }: { t: Tender }) {
-  const { t } = useAgence()
+  const { t, lang } = useAgence()
   if (tender.contract_type === 'DESIGN_BUILD') return <span className="ag-tag db">{t('ct_DESIGN_BUILD')}</span>
-  return <span className="ag-proc">{tender.procedure_type || t('ct_' + (tender.contract_type || 'OTHER'))}</span>
+  return <span className="ag-proc">{term(lang, tender.procedure_type) || t('ct_' + (tender.contract_type || 'OTHER'))}</span>
 }
 
 /* Statut façon Notion : une pastille, un clic ouvre la liste par groupe. */

@@ -876,7 +876,43 @@ ANALYSIS_FIELDS = [
     "project_type", "program", "location", "procedure_type", "mission", "estimated_budget",
     "budget_eur", "prize_eur", "teams_shortlisted", "deadline_type", "required_references",
     "eligibility", "blocking_points", "summary_en", "summary_es", "summary",
+    "title_en", "title_es",
 ]
+
+
+def translate_titles(df):
+    """Traduit en anglais et en espagnol les titres qui ne le sont pas encore (modèle léger, par lots)."""
+    if "OPENAI_API_KEY" not in os.environ or NO_CREDIT["hit"]:
+        return df
+    from openai import OpenAI
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    model = os.environ.get("LEMAN_MODEL_LIGHT", "gpt-4o-mini")
+    blank = lambda v: not isinstance(v, str) or not v.strip()
+    todo = [i for i in df.index if blank(df.at[i, "title_en"]) or blank(df.at[i, "title_es"])]
+    log(f"Titres à traduire : {len(todo)}")
+    for start in range(0, len(todo), 25):
+        idx = todo[start:start + 25]
+        items = {str(n): str(df.at[i, "title"])[:300] for n, i in enumerate(idx)}
+        prompt = ("Translate these French public procurement notice titles into English and Spanish. "
+                  "Drop any leading 'France – <service category> –' prefix. Keep place names, client names and "
+                  "acronyms as they are. Use the usual terms: 'maîtrise d'œuvre' = 'design team services' / "
+                  "'dirección facultativa y proyecto', 'concours restreint' = 'restricted design competition' / "
+                  "'concurso restringido'. Sentence case, no trailing period.\n"
+                  'Answer with JSON only: {"0": {"en": "...", "es": "..."}, ...}\n\n'
+                  + json.dumps(items, ensure_ascii=False))
+        try:
+            resp = client.chat.completions.create(model=model, temperature=0, response_format={"type": "json_object"},
+                                                  messages=[{"role": "user", "content": prompt}])
+            out = json.loads(resp.choices[0].message.content)
+        except Exception as e:
+            log(f"  traduction des titres interrompue : {str(e)[:160]}")
+            break
+        for n, i in enumerate(idx):
+            t = out.get(str(n)) or {}
+            if isinstance(t, dict):
+                df.at[i, "title_en"] = t.get("en") or None
+                df.at[i, "title_es"] = t.get("es") or None
+    return df
 
 
 def days_left(d):
@@ -1207,6 +1243,8 @@ def platform_upload(df):
             "publication_number": str(r.get("publication_number")),
             "source": r.get("source"),
             "title": r.get("title"),
+            "title_en": r.get("title_en"),
+            "title_es": r.get("title_es"),
             "buyer_name": r.get("buyer_name"),
             "location": r.get("location"),
             "departement": r.get("departement"),
@@ -1265,6 +1303,13 @@ def platform_upload(df):
         r = HTTP.post(f"{url}/rest/v1/{PLATFORM_TABLE}?on_conflict=publication_number",
                       headers={**headers, "Prefer": "resolution=merge-duplicates,return=minimal"},
                       json=rows[i:i + 200], timeout=120)
+        if r.status_code == 400 and "title_e" in r.text:
+            log("  → colonnes title_en / title_es absentes : relancer scripts/gbadw_platform_v2.sql dans Supabase. Envoi sans les titres traduits.")
+            for row in rows:
+                row.pop("title_en", None); row.pop("title_es", None)
+            r = HTTP.post(f"{url}/rest/v1/{PLATFORM_TABLE}?on_conflict=publication_number",
+                          headers={**headers, "Prefer": "resolution=merge-duplicates,return=minimal"},
+                          json=rows[i:i + 200], timeout=120)
         log(f"Plateforme : upsert {i}-{i + len(rows[i:i + 200])} → {r.status_code} {r.text[:200]}")
         if r.status_code in (401, 403) or "row-level security" in r.text:
             log("  → la clé SUPABASE_KEY n'a pas le droit d'écrire dans gbadw_tenders.")
@@ -1356,6 +1401,9 @@ def main():
     for col in ANALYSIS_FIELDS + ["first_seen", "buyer_profile_uri", "dce_url"]:
         if col not in df.columns:
             df[col] = None
+    if not args.no_ai:
+        df["title_en"] = df["title_en"].astype(object); df["title_es"] = df["title_es"].astype(object)
+        df = translate_titles(df)
     deep = sum(1 for u in df["dce_url"] if isinstance(u, str) and is_deep_link(u))
     log(f"Dossiers de consultation : {deep} liens directs sur {len(df)} avis")
     # au tout premier run, rien n'est "nouveau" : tout vient d'être découvert d'un coup

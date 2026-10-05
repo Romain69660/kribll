@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import {
   CHECKLIST, CONTACT_STATUSES, DISCIPLINES, addContact, asList, daysLeft, downloadFile, emptyTracking, groupOf, icsFor, isHomeLink, isSaved,
-  loadContacts, loadTender, loadTracking, longDate, money, removeContact, saveTracking, searchFirms, summaryOf, updateContact,
+  loadContacts, loadTender, loadTracking, longDate, money, removeContact, saveTracking, searchFirms, summaryOf, titleOf, updateContact,
   type Contact, type ContactStatus, type Firm, type Tender, type Tracking,
 } from '../../../lib/agence/core'
-import { tr } from '../../../lib/agence/i18n'
+import { term, tr } from '../../../lib/agence/i18n'
 import { useAgence } from '../Shell'
 import { Days, Save, StatusSelect, Verdict } from '../ui'
 
@@ -90,9 +90,9 @@ export default function DetailPage() {
   const brief = useMemo(() => {
     if (!x) return ''
     const l = [
-      `*${x.title}*`,
+      `*${titleOf(x, lang)}*`,
       [x.buyer_name, x.location].filter(Boolean).join(', '),
-      `${t('ty_' + (x.typology || 'OTHER'))}. ${x.procedure_type || t('ct_' + (x.contract_type || 'OTHER'))}.`,
+      `${t('ty_' + (x.typology || 'OTHER'))}. ${term(lang, x.procedure_type) || t('ct_' + (x.contract_type || 'OTHER'))}.`,
       x.budget_eur ? `${t('f_works')} : ${money(x.budget_eur)}` : '',
       x.prize_eur ? `${t('f_prize')} : ${money(x.prize_eur)}${x.teams_shortlisted ? ` (${t('teams', { n: x.teams_shortlisted })})` : ''}` : '',
       x.deadline ? `${t('c_deadline')} : ${longDate(x.deadline, lang)}` : '',
@@ -118,10 +118,11 @@ export default function DetailPage() {
 
       <header className={`ag-dhead g-${g}`}>
         <p className="meta"><i className={`ty g-${g}`}>{t('ty_' + (x.typology || 'OTHER'))}</i>{t('g_' + g)}</p>
-        <h1>{x.title}</h1>
+        <h1>{titleOf(x, lang)}</h1>
+        {lang !== 'fr' && titleOf(x, lang) !== x.title && <p className="orig">{x.title}</p>}
         <p className="who">{[x.buyer_name, x.location || x.departement].filter(Boolean).join(', ')}</p>
         <div className="ag-dl">
-          <div><b>{longDate(x.deadline, lang) || '?'}</b><Days deadline={x.deadline} />{x.deadline_type && <span className="ag-muted">{x.deadline_type}</span>}</div>
+          <div><b>{longDate(x.deadline, lang) || '?'}</b><Days deadline={x.deadline} />{term(lang, x.deadline_type) && <span className="ag-muted">{term(lang, x.deadline_type)}</span>}</div>
           <Verdict t={x} />
           <StatusSelect value={tk.status} onChange={s => patch({ status: s })} />
           <Save label on={tk.starred} onClick={() => patch({ starred: !tk.starred })} />
@@ -210,8 +211,8 @@ export default function DetailPage() {
               {x.budget_eur ? <Fact k={t('f_fee')} v={`${money(x.budget_eur * 0.1)} – ${money(x.budget_eur * 0.12)}`} note={t('f_fee_note')} /> : null}
               <Fact k={t('f_prize')} v={money(x.prize_eur)} />
               <Fact k={t('f_teams')} v={x.teams_shortlisted} />
-              <Fact k={t('f_proc')} v={x.procedure_type} />
-              <Fact k={t('f_lead')} v={x.team_lead} />
+              <Fact k={t('f_proc')} v={term(lang, x.procedure_type)} />
+              <Fact k={t('f_lead')} v={term(lang, x.team_lead)} />
               <Fact k={t('f_buyer')} v={x.buyer_name} />
               <Fact k={t('f_pub')} v={longDate(x.publication_date, lang)} />
               <Fact k={t('f_ref')} v={`${x.source || ''} ${x.publication_number}`} />

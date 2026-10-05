@@ -35,6 +35,9 @@ create table if not exists gbadw_contacts (
 );
 create index if not exists gbadw_contacts_tender_idx on gbadw_contacts (publication_number);
 
+alter table gbadw_tenders add column if not exists title_en text;
+alter table gbadw_tenders add column if not exists title_es text;
+
 alter table gbadw_tenders  enable row level security;
 alter table gbadw_tracking enable row level security;
 alter table gbadw_contacts enable row level security;

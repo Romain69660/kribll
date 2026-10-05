@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import {
-  TYPOLOGIES, groupOf, loadTenders, loadTracking, money, shortDate, summaryOf, type Tender, type Tracking,
+  TYPOLOGIES, groupOf, loadTenders, loadTracking, money, shortDate, summaryOf, titleOf, type Tender, type Tracking,
 } from '../../../lib/agence/core'
+import { term } from '../../../lib/agence/i18n'
 import { useAgence } from '../Shell'
 
 export default function ResumePage() {
@@ -63,10 +64,10 @@ export default function ResumePage() {
               <tbody>{list.map(x => (
                 <tr key={x.publication_number}>
                   <td className="c-dl"><b>{shortDate(x.deadline, lang)}</b></td>
-                  <td className="c-pj"><a href={x.url || '#'} target="_blank" rel="noreferrer">{x.title}</a><span className="sub">{x.buyer_name}</span><p>{summaryOf(x, lang)}</p></td>
+                  <td className="c-pj"><a href={x.url || '#'} target="_blank" rel="noreferrer">{titleOf(x, lang)}</a><span className="sub">{x.buyer_name}</span><p>{summaryOf(x, lang)}</p></td>
                   <td className="c-pl">{x.location || x.departement}</td>
                   <td className="num">{money(x.budget_eur)}</td>
-                  <td>{x.procedure_type}</td>
+                  <td>{term(lang, x.procedure_type)}</td>
                   <td>{t('v_' + (x.verdict || 'ERROR'))}</td>
                 </tr>
               ))}</tbody>

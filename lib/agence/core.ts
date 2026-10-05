@@ -6,6 +6,8 @@ export type Tender = {
   publication_number: string
   source: string | null
   title: string | null
+  title_en?: string | null
+  title_es?: string | null
   buyer_name: string | null
   location: string | null
   departement: string | null
@@ -144,6 +146,11 @@ export function groupOf(t: Tender): 'core' | 'partner' | 'db' | 'no' {
   if (t.fit === 'NO' || t.verdict === 'NO') return 'no'
   if (t.contract_type === 'DESIGN_BUILD') return 'db'
   return t.fit === 'CORE' ? 'core' : 'partner'
+}
+
+export function titleOf(t: Tender, lang: string): string {
+  const fr = (t.title || '').replace(/^France\s*[–-]\s*[^–-]{3,90}[–-]\s*/, '')
+  return (lang === 'en' ? t.title_en : lang === 'es' ? t.title_es : null) || fr
 }
 
 export function summaryOf(t: Tender, lang: string): string {

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   ACTIVE_STATUSES, TYPOLOGIES, isSaved, daysLeft, downloadFile, emptyTracking, groupOf, isNew, loadTenders, loadTracking,
-  money, saveTracking, shortDate, summaryOf, toCsv, type Status, type Tender, type Tracking,
+  money, saveTracking, shortDate, summaryOf, titleOf, toCsv, type Status, type Tender, type Tracking,
 } from '../../lib/agence/core'
 import { useAgence } from './Shell'
 import { Contract, Days, Save, StatusSelect, Verdict } from './ui'
@@ -44,7 +44,7 @@ export default function ListPage() {
     const now = new Date()
     return live.filter(x => {
       const d = daysLeft(x.deadline)
-      if (needle && ![x.title, x.buyer_name, x.location, x.departement, x.program, x.publication_number].join(' ').toLowerCase().includes(needle)) return false
+      if (needle && ![x.title, x.title_en, x.title_es, x.buyer_name, x.location, x.departement, x.program, x.publication_number].join(' ').toLowerCase().includes(needle)) return false
       if (typ && x.typology !== typ) return false
       if (dept && !(x.departement || '').split(' | ').includes(dept)) return false
       if (verdict && x.verdict !== verdict) return false
@@ -98,7 +98,7 @@ export default function ListPage() {
   function reset() { setQ(''); setTyp(''); setWin(''); setMinB(''); setDept(''); setVerdict(''); setOnlyNew(false); setOnlyComp(false) }
   function exportCsv() {
     const head = ['deadline', 'days', 'group', 'typology', 'title', 'client', 'location', 'dept', 'works_eur', 'prize_eur', 'teams', 'procedure', 'contract', 'rating', 'status', 'summary', 'url']
-    const body = rows.map(x => [x.deadline, daysLeft(x.deadline), groupOf(x), t('ty_' + (x.typology || 'OTHER')), x.title, x.buyer_name, x.location, x.departement,
+    const body = rows.map(x => [x.deadline, daysLeft(x.deadline), groupOf(x), t('ty_' + (x.typology || 'OTHER')), titleOf(x, lang), x.buyer_name, x.location, x.departement,
       x.budget_eur, x.prize_eur, x.teams_shortlisted, x.procedure_type, t('ct_' + (x.contract_type || 'OTHER')), x.verdict,
       t('st_' + (tracking[x.publication_number]?.status || 'none')), summaryOf(x, lang), x.url])
     downloadFile(`gbadw_${new Date().toISOString().slice(0, 10)}.csv`, toCsv([head, ...body]), 'text/csv;charset=utf-8')
@@ -186,7 +186,7 @@ export default function ListPage() {
                 <tr key={x.publication_number} className={`g-${g}`} onClick={() => router.push(`/agence/${encodeURIComponent(x.publication_number)}`)}>
                   <td className="c-dl"><b>{shortDate(x.deadline, lang)}</b><Days deadline={x.deadline} /></td>
                   <td className="c-pj">
-                    <Link href={`/agence/${encodeURIComponent(x.publication_number)}`} onClick={e => e.stopPropagation()}>{x.title}</Link>
+                    <Link href={`/agence/${encodeURIComponent(x.publication_number)}`} onClick={e => e.stopPropagation()}>{titleOf(x, lang)}</Link>
                     <span className="sub">
                       <i className={`ty g-${g}`}>{t('ty_' + (x.typology || 'OTHER'))}</i>
                       {x.buyer_name}{isNew(x) && <em>{t('new')}</em>}{group === 'saved' && tk?.updated_by && <span className="by">{t('saved_by', { n: tk.updated_by })}</span>}
@@ -230,7 +230,7 @@ function Ruler({ rows, label, today, lang }: { rows: Tender[]; label: string; to
               <div className="stack">
                 {c.slice(0, 10).map(x => (
                   <Link key={x.publication_number} href={`/agence/${encodeURIComponent(x.publication_number)}`} className={`g-${groupOf(x)}`}
-                    title={`${shortDate(x.deadline, lang)} · ${x.title} · ${x.buyer_name || ''} ${money(x.budget_eur)}`} />
+                    title={`${shortDate(x.deadline, lang)} · ${titleOf(x, lang)} · ${x.buyer_name || ''} ${money(x.budget_eur)}`} />
                 ))}
                 {c.length > 10 && <span className="more">+{c.length - 10}</span>}
               </div>

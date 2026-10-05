@@ -226,6 +226,36 @@ const D: Dict = {
   resume_total: ['{n} annonces, {v} de travaux identifiés', '{n} tenders, {v} of identified works', '{n} licitaciones, {v} de obra identificada'],
 }
 
+const TERMS: [RegExp, string, string][] = [
+  [/concours restreint/i, 'Restricted competition', 'Concurso restringido'],
+  [/concours ouvert/i, 'Open competition', 'Concurso abierto'],
+  [/concours international/i, 'International competition', 'Concurso internacional'],
+  [/concours/i, 'Design competition', 'Concurso'],
+  [/appel d.offres ouvert|proc[ée]dure ouverte/i, 'Open tender', 'Licitación abierta'],
+  [/appel d.offres restreint|proc[ée]dure restreinte/i, 'Restricted tender', 'Licitación restringida'],
+  [/n[ée]gociation|n[ée]goci[ée]e/i, 'Negotiated procedure', 'Procedimiento negociado'],
+  [/dialogue comp[ée]titif/i, 'Competitive dialogue', 'Diálogo competitivo'],
+  [/adapt[ée]e|mapa/i, 'Simplified procedure', 'Procedimiento simplificado'],
+  [/conception.r[ée]alisation/i, 'Design and build', 'Proyecto y obra'],
+  [/march[ée] global/i, 'Global contract', 'Contrato global'],
+  [/^offres$/i, 'bids', 'ofertas'],
+  [/^candidatures$/i, 'applications', 'candidaturas'],
+  [/^architecte$/i, 'Architect', 'Arquitecto'],
+  [/entreprise de travaux/i, 'Contractor', 'Constructora'],
+  [/bureau d.[ée]tudes/i, 'Engineering firm', 'Ingeniería'],
+  [/^autre$/i, 'Other', 'Otro'],
+  [/^inconnu$/i, '', ''],
+]
+
+/** Traduit les termes de procédure que le pipeline renvoie en français. */
+export function term(lang: Lang, raw: string | null | undefined): string {
+  if (!raw) return ''
+  if (/^inconnu$/i.test(raw)) return ''
+  if (lang === 'fr') return raw.charAt(0).toUpperCase() + raw.slice(1)
+  const hit = TERMS.find(([re]) => re.test(raw))
+  return hit ? hit[lang === 'en' ? 1 : 2] : raw
+}
+
 export function tr(lang: Lang, key: string, vars?: Record<string, string | number>): string {
   const e = D[key]
   let s = e ? e[lang === 'fr' ? 0 : lang === 'en' ? 1 : 2] : key
