@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const read: string[] = []
   let total = 0
   for (const f of (files || []).slice(0, 6)) {
-    if (!base || !f.url.startsWith(base + '/storage/')) continue       // on ne lit que les fichiers déposés sur la plateforme
+    if (!(base && f.url.startsWith(base + '/storage/')) && !f.url.startsWith(req.nextUrl.origin + '/dossiers/')) continue       // on ne lit que les fichiers déposés sur la plateforme
     const r = await fetch(f.url)
     if (!r.ok) continue
     const b = Buffer.from(await r.arrayBuffer())

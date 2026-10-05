@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   const { url, name, data } = await req.json() as { url: string; name: string; data: Record<string, unknown> }
   const base = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '')
-  if (!base || !url.startsWith(base + '/storage/')) return NextResponse.json({ error: 'Fichier introuvable sur la plateforme' }, { status: 400 })
+  if (!(base && url.startsWith(base + '/storage/')) && !url.startsWith(req.nextUrl.origin + '/dossiers/')) return NextResponse.json({ error: 'Fichier introuvable sur la plateforme' }, { status: 400 })
   if (!/\.docx$/i.test(name)) return NextResponse.json({ error: 'Seuls les fichiers Word .docx peuvent être remplis. Pour un .doc : ouvrez-le dans Word, « Enregistrer sous », format .docx, puis redéposez-le.' }, { status: 400 })
 
   const r = await fetch(url)

@@ -302,7 +302,10 @@ export const prizeOf = (t: Tender, k?: Tracking) => k?.dossier?.prize_eur || t.p
 export const teamsOf = (t: Tender, k?: Tracking) => k?.dossier?.teams || t.teams_shortlisted
 
 export function docUrl(d: Doc): string {
-  return DEMO ? '#' : sb().storage.from(BUCKET).getPublicUrl(d.path).data.publicUrl
+  if (DEMO) return '#'
+  // Les pièces livrées avec le site (dossier public/dossiers) ont un chemin qui commence par « / ».
+  if (d.path.startsWith('/')) return (typeof window !== 'undefined' ? window.location.origin : '') + encodeURI(d.path)
+  return sb().storage.from(BUCKET).getPublicUrl(d.path).data.publicUrl
 }
 
 export async function loadDocs(id: string): Promise<Doc[]> {
@@ -329,7 +332,7 @@ export async function addDoc(id: string, name: string, blob: Blob, by?: string |
 
 export async function removeDoc(d: Doc): Promise<void> {
   if (DEMO) { ls.set('gbadw-docs', ls.get<Doc[]>('gbadw-docs', []).filter(x => x.id !== d.id)); return }
-  await sb().storage.from(BUCKET).remove([d.path])
+  if (!d.path.startsWith('/')) await sb().storage.from(BUCKET).remove([d.path])
   const { error } = await sb().from('gbadw_docs').delete().eq('id', d.id)
   if (error) throw new Error(error.message)
 }
