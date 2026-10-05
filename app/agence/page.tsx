@@ -110,7 +110,7 @@ export default function ListPage() {
   return (
     <div className="ag-page">
       <div className="ag-head">
-        <h1>{t('h_list')}</h1>
+        <h1>{t('h_list_a')}<span>{t('h_list_b')}</span></h1>
         {updated && <p className="ag-muted">{t('updated')} {shortDate(updated, lang)}</p>}
       </div>
       {error && <p className="ag-err">{error}</p>}

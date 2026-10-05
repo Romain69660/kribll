@@ -4,6 +4,10 @@ type Dict = Record<string, [string, string, string]> // fr, en, es
 
 const D: Dict = {
   // navigation
+  nav_menu: ['Menu', 'Menu', 'Menú'],
+  nav_general: ['Général', 'General', 'General'],
+  h_list_a: ['Concours et marchés', 'Competitions and tenders', 'Concursos y licitaciones'],
+  h_list_b: ['d’architecture en France.', 'for architecture in France.', 'de arquitectura en Francia.'],
   nav_list: ['Annonces', 'Tenders', 'Licitaciones'],
   nav_board: ['Suivi', 'Pipeline', 'Seguimiento'],
   nav_resume: ['Résumé du mois', 'Monthly summary', 'Resumen del mes'],

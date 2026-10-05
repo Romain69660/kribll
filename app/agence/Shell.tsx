@@ -69,23 +69,32 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     </div>
   )
 
-  const nav: [string, string][] = [['/agence', 'nav_list'], ['/agence/suivi', 'nav_board'], ['/agence/resume', 'nav_resume']]
+  const nav: [string, string, string][] = [
+    ['/agence', 'nav_list', 'M3 4h14M3 10h14M3 16h14'],
+    ['/agence/suivi', 'nav_board', 'M4 10l4 4 8-9'],
+    ['/agence/resume', 'nav_resume', 'M5 2.5h7l3 3v12H5zM8 9h4M8 12.5h4'],
+  ]
+  const isOn = (href: string) => href === '/agence' ? path === href || /^\/agence\/(?!suivi|resume)/.test(path) : path.startsWith(href)
   return (
     <C.Provider value={{ lang, t, user }}>
-      <div className="ag">
-        <header className="ag-top">
+      <div className="ag ag-app">
+        <aside className="ag-nav">
           <Link href="/agence" className="ag-brand">GilBartolome Architects.</Link>
+          <p>{t('nav_menu')}</p>
           <nav>
-            {nav.map(([href, k]) => (
-              <Link key={href} href={href} aria-current={(href === '/agence' ? path === href || /^\/agence\/(?!suivi|resume)/.test(path) : path.startsWith(href)) ? 'page' : undefined}>{t(k)}</Link>
+            {nav.map(([href, k, d]) => (
+              <Link key={href} href={href} aria-current={isOn(href) ? 'page' : undefined}>
+                <svg viewBox="0 0 20 20" width="17" height="17" aria-hidden="true"><path d={d} /></svg>{t(k)}
+              </Link>
             ))}
           </nav>
-          <div className="ag-top-r">
-            {langs}
+          <p>{t('nav_general')}</p>
+          {langs}
+          <div className="foot">
             <span className="ag-user">{user}</span>
             {!DEMO && <button className="ag-link" onClick={signOut}>{t('sign_out')}</button>}
           </div>
-        </header>
+        </aside>
         <main>{children}</main>
       </div>
     </C.Provider>
