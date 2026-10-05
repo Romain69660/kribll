@@ -244,3 +244,21 @@ button.ag-pill { cursor: pointer; } button.ag-pill:hover { filter: brightness(.9
 /* suivi : une ligne par annonce */
 .ag-track { margin-top: 16px; } .ag-track .c-pj a { -webkit-line-clamp: 1; } .ag-track td { vertical-align: middle; } .ag-track .c-n { white-space: nowrap; color: var(--mute); } .ag-track .c-dl b { display: inline; margin-right: 8px; }
 .ag-dhead .orig { color: var(--faint); font-size: 13.5px; margin: -4px 0 10px; max-width: 80ch; }
+
+/* dossier de consultation */
+.ag-docs { border: 1px solid var(--line); border-radius: 10px; padding: 24px 28px 28px; margin-top: 40px; }
+.ag-docs > h2 { font-size: 18px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); margin-bottom: 6px; }
+.ag-drop { margin: 16px 0 8px; border: 1.5px dashed #cfcec9; border-radius: 10px; padding: 26px 16px; text-align: center; color: var(--mute); cursor: pointer; background: var(--sub); transition: background .12s, border-color .12s; }
+.ag-drop:hover, .ag-drop.over { border-color: var(--blue); background: #e7f1fb; color: #1b6ec2; }
+.ag-files { margin-top: 12px; } .ag-files summary { cursor: pointer; color: var(--mute); font-size: 13.5px; }
+.ag-files ul { margin: 8px 0 12px; } .ag-files li { display: flex; gap: 12px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+.ag-files li a { flex: 1; min-width: 0; overflow-wrap: anywhere; text-decoration: none; } .ag-files li a:hover { text-decoration: underline; }
+.ag-dossier { margin-top: 20px; } .ag-dossier .blk { margin-top: 18px; } .ag-dossier h3 { margin: 0 0 6px; font-size: 13px; font-weight: 400; color: var(--mute); }
+.ag-dossier ul li { padding-left: 18px; position: relative; margin-bottom: 4px; max-width: 78ch; }
+.ag-dossier ul li::before { content: ""; position: absolute; left: 2px; top: .68em; width: 5px; height: 5px; border-radius: 50%; background: var(--faint); }
+.ag-dossier .hot { background: #fdf3ef; border-radius: 8px; padding: 14px 16px; } .ag-dossier .hot h3 { color: var(--hot); } .ag-dossier .hot li::before { background: var(--hot); }
+.ag-dossier .cols ul { columns: 2; column-gap: 32px; } .ag-dossier .cols li { break-inside: avoid; }
+.ag-dossier > .small { margin-top: 18px; }
+@media (max-width: 760px) { .ag-docs { padding: 18px; } .ag-dossier .cols ul { columns: 1; } }
+.ag-track .c-note { min-width: 220px; width: 26%; } .ag-track .c-note textarea { display: block; width: 100%; height: auto; min-height: 32px; padding: 6px 8px; font-size: 13.5px; line-height: 1.4; border-color: transparent; background: transparent; resize: none; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ag-track .c-note textarea:hover { background: var(--hover); } .ag-track .c-note textarea:focus { background: #fff; border-color: var(--blue); white-space: pre-wrap; overflow: auto; outline: none; }

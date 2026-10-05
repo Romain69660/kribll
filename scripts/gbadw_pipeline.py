@@ -216,6 +216,9 @@ DCE_SKIP_HOSTS = ("boamp.fr", "ted.europa.eu", "europa.eu", "legifrance", "w3.or
                   "chorus-pro", "economie.gouv", "service-public")
 
 
+import html as _html
+
+
 def donnees_dce_url(raw):
     """Meilleur lien vers le dossier de consultation trouvé dans l'avis.
     Priorité : adresse des documents, puis adresse de dépôt, puis profil acheteur."""
@@ -231,7 +234,7 @@ def donnees_dce_url(raw):
                 walk(it, path)
         elif isinstance(obj, str):
             for u in re.findall(r"https?://[^\s\"'<>|]+", obj):
-                found.append((path, u.rstrip(".,;)")))
+                found.append((path, _html.unescape(u).rstrip(".,;)")))
 
     walk(data, "")
     best, best_score = "", -1

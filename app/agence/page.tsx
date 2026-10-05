@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   ACTIVE_STATUSES, TYPOLOGIES, isSaved, daysLeft, downloadFile, emptyTracking, groupOf, isNew, loadTenders, loadTracking,
-  money, saveTracking, shortDate, summaryOf, titleOf, toCsv, type Status, type Tender, type Tracking,
+  money, prizeOf, saveTracking, teamsOf, worksOf, shortDate, summaryOf, titleOf, toCsv, type Status, type Tender, type Tracking,
 } from '../../lib/agence/core'
 import { useAgence } from './Shell'
 import { Contract, Days, Save, StatusSelect, Verdict } from './ui'
@@ -193,8 +193,8 @@ export default function ListPage() {
                     </span>
                   </td>
                   <td className="c-pl">{x.location || (x.departement || '').split(' | ').slice(0, 3).join(', ')}</td>
-                  <td className="num">{money(x.budget_eur)}</td>
-                  <td className="num">{money(x.prize_eur)}{x.teams_shortlisted ? <span className="sub">{t('teams', { n: x.teams_shortlisted })}</span> : null}</td>
+                  <td className="num">{money(worksOf(x, tk))}</td>
+                  <td className="num">{money(prizeOf(x, tk))}{teamsOf(x, tk) ? <span className="sub">{t('teams', { n: teamsOf(x, tk)! })}</span> : null}</td>
                   <td><Contract t={x} /></td>
                   <td><Verdict t={x} /></td>
                   <td><StatusSelect value={tk?.status || 'none'} onChange={(s: Status) => patch(x.publication_number, { status: s })} /></td>

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  CHECKLIST, STATUS_GROUPS, loadContacts, loadTenderSet, loadTracking, money, saveTracking, shortDate, titleOf,
+  CHECKLIST, STATUS_GROUPS, loadContacts, loadTenderSet, loadTracking, money, saveTracking, worksOf, shortDate, titleOf,
   type Contact, type Status, type Tender, type Tracking,
 } from '../../../lib/agence/core'
 import { useAgence } from '../Shell'
@@ -37,6 +37,13 @@ export default function BoardPage() {
   const rows = all.filter(x => filter === 'all' ? true : filter === 'open' ? groupOfStatus(x.status) !== 'closed' : groupOfStatus(x.status) === filter)
   const count = (k: string) => all.filter(x => k === 'all' ? true : k === 'open' ? groupOfStatus(x.status) !== 'closed' : groupOfStatus(x.status) === k).length
 
+  function note(id: string, notes: string) {
+    if (!tracking || (tracking[id].notes || '') === notes) return
+    const next = { ...tracking[id], notes, updated_by: user }
+    setTracking({ ...tracking, [id]: next })
+    saveTracking(next, user).catch(e => setError(e.message))
+  }
+
   function move(id: string, status: Status) {
     if (!tracking) return
     const next = { ...tracking[id], status, updated_by: user }
@@ -61,7 +68,7 @@ export default function BoardPage() {
         <table className="ag-table ag-track">
           <thead><tr>
             <th>{t('c_project')}</th><th>{t('c_deadline')}</th><th className="num">{t('c_works')}</th>
-            <th>{t('my_list')}</th><th>{t('s_check')}</th><th>{t('owner')}</th><th>{t('c_status')}</th>
+            <th>{t('my_list')}</th><th>{t('s_check')}</th><th>{t('owner')}</th><th>{t('notes')}</th><th>{t('c_status')}</th>
           </tr></thead>
           <tbody>
             {rows.map(k => {
@@ -74,10 +81,15 @@ export default function BoardPage() {
                 <tr key={k.publication_number} onClick={() => router.push(href)}>
                   <td className="c-pj"><Link href={href} onClick={e => e.stopPropagation()}>{titleOf(x, lang)}</Link><span className="sub">{x.buyer_name}{x.location ? `, ${x.location}` : ''}</span></td>
                   <td className="c-dl"><b>{shortDate(x.deadline, lang)}</b><Days deadline={x.deadline} /></td>
-                  <td className="num">{money(x.budget_eur)}</td>
+                  <td className="num">{money(worksOf(x, k))}</td>
                   <td className="c-n">{cs.length ? t('firms_short', { c: ok, n: cs.length }) : <span className="ag-muted">0</span>}</td>
                   <td className="c-n">{done}/{CHECKLIST.length}</td>
                   <td className="c-n">{k.owner || k.updated_by || ''}</td>
+                  <td className="c-note" onClick={e => e.stopPropagation()}>
+                    <textarea rows={1} defaultValue={k.notes || ''} placeholder={t('note_add')} aria-label={t('notes')}
+                      onFocus={e => { e.target.rows = 4 }}
+                      onBlur={e => { e.target.rows = 1; note(k.publication_number, e.target.value.trim()) }} />
+                  </td>
                   <td><StatusSelect value={k.status} onChange={s => move(k.publication_number, s)} /></td>
                 </tr>
               )

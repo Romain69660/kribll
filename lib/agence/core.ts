@@ -54,9 +54,20 @@ export type Tracking = {
   notes: string | null
   checklist: Record<string, boolean>
   suggestions?: Firm[] | null
+  dossier?: Dossier | null
   updated_by?: string | null
   updated_at?: string | null
 }
+
+export type L3 = { fr?: string; en?: string; es?: string }
+export type Dossier = {
+  works_eur?: number | null; prize_eur?: number | null; teams?: number | null
+  deadline?: string | null; deadline_time?: string | null
+  procedure?: L3 | null; lead_rule?: L3 | null; summary?: L3 | null
+  competences?: L3[]; references?: L3[]; admissibility?: L3[]; to_submit?: L3[]; criteria?: L3[]; key_dates?: L3[]; watch?: L3[]
+  files_read?: string[]; analysed_at?: string
+}
+export type Doc = { id: string; publication_number: string; name: string; path: string; size: number; created_by?: string | null; created_at?: string }
 
 export type ContactStatus = 'todo' | 'contacted' | 'interested' | 'confirmed' | 'declined'
 
@@ -227,7 +238,7 @@ export async function saveTracking(t: Tracking, by?: string | null): Promise<voi
   }
   const { error } = await sb().from('gbadw_tracking').upsert({
     publication_number: t.publication_number, status: t.status, starred: t.starred, owner: t.owner,
-    notes: t.notes, checklist: t.checklist, suggestions: t.suggestions ?? null, updated_by: by || null, updated_at: new Date().toISOString(),
+    notes: t.notes, checklist: t.checklist, suggestions: t.suggestions ?? null, dossier: t.dossier ?? null, updated_by: by || null, updated_at: new Date().toISOString(),
   })
   if (error) throw new Error(error.message)
 }
@@ -279,6 +290,73 @@ export async function searchFirms(tender: Tender, disciplines: string[], place: 
   const json = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(json.error || `Erreur ${res.status}`)
   return json
+}
+
+// ───────────────────────────── Documents ─────────────────────────────
+
+const BUCKET = 'gbadw-docs'
+export const MAX_FILE = 50 * 1024 * 1024
+export const l3 = (v: L3 | null | undefined, lang: string): string => (v ? (v as Record<string, string>)[lang] || v.fr || v.en || '' : '')
+export const worksOf = (t: Tender, k?: Tracking) => k?.dossier?.works_eur || t.budget_eur
+export const prizeOf = (t: Tender, k?: Tracking) => k?.dossier?.prize_eur || t.prize_eur
+export const teamsOf = (t: Tender, k?: Tracking) => k?.dossier?.teams || t.teams_shortlisted
+
+export function docUrl(d: Doc): string {
+  return DEMO ? '#' : sb().storage.from(BUCKET).getPublicUrl(d.path).data.publicUrl
+}
+
+export async function loadDocs(id: string): Promise<Doc[]> {
+  if (DEMO) return ls.get<Doc[]>('gbadw-docs', []).filter(d => d.publication_number === id)
+  const { data, error } = await sb().from('gbadw_docs').select('*').eq('publication_number', id).order('name')
+  if (error) throw new Error(error.message)
+  return (data || []) as Doc[]
+}
+
+export async function addDoc(id: string, name: string, blob: Blob, by?: string | null): Promise<Doc> {
+  const safe = name.normalize('NFD').replace(/[^\w.\- ]+/g, '').replace(/\s+/g, '_').slice(-110) || 'document'
+  const path = `${id.replace(/[^\w-]/g, '_')}/${Date.now().toString(36)}_${safe}`
+  if (DEMO) {
+    const row = { id: Math.random().toString(36).slice(2), publication_number: id, name, path, size: blob.size, created_by: by }
+    ls.set('gbadw-docs', [...ls.get<Doc[]>('gbadw-docs', []), row]); return row
+  }
+  const type = /\.pdf$/i.test(name) ? 'application/pdf' : blob.type || 'application/octet-stream'
+  const up = await sb().storage.from(BUCKET).upload(path, blob, { contentType: type, upsert: false })
+  if (up.error) throw new Error(`${name} : ${up.error.message}`)
+  const { data, error } = await sb().from('gbadw_docs').insert({ publication_number: id, name, path, size: blob.size, created_by: by || null }).select().single()
+  if (error) throw new Error(error.message)
+  return data as Doc
+}
+
+export async function removeDoc(d: Doc): Promise<void> {
+  if (DEMO) { ls.set('gbadw-docs', ls.get<Doc[]>('gbadw-docs', []).filter(x => x.id !== d.id)); return }
+  await sb().storage.from(BUCKET).remove([d.path])
+  const { error } = await sb().from('gbadw_docs').delete().eq('id', d.id)
+  if (error) throw new Error(error.message)
+}
+
+/** Les pièces à faire lire en priorité : règlement, programme, avis. Les plans et pièces de marché passent après. */
+export function docsToRead(docs: Doc[]): Doc[] {
+  const score = (n: string) => {
+    const s = n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    if (/reglement|(^|[^a-z])r[._ -]?c([^a-z]|$)|rdc/.test(s)) return 100
+    if (/programme|note.*synth|synthese/.test(s)) return 80
+    if (/avis|aapc|annonce/.test(s)) return 60
+    if (/ccap|cctp|acte|dpgf|plan|annexe|dc[124]|dume|cadre/.test(s)) return 5
+    return 20
+  }
+  return docs.filter(d => /\.pdf$/i.test(d.name) && d.size < 20 * 1024 * 1024)
+    .sort((a, b) => score(b.name) - score(a.name) || a.size - b.size).slice(0, 4)
+}
+
+export async function analyseDocs(t: Tender, docs: Doc[]): Promise<Dossier> {
+  const res = await fetch('/api/agence/docs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-agence-code': localStorage.getItem('gbadw-code') || '' },
+    body: JSON.stringify({ title: t.title, buyer: t.buyer_name, files: docs.map(d => ({ name: d.name, url: docUrl(d) })) }),
+  })
+  const json = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(json.error || `Erreur ${res.status}`)
+  return json.dossier as Dossier
 }
 
 // ───────────────────────────── Exports ─────────────────────────────

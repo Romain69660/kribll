@@ -11,6 +11,7 @@ import {
 import { term, tr } from '../../../lib/agence/i18n'
 import { useAgence } from '../Shell'
 import { Days, Save, StatusSelect, Verdict } from '../ui'
+import Docs from './Docs'
 
 function defaultDisciplines(x: Tender): string[] {
   if (x.contract_type === 'DESIGN_BUILD') return ['entreprise_generale']
@@ -105,6 +106,8 @@ export default function DetailPage() {
   if (x === null) return <div className="ag-page"><Link className="ag-back" href="/agence">{t('back')}</Link><p className="ag-err">{error || t('empty')}</p></div>
 
   const g = groupOf(x)
+  const dz = tk.dossier
+  const works = dz?.works_eur || x.budget_eur
   const refs = asList(x.required_references), blocks = asList(x.blocking_points)
   const summary = summaryOf(x, lang)
   const done = CHECKLIST.filter(k => tk.checklist[k]).length
@@ -122,7 +125,7 @@ export default function DetailPage() {
         {lang !== 'fr' && titleOf(x, lang) !== x.title && <p className="orig">{x.title}</p>}
         <p className="who">{[x.buyer_name, x.location || x.departement].filter(Boolean).join(', ')}</p>
         <div className="ag-dl">
-          <div><b>{longDate(x.deadline, lang) || '?'}</b><Days deadline={x.deadline} />{term(lang, x.deadline_type) && <span className="ag-muted">{term(lang, x.deadline_type)}</span>}</div>
+          <div><b>{longDate(dz?.deadline || x.deadline, lang) || '?'}{dz?.deadline_time ? `, ${dz.deadline_time}` : ''}</b><Days deadline={x.deadline} />{term(lang, x.deadline_type) && <span className="ag-muted">{term(lang, x.deadline_type)}</span>}</div>
           <Verdict t={x} />
           <StatusSelect value={tk.status} onChange={s => patch({ status: s })} />
           <Save label on={tk.starred} onClick={() => patch({ starred: !tk.starred })} />
@@ -147,6 +150,8 @@ export default function DetailPage() {
           {x.mission && <section><h2>{t('s_mission')}</h2><p>{x.mission}</p></section>}
           {refs.length > 0 && <section><h2>{t('s_refs')}</h2><ul>{refs.map((b, i) => <li key={i}>{b}</li>)}</ul></section>}
           {x.eligibility && <section><h2>{t('s_elig')}</h2><p>{x.eligibility}</p></section>}
+
+          <Docs tender={x} dossier={tk.dossier} onDossier={d => patch({ dossier: d })} />
 
           <section className="ag-team">
             <h2>{t('s_team')}</h2>
@@ -207,10 +212,10 @@ export default function DetailPage() {
           <section>
             <h2>{t('s_facts')}</h2>
             <dl className="ag-facts">
-              <Fact k={t('f_works')} v={money(x.budget_eur) || x.estimated_budget} big />
-              {x.budget_eur ? <Fact k={t('f_fee')} v={`${money(x.budget_eur * 0.1)} – ${money(x.budget_eur * 0.12)}`} note={t('f_fee_note')} /> : null}
-              <Fact k={t('f_prize')} v={money(x.prize_eur)} />
-              <Fact k={t('f_teams')} v={x.teams_shortlisted} />
+              <Fact k={t('f_works')} v={money(dz?.works_eur || x.budget_eur) || x.estimated_budget} big note={dz?.works_eur ? t('from_docs') : undefined} />
+              {works ? <Fact k={t('f_fee')} v={`${money(works * 0.1)} – ${money(works * 0.12)}`} note={t('f_fee_note')} /> : null}
+              <Fact k={t('f_prize')} v={money(dz?.prize_eur || x.prize_eur)} note={dz?.prize_eur ? t('from_docs') : undefined} />
+              <Fact k={t('f_teams')} v={dz?.teams || x.teams_shortlisted} />
               <Fact k={t('f_proc')} v={term(lang, x.procedure_type)} />
               <Fact k={t('f_lead')} v={term(lang, x.team_lead)} />
               <Fact k={t('f_buyer')} v={x.buyer_name} />

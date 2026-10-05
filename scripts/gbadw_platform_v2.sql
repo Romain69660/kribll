@@ -53,3 +53,32 @@ create policy "gbadw_contacts_all" on gbadw_contacts for all to anon, authentica
 
 grant select on gbadw_tenders to anon;
 grant select, insert, update, delete on gbadw_tracking, gbadw_contacts to anon;
+
+-- Dossiers de consultation : fichiers déposés sur une annonce et résultat de leur lecture.
+alter table gbadw_tracking add column if not exists dossier jsonb;
+
+create table if not exists gbadw_docs (
+  id          uuid primary key default gen_random_uuid(),
+  publication_number text not null,
+  name        text not null,
+  path        text not null,
+  size        bigint,
+  created_by  text,
+  created_at  timestamptz default now()
+);
+create index if not exists gbadw_docs_tender_idx on gbadw_docs (publication_number);
+alter table gbadw_docs enable row level security;
+drop policy if exists "gbadw_docs_all" on gbadw_docs;
+create policy "gbadw_docs_all" on gbadw_docs for all to anon, authenticated using (true) with check (true);
+grant select, insert, update, delete on gbadw_docs to anon;
+
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('gbadw-docs', 'gbadw-docs', true, 52428800)
+on conflict (id) do nothing;
+
+drop policy if exists "gbadw_docs_files_read" on storage.objects;
+create policy "gbadw_docs_files_read" on storage.objects for select to anon, authenticated using (bucket_id = 'gbadw-docs');
+drop policy if exists "gbadw_docs_files_write" on storage.objects;
+create policy "gbadw_docs_files_write" on storage.objects for insert to anon, authenticated with check (bucket_id = 'gbadw-docs');
+drop policy if exists "gbadw_docs_files_delete" on storage.objects;
+create policy "gbadw_docs_files_delete" on storage.objects for delete to anon, authenticated using (bucket_id = 'gbadw-docs');
