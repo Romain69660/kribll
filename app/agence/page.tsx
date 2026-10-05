@@ -109,6 +109,7 @@ export default function ListPage() {
 
   return (
     <div className="ag-page">
+      <section className="ag-hero">
       <div className="ag-head">
         <h1>{t('h_list')}</h1>
         {updated && <p className="ag-muted">{t('updated')} {shortDate(updated, lang)}</p>}
@@ -122,6 +123,7 @@ export default function ListPage() {
         <div><dt>{t('k_active')}</dt><dd>{kpi.active}</dd></div>
         <div><dt>{t('k_value')}</dt><dd>{money(total) || '0'}</dd></div>
       </dl>
+      </section>
 
       <Ruler rows={rows} label={t('ruler')} today={t('today')} lang={lang} />
 
@@ -189,7 +191,7 @@ export default function ListPage() {
                     <Link href={`/agence/${encodeURIComponent(x.publication_number)}`} onClick={e => e.stopPropagation()}>{x.title}</Link>
                     <span className="sub">
                       <i className={`ty g-${g}`}>{t('ty_' + (x.typology || 'OTHER'))}</i>
-                      {x.buyer_name}{isNew(x) && <em>{t('new')}</em>}{group === 'saved' && tk?.updated_by && <span className="by">{t('saved_by', { n: tk.updated_by.split('@')[0] })}</span>}
+                      {x.buyer_name}{isNew(x) && <em>{t('new')}</em>}{group === 'saved' && tk?.updated_by && <span className="by">{t('saved_by', { n: tk.updated_by })}</span>}
                     </span>
                   </td>
                   <td className="c-pl">{x.location || (x.departement || '').split(' | ').slice(0, 3).join(', ')}</td>

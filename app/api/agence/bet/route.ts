@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { codeOk } from '../../../../lib/agence/code'
 
 export const maxDuration = 120
 
@@ -12,16 +12,7 @@ function extractJson(text: string): unknown {
 }
 
 export async function POST(req: NextRequest) {
-  if (!DEMO) {
-    const token = (req.headers.get('authorization') || '').replace(/^Bearer /, '')
-    if (!token) return NextResponse.json({ error: 'Non connecté' }, { status: 401 })
-    const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { global: { headers: { Authorization: `Bearer ${token}` } }, auth: { persistSession: false } })
-    const { data: user } = await sb.auth.getUser(token)
-    if (!user?.user) return NextResponse.json({ error: 'Session expirée, reconnectez-vous' }, { status: 401 })
-    const { data: member } = await sb.rpc('is_gbadw_member')
-    if (member !== true) return NextResponse.json({ error: "Ce compte n'a pas accès à l'espace agence" }, { status: 403 })
-  }
+  if (!DEMO && !codeOk(req.headers.get('x-agence-code'))) return NextResponse.json({ error: 'Code de l\'agence incorrect, reconnectez-vous' }, { status: 401 })
   const key = process.env.OPENAI_API_KEY
   if (!key) return NextResponse.json({ error: "OPENAI_API_KEY n'est pas configurée sur le serveur (Vercel, Settings, Environment Variables)" }, { status: 500 })
 

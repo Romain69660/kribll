@@ -166,7 +166,7 @@ export function sb(): SupabaseClient {
     _sb = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost',
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'anon',
-      { auth: { persistSession: true, autoRefreshToken: true, storageKey: 'gbadw-auth' } },
+      { auth: { persistSession: false, autoRefreshToken: false } },
     )
   }
   return _sb
@@ -257,10 +257,10 @@ export async function removeContact(id: string): Promise<void> {
 }
 
 export async function searchFirms(tender: Tender, disciplines: string[], place: string, lang: string): Promise<{ firms: Firm[]; note?: string }> {
-  const token = DEMO ? '' : (await sb().auth.getSession()).data.session?.access_token || ''
+  const code = localStorage.getItem('gbadw-code') || ''
   const res = await fetch('/api/agence/bet', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json', 'x-agence-code': code },
     body: JSON.stringify({
       disciplines, place, lang,
       tender: {
