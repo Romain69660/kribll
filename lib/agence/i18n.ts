@@ -82,6 +82,7 @@ const D: Dict = {
   ruler: ['Échéances des 8 prochaines semaines', 'Deadlines over the next 8 weeks', 'Plazos de las próximas 8 semanas'],
   today: ['Aujourd’hui', 'Today', 'Hoy'],
   g_all: ['Tout', 'All', 'Todo'],
+  g_big: ['Plus de 10 M€', 'Above 10 M€', 'Más de 10 M€'],
   g_core: ['Cœur de métier', 'Core business', 'Negocio principal'],
   g_partner: ['Avec partenaire', 'With a partner', 'Con socio'],
   g_db: ['Conception-réalisation', 'Design and build', 'Proyecto y obra'],

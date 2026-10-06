@@ -232,8 +232,8 @@ TYPOLOGY_LABELS = {
 # ---------------------------------------------------------------------------
 # Deux recherches ajoutées le 6 octobre 2026 (demande de Pablo)
 # ---------------------------------------------------------------------------
-# Seuil de travaux visé pour les concours et marchés de maîtrise d'œuvre.
-MIN_WORKS_EUR = 25_000_000
+# Seuil de l'onglet « Plus de 10 M€ » du site (le classement reste par date limite).
+MIN_WORKS_EUR = 10_000_000
 
 # Pistes hors conception : toujours classées "cœur de métier" quand elles sont retenues.
 SPECIAL_TRACKS = ["INSPECTION", "PARTICIPATION"]
@@ -450,9 +450,9 @@ GO (uniquement ARCHITECT_LED ou STUDY, fit CORE) :
   HEALTH : tout bâtiment lié à la santé, quelle que soit la taille : maisons et centres de
     santé, pôles médicaux, hôpitaux, cliniques, urgences, plateaux techniques, EHPAD,
     établissements médico-sociaux, psychiatrie, rééducation, laboratoires.
-- Montant : l'agence vise en priorité les opérations de plus de 25 millions d'euros de travaux.
-  En dessous, l'avis reste recevable mais son relevance_score doit être nettement plus bas.
-  Donne toujours budget_eur quand le montant des travaux est écrit dans l'avis.
+- Petits projets bienvenus, pas de montant minimum pour le verdict.
+  Donne toujours budget_eur quand le montant des travaux est écrit dans l'avis : le site
+  s'en sert pour l'onglet des opérations de plus de 10 millions d'euros.
 - Références exigées compatibles avec celles de GBADW, ou apportables par un cotraitant.
 
 MAYBE :

@@ -1489,10 +1489,8 @@ def main():
     df["is_new"] = (df["first_seen"].astype(str) == str(TODAY)) & (not first_run)
     df["sector"] = df["typology"]
     df["relevance_score"] = pd.to_numeric(df["relevance_score"], errors="coerce").fillna(50)
-    works = pd.to_numeric(df["budget_eur"], errors="coerce")
     df["final_score"] = (df["relevance_score"]
                          + df["verdict"].map({"GO": 20, "MAYBE": 5}).fillna(0)
-                         + (works >= P.MIN_WORKS_EUR) * 15
                          - (df["fit"] == "PARTNER") * 15
                          - (df["contract_type"] == "DESIGN_BUILD") * 40).clip(0, 100).round().astype(int)
     df = df.sort_values(["final_score"], ascending=False)

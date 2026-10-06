@@ -10,7 +10,8 @@ import {
 import { useAgence } from './Shell'
 import { Contract, Days, Save, StatusSelect, Verdict } from './ui'
 
-type Group = 'all' | 'saved' | 'core' | 'partner' | 'db' | 'no'
+type Group = 'all' | 'saved' | 'big' | 'core' | 'partner' | 'db' | 'no'
+const BIG = 10_000_000   // onglet « Plus de 10 M€ » : montant des travaux, hors conception-réalisation
 const HORIZON = 56
 
 export default function ListPage() {
@@ -58,14 +59,16 @@ export default function ListPage() {
     })
   }, [live, q, typ, dept, verdict, minB, win, onlyNew, onlyComp])
 
+  const isBig = (x: Tender) => { const g = groupOf(x); return g !== 'no' && g !== 'db' && (worksOf(x, tracking[x.publication_number]) || 0) >= BIG }
+
   const counts = useMemo(() => {
-    const c = { all: 0, saved: 0, core: 0, partner: 0, db: 0, no: 0 }
-    base.forEach(x => { const g = groupOf(x); c[g]++; if (g !== 'no') c.all++; if (isSaved(tracking[x.publication_number])) c.saved++ })
+    const c = { all: 0, saved: 0, big: 0, core: 0, partner: 0, db: 0, no: 0 }
+    base.forEach(x => { const g = groupOf(x); c[g]++; if (g !== 'no') c.all++; if (isSaved(tracking[x.publication_number])) c.saved++; if (isBig(x)) c.big++ })
     return c
   }, [base, tracking])
 
   const rows = useMemo(() => {
-    const r = base.filter(x => group === 'saved' ? isSaved(tracking[x.publication_number]) : group === 'all' ? groupOf(x) !== 'no' : groupOf(x) === group)
+    const r = base.filter(x => group === 'saved' ? isSaved(tracking[x.publication_number]) : group === 'big' ? isBig(x) : group === 'all' ? groupOf(x) !== 'no' : groupOf(x) === group)
     const far = '9999-12-31'
     return r.sort((a, b) =>
       sort === 'budget' ? (b.budget_eur || 0) - (a.budget_eur || 0)
@@ -127,7 +130,7 @@ export default function ListPage() {
       <Ruler rows={rows} label={t('ruler')} today={t('today')} lang={lang} />
 
       <div className="ag-tabs" role="tablist">
-        {(['all', 'saved', 'core', 'partner', 'db', 'no'] as Group[]).map(g => (
+        {(['all', 'saved', 'big', 'core', 'partner', 'db', 'no'] as Group[]).map(g => (
           <button key={g} role="tab" aria-selected={group === g} className={`g-${g}`} onClick={() => setGroup(g)}>
             {t('g_' + g)} <span>{counts[g]}</span>
           </button>
