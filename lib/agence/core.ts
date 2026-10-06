@@ -94,7 +94,7 @@ export type Firm = Omit<Contact, 'id' | 'publication_number' | 'status' | 'note'
 export const CORE_TYPOLOGIES = ['TRANSPORT', 'MAINTENANCE', 'HEALTH']
 export const TYPOLOGIES = [
   'TRANSPORT', 'MAINTENANCE', 'HEALTH', 'EDUCATION', 'HOUSING', 'SPORT', 'CULTURE',
-  'PUBLIC_OFFICES', 'HERITAGE', 'COMMERCE_TOURISM', 'URBAN_LANDSCAPE', 'OTHER',
+  'PUBLIC_OFFICES', 'HERITAGE', 'COMMERCE_TOURISM', 'URBAN_LANDSCAPE', 'INSPECTION', 'PARTICIPATION', 'OTHER',
 ]
 export const STATUS_GROUPS: { key: string; tone: string; items: Status[] }[] = [
   { key: 'todo', tone: 'yellow', items: ['shortlist'] },

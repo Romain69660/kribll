@@ -147,6 +147,8 @@ const D: Dict = {
   ty_HERITAGE: ['Patrimoine', 'Heritage', 'Patrimonio'],
   ty_COMMERCE_TOURISM: ['Commerce et tourisme', 'Retail and tourism', 'Comercio y turismo'],
   ty_URBAN_LANDSCAPE: ['Urbanisme et paysage', 'Urban design and landscape', 'Urbanismo y paisaje'],
+  ty_INSPECTION: ['Inspection et audit de bâtiments', 'Building inspection and audits', 'Inspección y auditoría de edificios'],
+  ty_PARTICIPATION: ['Participation citoyenne', 'Citizen participation', 'Participación ciudadana'],
   ty_OTHER: ['Autre', 'Other', 'Otro'],
   // status
   st_none: ['Sans statut', 'No status', 'Sin estado'],

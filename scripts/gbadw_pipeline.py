@@ -135,7 +135,8 @@ def parse_date(value):
 # 1. BOAMP
 # ===========================================================================
 
-BOAMP_FULLTEXT = ["maitrise", "architecte", "architecture", "concours", "conception"]
+BOAMP_FULLTEXT = ["maitrise", "architecte", "architecture", "concours", "conception",
+                  "inspection", "audit", "diagnostic", "patrimoine", "participatif", "participative", "concertation"]
 
 TEXT_KEYS = {
     "#text", "description", "Description", "intitule", "titreMarche", "Name", "Title",
@@ -389,7 +390,9 @@ TED_CPVS = [
     "71251000", "71300000", "71310000", "71311000", "71311200", "71311210",
     "71311220", "71311230", "71311240", "71311300", "71320000", "71322000",
     "71400000", "71410000", "71420000",
+    "71315300", "71315400", "71631000", "71631300",   # inspection et audit de bâtiments
 ]
+TED_EUROPE_LOOKBACK_DAYS = 75   # piste "participation" : toute l'Europe, fenêtre plus courte
 TED_BASE_FIELDS = ["publication-number", "notice-title", "buyer-name", "buyer-country",
                    "description-lot", "publication-date"]
 TED_OPTIONAL_FIELDS = [
@@ -413,15 +416,8 @@ def ted_post(query, fields, page=1, limit=250):
     return r
 
 
-def ted_fetch():
-    since = (TODAY - timedelta(days=TED_LOOKBACK_DAYS)).strftime("%Y%m%d")
-    cpv_clause = f"classification-cpv IN ({' '.join(TED_CPVS)})"
-    queries = [
-        f"buyer-country=FRA AND {cpv_clause} AND publication-date>={since}",
-        f"place-of-performance=FRA AND {cpv_clause} AND publication-date>={since}",
-        f"{cpv_clause} AND publication-date>={since}",
-    ]
-
+def ted_run(queries, label, max_pages=20):
+    """Essaie les requêtes dans l'ordre, garde la première acceptée, puis pagine."""
     query = None
     for q in queries:
         try:
@@ -429,13 +425,13 @@ def ted_fetch():
             if r.status_code == 200:
                 query = q
                 break
-            log(f"TED requête refusée ({r.status_code}) : {q[:80]}… {r.text[:200]}")
+            log(f"{label} requête refusée ({r.status_code}) : {q[:80]}… {r.text[:200]}")
         except Exception as e:
-            log(f"TED erreur : {e}")
+            log(f"{label} erreur : {e}")
     if not query:
-        log("TED : aucune requête acceptée")
+        log(f"{label} : aucune requête acceptée")
         return []
-    log(f"TED requête : {query[:120]}…")
+    log(f"{label} requête : {query[:140]}…")
 
     fields = list(TED_BASE_FIELDS)
     for f in TED_OPTIONAL_FIELDS:
@@ -445,21 +441,57 @@ def ted_fetch():
                 fields.append(f)
         except Exception:
             pass
-    log(f"TED champs : {fields}")
+    log(f"{label} champs : {fields}")
 
     notices = []
-    for page in range(1, 21):
+    for page in range(1, max_pages + 1):
         r = ted_post(query, fields, page=page)
         if r.status_code != 200:
-            log(f"TED page {page} : HTTP {r.status_code} {r.text[:200]}")
+            log(f"{label} page {page} : HTTP {r.status_code} {r.text[:200]}")
             break
         batch = r.json().get("notices") or r.json().get("results") or []
         notices.extend(batch)
         if len(batch) < 250:
             break
         time.sleep(0.5)
-    log(f"TED : {len(notices)} avis récupérés")
+    log(f"{label} : {len(notices)} avis récupérés")
     return notices
+
+
+def ted_fetch():
+    since = (TODAY - timedelta(days=TED_LOOKBACK_DAYS)).strftime("%Y%m%d")
+    cpv_clause = f"classification-cpv IN ({' '.join(TED_CPVS)})"
+    return ted_run([
+        f"buyer-country=FRA AND {cpv_clause} AND publication-date>={since}",
+        f"place-of-performance=FRA AND {cpv_clause} AND publication-date>={since}",
+        f"{cpv_clause} AND publication-date>={since}",
+    ], "TED")
+
+
+def ted_fetch_participation():
+    """Budgets participatifs et participation citoyenne, tous pays (TED couvre toute l'Europe).
+
+    Deux passes, réunies : le plein texte sur les expressions, puis le CPV 98300000 seul
+    (code fourre-tout : le tri se fait ensuite dans le préfiltre, sur les mêmes expressions).
+    """
+    since = (TODAY - timedelta(days=TED_EUROPE_LOOKBACK_DAYS)).strftime("%Y%m%d")
+    phrases = " OR ".join(f'"{t}"' for t in P.PARTICIPATION_TED_PHRASES)
+    found = {}
+    for label, queries, pages in (
+        ("TED Europe (plein texte)", [
+            f"FT~({phrases}) AND publication-date>={since}",
+            f"FT IN ({' '.join(chr(34) + t + chr(34) for t in P.PARTICIPATION_TED_PHRASES)}) AND publication-date>={since}",
+            f"notice-title~({phrases}) AND publication-date>={since}",
+        ], 8),
+        ("TED Europe (CPV 98300000)", [
+            f"classification-cpv={P.PARTICIPATION_CPV} AND publication-date>={since}",
+            f"classification-cpv IN ({P.PARTICIPATION_CPV}) AND publication-date>={since}",
+        ], 12),
+    ):
+        for n in ted_run(queries, label, max_pages=pages):
+            found[n.get("publication-number", id(n))] = n
+    log(f"TED Europe : {len(found)} avis au total pour la piste participation")
+    return list(found.values())
 
 
 def ted_text(value, langs=("fra", "FRA", "fr", "eng", "ENG", "en")):
@@ -493,11 +525,13 @@ def ted_dates(value):
     return out
 
 
-def ted_to_rows(notices):
+def ted_to_rows(notices, europe=False):
+    """europe=True : piste participation, tous pays gardés, marqués track=participation."""
     rows = []
     for n in notices:
         countries = ted_text(n.get("buyer-country"))
-        if countries and "FRA" not in countries.upper() and "FR" not in countries.upper().split(" | "):
+        french = (not countries) or "FRA" in countries.upper() or "FR" in countries.upper().split(" | ")
+        if not french and not europe:
             continue
 
         deadlines = []
@@ -535,7 +569,8 @@ def ted_to_rows(notices):
             "buyer_profile_uri": ted_text(n.get("buyer-profile")),
             "dce_url": ted_text(n.get("document-url-lot")).split(" | ")[0].split(", ")[0]
                        or ted_text(n.get("submission-url-lot")).split(" | ")[0].split(", ")[0],
-            "country": "France",
+            "country": "France" if french else (countries.split(" | ")[0] or "Europe"),
+            "track": "participation" if europe else "",
             "full_text": f"{title} | {desc}",
         })
     return rows
@@ -599,6 +634,29 @@ def prefilter(row):
         return False, f"type d'avis {row['nature']}", "", 0, "", ""
     if "FOURNITURES" in row["type_marche"] and "SERVICES" not in row["type_marche"]:
         return False, "marché de fournitures", "", 0, "", ""
+
+    cpvs_row = [c.strip() for c in str(row["cpv_code"]).split("|") if c.strip()]
+
+    # piste participation (toute l'Europe) : budget participatif, participation citoyenne
+    europe = row.get("track") == "participation"
+    strong = hits(text_n if europe else title_n, P.PARTICIPATION_STRONG)   # en France : dans le titre seulement
+    weak_title = hits(title_n, P.PARTICIPATION_WEAK)
+    if strong or weak_title:
+        m = sorted(set(strong + weak_title))[:8]
+        return True, "ok participation citoyenne", "PARTICIPATION", 12 + 3 * len(hits(title_n, P.PARTICIPATION_STRONG)), ", ".join(m), "STUDY"
+    if europe:
+        return False, "Europe : CPV services divers sans participation citoyenne", "", 0, "", ""
+
+    # piste inspection : état d'un parc de bâtiments, audits, schémas directeurs immobiliers
+    insp = hits(title_n, P.INSPECTION_TERMS)
+    insp_cpv = any(c.startswith(P.INSPECTION_CPV_PREFIXES) for c in cpvs_row)
+    if (insp or insp_cpv) and hits(text_n, P.INSPECTION_CONTEXT):
+        ex = hits(title_n, P.INSPECTION_EXCLUSIONS)
+        if ex:
+            return False, f"inspection hors cible : {ex[0]}", "", 0, "", ""
+        if "TRAVAUX" in row["type_marche"] or ("FOURNITURES" in row["type_marche"]):
+            return False, "inspection : pas un marché de services", "", 0, "", ""
+        return True, "ok inspection de bâtiments", "INSPECTION", 8 + 2 * len(insp), ", ".join(sorted(set(insp))[:8]) or "CPV inspection", "STUDY"
 
     # type de contrat : la conception-réalisation est gardée mais marquée
     ctype = contract_type_of(row)
@@ -687,7 +745,7 @@ def leman_prompt(row):
         for e in P.FEEDBACK_EXAMPLES
     ) or "- (aucun pour l'instant)"
 
-    return f"""Tu es Leman, analyste des marchés publics français pour UNE seule agence d'architecture.
+    return f"""Tu es Leman, analyste des marchés publics (France, et toute l'Europe pour la piste participation) pour UNE seule agence d'architecture. L'avis peut être rédigé dans une autre langue que le français : lis-le tel quel et réponds dans les langues demandées.
 
 === AGENCE ===
 {P.AGENCY['name']} ({P.AGENCY['city']}, Espagne), fondée par {P.AGENCY['founders']}.
@@ -709,6 +767,7 @@ Verdicts corrigés par l'agence (à respecter pour des cas similaires) :
 Source : {row['source']} ({row['publication_number']})
 Titre : {row['title']}
 Acheteur : {row['buyer_name']}
+Pays : {row.get('country') or 'France'}
 Localisation : {row['departement']}
 Procédure : {row['procedure']}
 Nature / type : {row['nature']} / {row['type_marche']}
@@ -731,7 +790,7 @@ Réponds UNIQUEMENT avec un objet JSON :
   "architect_mission": true | false,
   "fit": "CORE" | "PARTNER" | "NO",
   "sector": "TRANSPORT" | "MAINTENANCE" | "HEALTH" | "OTHER",
-  "typology": "TRANSPORT" | "MAINTENANCE" | "HEALTH" | "EDUCATION" | "HOUSING" | "SPORT" | "CULTURE" | "PUBLIC_OFFICES" | "HERITAGE" | "COMMERCE_TOURISM" | "URBAN_LANDSCAPE" | "OTHER",
+  "typology": "TRANSPORT" | "MAINTENANCE" | "HEALTH" | "EDUCATION" | "HOUSING" | "SPORT" | "CULTURE" | "PUBLIC_OFFICES" | "HERITAGE" | "COMMERCE_TOURISM" | "URBAN_LANDSCAPE" | "INSPECTION" | "PARTICIPATION" | "OTHER",
   "project_type": "type de bâtiment/ouvrage, court",
   "program": "programme en une phrase",
   "location": "ville (département)",
@@ -794,13 +853,22 @@ def leman_one(row, model):
     typology = str(result.get("typology") or "").upper()
     if typology not in P.TYPOLOGY_LABELS:
         typology = row.get("sector") if row.get("sector") in P.TYPOLOGY_LABELS else "OTHER"
+    special = row.get("sector") in P.SPECIAL_TRACKS
+    if special:
+        typology = row["sector"]          # la piste est décidée par le préfiltre
+    elif typology in P.SPECIAL_TRACKS:
+        typology = "OTHER"                # l'IA ne crée pas de piste à elle seule
     # le groupe se décide ici, pas dans la réponse de l'IA : une autre typologie n'est jamais un "non"
     arch = result.get("architect_mission")
     if isinstance(arch, str):
         arch = arch.strip().lower() in ("true", "vrai", "oui", "yes")
     if arch is None:
         arch = ctype in ("ARCHITECT_LED", "DESIGN_BUILD") and bool(result)
-    if typology in P.CORE_SECTORS:
+    if special:
+        fit = "NO" if verdict == "NO" else "CORE"
+        if ctype not in ("STUDY", "OTHER"):
+            ctype = "STUDY"
+    elif typology in P.CORE_SECTORS:
         fit = "NO" if (verdict == "NO" or (arch is False and ctype != "STUDY")) else "CORE"
     else:
         fit = "PARTNER" if arch else "NO"
@@ -860,7 +928,7 @@ def leman_run(rows, model, light_model=None):
 
     def work(args):
         i, row = args
-        m = model if row.get("sector") in P.CORE_SECTORS else light_model
+        m = model if row.get("sector") in P.CORE_SECTORS + P.SPECIAL_TRACKS else light_model
         log(f"  Leman {i}/{len(rows)} [{m}] {row['title'][:70]}")
         return leman_one(row, m)
 
@@ -1331,6 +1399,7 @@ def main():
     ap.add_argument("--no-upload", action="store_true")
     ap.add_argument("--no-cache", action="store_true", help="réanalyser tous les avis")
     ap.add_argument("--source", choices=["all", "boamp", "ted"], default="all")
+    ap.add_argument("--no-europe", action="store_true", help="ne pas chercher la piste participation hors de France")
     args = ap.parse_args()
 
     log("====================================")
@@ -1343,6 +1412,13 @@ def main():
         rows += boamp_to_rows(boamp_fetch())
     if args.source in ("all", "ted"):
         rows += ted_to_rows(ted_fetch())
+        if not args.no_europe:
+            try:
+                rows += ted_to_rows(ted_fetch_participation(), europe=True)
+            except Exception as e:
+                log(f"TED Europe : piste participation ignorée ({e})")
+    for r in rows:
+        r.setdefault("track", "")
     log(f"\nTotal brut : {len(rows)}")
 
     for r in rows:
@@ -1379,7 +1455,7 @@ def main():
             done.append(from_cache(r, c))
         else:
             todo.append(r)
-    todo.sort(key=lambda r: (0 if r["sector"] in P.CORE_SECTORS else 1, -r["prefilter_score"]))
+    todo.sort(key=lambda r: (0 if r["sector"] in P.CORE_SECTORS + P.SPECIAL_TRACKS else 1, -r["prefilter_score"]))
     skipped = todo[MAX_LEMAN:]
     todo = todo[:MAX_LEMAN]
     log(f"{len(done)} repris du cache, {len(todo)} nouveaux à analyser"
@@ -1388,7 +1464,7 @@ def main():
     if args.no_ai:
         for r in todo:
             r.update({"verdict": "MAYBE", "typology": r["sector"],
-                      "fit": "CORE" if r["sector"] in P.CORE_SECTORS else "PARTNER"})
+                      "fit": "CORE" if r["sector"] in P.CORE_SECTORS + P.SPECIAL_TRACKS else "PARTNER"})
         analysed = todo
     elif todo:
         model = os.environ.get("LEMAN_MODEL", "gpt-4o")
@@ -1413,8 +1489,10 @@ def main():
     df["is_new"] = (df["first_seen"].astype(str) == str(TODAY)) & (not first_run)
     df["sector"] = df["typology"]
     df["relevance_score"] = pd.to_numeric(df["relevance_score"], errors="coerce").fillna(50)
+    works = pd.to_numeric(df["budget_eur"], errors="coerce")
     df["final_score"] = (df["relevance_score"]
                          + df["verdict"].map({"GO": 20, "MAYBE": 5}).fillna(0)
+                         + (works >= P.MIN_WORKS_EUR) * 15
                          - (df["fit"] == "PARTNER") * 15
                          - (df["contract_type"] == "DESIGN_BUILD") * 40).clip(0, 100).round().astype(int)
     df = df.sort_values(["final_score"], ascending=False)

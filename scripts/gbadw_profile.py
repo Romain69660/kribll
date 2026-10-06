@@ -224,8 +224,74 @@ TYPOLOGY_LABELS = {
     "HERITAGE": "Heritage",
     "COMMERCE_TOURISM": "Commerce and tourism",
     "URBAN_LANDSCAPE": "Urban design and landscape",
+    "INSPECTION": "Building inspection and audits",
+    "PARTICIPATION": "Citizen participation",
     "OTHER": "Other",
 }
+
+# ---------------------------------------------------------------------------
+# Deux recherches ajoutées le 6 octobre 2026 (demande de Pablo)
+# ---------------------------------------------------------------------------
+# Seuil de travaux visé pour les concours et marchés de maîtrise d'œuvre.
+MIN_WORKS_EUR = 25_000_000
+
+# Pistes hors conception : toujours classées "cœur de métier" quand elles sont retenues.
+SPECIAL_TRACKS = ["INSPECTION", "PARTICIPATION"]
+
+# 1. Inspection et audit d'un parc de bâtiments (référence : ADIF lot 2, 100 000 m² de gares).
+INSPECTION_TERMS = [
+    "inspection", "inspections", "inspection des batiments", "inspections detaillees",
+    "audit technique", "audits techniques", "audit du patrimoine", "audit patrimonial",
+    "audit immobilier", "audits immobiliers", "audit batimentaire", "audits batimentaires",
+    "diagnostic technique", "diagnostics techniques", "diagnostic du patrimoine",
+    "diagnostic batimentaire", "diagnostics batimentaires", "diagnostic immobilier",
+    "diagnostic technique global", "etat du patrimoine", "etat des lieux du patrimoine",
+    "schema directeur immobilier", "schema directeur patrimonial", "schema directeur du patrimoine",
+    "strategie patrimoniale", "strategie immobiliere", "plan pluriannuel de travaux",
+    "plan pluriannuel d investissement", "carnet de sante", "visites periodiques",
+    "visites techniques", "cotation de l etat", "connaissance du patrimoine",
+]
+INSPECTION_CONTEXT = [
+    "batiment", "batiments", "patrimoine bati", "patrimoine immobilier", "parc immobilier",
+    "gares", "gare", "sites", "etablissements", "colleges", "lycees", "immeubles", "ouvrages batis",
+]
+# Titres à écarter : contrôles réglementaires et diagnostics d'un seul lot technique.
+INSPECTION_EXCLUSIONS = [
+    "controle technique", "bureau de controle", "amiante", "plomb", "termites", "ascenseur*",
+    "vehicule*", "extincteur*", "legionel*", "radon", "aires de jeux", "aire de jeux",
+    "assainissement", "canalisation*", "reseaux", "reseau", "eau potable", "ouvrages d art",
+    "ouvrage d art", "ponts", "pont", "chaussee*", "voirie*", "eclairage public", "installations electriques",
+    "installations gaz", "paratonnerre*", "portes automatiques", "alimentaire*", "sanitaire des",
+    "du travail", "fiscal*", "comptable*", "financier*", "informatique", "logiciel", "arbres",
+    "fourniture", "fournitures", "nettoyage", "coordination sps", "geotechni*", "topograph*",
+]
+INSPECTION_CPV_PREFIXES = ("71315400", "71631300", "71315300", "71631000")
+
+# 2. Budgets participatifs et participation citoyenne, sur toute l'Europe
+#    (référence : Barakaldo, CPV 98300000-6). Termes sans accents, comme tout le préfiltre.
+PARTICIPATION_CPV = "98300000"
+PARTICIPATION_STRONG = [
+    "budget participatif", "budgets participatifs", "presupuesto participativo",
+    "presupuestos participativos", "participatory budget*", "bilancio partecipativo", "bilanci partecipativi",
+    "orcamento participativo", "orcamentos participativos", "burgerhaushalt*", "burgerbudget*", "beteiligungshaushalt*",
+    "burgerbegroting*", "participatieve begroting", "budzet obywatelski*", "budzetu obywatelskiego", "budzecie obywatelskim",
+    "participativni rozpocet", "participativny rozpocet", "kozossegi koltsegvetes",
+    "aurrekontu parte hartzaile*", "pressupost participatiu", "pressupostos participatius",
+]
+PARTICIPATION_WEAK = [
+    "participation citoyenne", "concertation citoyenne", "democratie participative",
+    "participacion ciudadana", "proceso participativo", "procesos participativos",
+    "citizen participation", "citizen engagement", "public participation",
+    "partecipazione civica", "processo partecipativo", "participacao cidada",
+    "burgerbeteiligung*", "burgerparticipatie*", "gobierno abierto",
+]
+# Requête plein texte TED (accents conservés : c'est l'index de TED qui cherche).
+PARTICIPATION_TED_PHRASES = [
+    "budget participatif", "presupuesto participativo", "presupuestos participativos",
+    "participatory budget", "participatory budgeting", "bilancio partecipativo",
+    "orçamento participativo", "Bürgerhaushalt", "Bürgerbudget", "burgerbegroting*",
+    "budżet obywatelski", "pressupost participatiu",
+]
 
 # Hors cible : titres d'infrastructure ou de lot technique seul, écartés sans appeler l'IA
 NON_BUILDING_TITLE_TERMS = [
@@ -360,6 +426,19 @@ Type de contrat (contract_type), à déterminer en premier et avec soin :
   par une entreprise de travaux où l'architecte est sous-traitant ou cotraitant.
 - OTHER : autre ou impossible à dire.
 
+Deux pistes hors conception, que l'agence veut voir (fit CORE, contract_type STUDY ou OTHER,
+architect_mission sans importance pour elles) :
+- INSPECTION : inspection, audit ou diagnostic technique d'un PARC de bâtiments, schéma
+  directeur immobilier, plan pluriannuel de travaux. Référence de l'agence : inspection et
+  catalogage de 100 000 m² de gares pour ADIF. GO si le marché porte sur l'état général de
+  bâtiments ; NO pour un contrôle réglementaire (contrôle technique de construction, amiante,
+  plomb, ascenseurs, électricité) ou un diagnostic limité à un seul lot technique.
+- PARTICIPATION : animation, conception ou accompagnement d'un budget participatif ou d'une
+  démarche de participation citoyenne, dans n'importe quel pays d'Europe. Référence de
+  l'agence : budget participatif de Barakaldo (Espagne). GO si c'est l'objet principal du
+  marché ; NO si la participation n'est qu'une petite partie d'un autre marché.
+Pour ces deux pistes, typology vaut INSPECTION ou PARTICIPATION.
+
 GO (uniquement ARCHITECT_LED ou STUDY, fit CORE) :
 - Projet dans une des trois cibles :
   TRANSPORT : gares, haltes, pôles d'échanges multimodaux, gares routières, stations de métro
@@ -371,7 +450,9 @@ GO (uniquement ARCHITECT_LED ou STUDY, fit CORE) :
   HEALTH : tout bâtiment lié à la santé, quelle que soit la taille : maisons et centres de
     santé, pôles médicaux, hôpitaux, cliniques, urgences, plateaux techniques, EHPAD,
     établissements médico-sociaux, psychiatrie, rééducation, laboratoires.
-- Petits projets bienvenus, pas de montant minimum.
+- Montant : l'agence vise en priorité les opérations de plus de 25 millions d'euros de travaux.
+  En dessous, l'avis reste recevable mais son relevance_score doit être nettement plus bas.
+  Donne toujours budget_eur quand le montant des travaux est écrit dans l'avis.
 - Références exigées compatibles avec celles de GBADW, ou apportables par un cotraitant.
 
 MAYBE :

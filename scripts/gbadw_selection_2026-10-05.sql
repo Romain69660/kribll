@@ -52,3 +52,18 @@ insert into gbadw_tracking (publication_number,starred,updated_by) values
 ('631243-2026',true,'Romain'),
 ('600087-2026',true,'Romain')
 on conflict (publication_number) do update set starred=true, updated_at=now();
+
+-- Montants lus dans les règlements (travaux HT, prime HT par équipe, nombre d'équipes retenues).
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 8500000, "prize_eur": 37000, "teams": 3}'::jsonb where publication_number='26-79093';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 4000000, "prize_eur": 17500, "teams": 4}'::jsonb where publication_number='26-86968';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 10650000, "prize_eur": 37000, "teams": 3}'::jsonb where publication_number='26-91301';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 6500000, "prize_eur": 30000, "teams": 3}'::jsonb where publication_number='26-83795';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 3000000, "prize_eur": 12000, "teams": 3}'::jsonb where publication_number='26-92409';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 4700000, "prize_eur": 16500, "teams": 3}'::jsonb where publication_number='26-94791';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 3500000}'::jsonb where publication_number='26-92192';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 2450000}'::jsonb where publication_number='26-90551';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 13556000, "prize_eur": 60000, "teams": 4}'::jsonb where publication_number='26-85665';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"prize_eur": 46000, "teams": 3}'::jsonb where publication_number='626015-2026';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 5000000, "prize_eur": 60000, "teams": 3}'::jsonb where publication_number='26-85761';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 3000000, "prize_eur": 12000, "teams": 3}'::jsonb where publication_number='631243-2026';
+update gbadw_tracking set dossier = coalesce(dossier,'{}'::jsonb) || '{"works_eur": 29622600, "prize_eur": 142800, "teams": 3}'::jsonb where publication_number='600087-2026';
