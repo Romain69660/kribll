@@ -65,8 +65,18 @@ HTTP = requests.Session()
 HTTP.headers["User-Agent"] = "Kribbl-GBADW/1.0"
 
 
+RUN_LOG = os.path.join(DATA_DIR, "gbadw_run.log")   # journal du run, joint à l'artifact
+TED_STATE = {"complete": False}                    # vrai seulement si TED France a été lu jusqu'au bout
+
+
 def log(msg=""):
     print(msg, flush=True)
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        with open(RUN_LOG, "a", encoding="utf-8") as f:
+            f.write(str(msg) + "\n")
+    except Exception:
+        pass
 
 
 # ===========================================================================
@@ -416,16 +426,30 @@ def ted_post(query, fields, page=1, limit=250):
     return r
 
 
+def ted_post_retry(query, fields, page=1, limit=250, tries=5):
+    """Comme ted_post, mais réessaie sur limite de débit ou erreur serveur (429, 5xx, coupure réseau)."""
+    r = None
+    for attempt in range(tries):
+        try:
+            r = ted_post(query, fields, page=page, limit=limit)
+            if r.status_code not in (429, 500, 502, 503, 504):
+                return r
+        except Exception as e:
+            log(f"    TED coupure réseau ({attempt + 1}/{tries}) : {e}")
+        time.sleep(min(60, 5 * (attempt + 1) ** 2))
+    return r
+
+
 def ted_run(queries, label, max_pages=20):
     """Essaie les requêtes dans l'ordre, garde la première acceptée, puis pagine."""
     query = None
     for q in queries:
         try:
-            r = ted_post(q, TED_BASE_FIELDS, limit=1)
-            if r.status_code == 200:
+            r = ted_post_retry(q, TED_BASE_FIELDS, limit=1)
+            if r is not None and r.status_code == 200:
                 query = q
                 break
-            log(f"{label} requête refusée ({r.status_code}) : {q[:80]}… {r.text[:200]}")
+            log(f"{label} requête refusée ({getattr(r, 'status_code', '?')}) : {q[:80]}… {getattr(r, 'text', '')[:200]}")
         except Exception as e:
             log(f"{label} erreur : {e}")
     if not query:
@@ -436,36 +460,44 @@ def ted_run(queries, label, max_pages=20):
     fields = list(TED_BASE_FIELDS)
     for f in TED_OPTIONAL_FIELDS:
         try:
-            r = ted_post(query, fields + [f], limit=1)
-            if r.status_code == 200:
+            r = ted_post_retry(query, fields + [f], limit=1)
+            if r is not None and r.status_code == 200:
                 fields.append(f)
+            time.sleep(0.2)
         except Exception:
             pass
     log(f"{label} champs : {fields}")
 
-    notices = []
+    notices, complete = [], False
     for page in range(1, max_pages + 1):
-        r = ted_post(query, fields, page=page)
-        if r.status_code != 200:
-            log(f"{label} page {page} : HTTP {r.status_code} {r.text[:200]}")
+        r = ted_post_retry(query, fields, page=page)
+        if r is None or r.status_code != 200:
+            log(f"{label} page {page} : HTTP {getattr(r, 'status_code', '?')} {getattr(r, 'text', '')[:200]}")
             break
         batch = r.json().get("notices") or r.json().get("results") or []
         notices.extend(batch)
+        log(f"{label} page {page} : {len(batch)} avis")
         if len(batch) < 250:
+            complete = True
             break
-        time.sleep(0.5)
-    log(f"{label} : {len(notices)} avis récupérés")
+        time.sleep(1.0)
+    else:
+        complete = True   # plafond de pages atteint sans erreur
+    log(f"{label} : {len(notices)} avis récupérés" + ("" if complete else " (LECTURE INTERROMPUE)"))
+    ted_run.complete = complete
     return notices
 
 
 def ted_fetch():
     since = (TODAY - timedelta(days=TED_LOOKBACK_DAYS)).strftime("%Y%m%d")
     cpv_clause = f"classification-cpv IN ({' '.join(TED_CPVS)})"
-    return ted_run([
+    notices = ted_run([
         f"buyer-country=FRA AND {cpv_clause} AND publication-date>={since}",
         f"place-of-performance=FRA AND {cpv_clause} AND publication-date>={since}",
         f"{cpv_clause} AND publication-date>={since}",
     ], "TED")
+    TED_STATE["complete"] = bool(notices) and getattr(ted_run, "complete", False)
+    return notices
 
 
 def ted_fetch_participation():
@@ -1362,8 +1394,13 @@ def platform_upload(df):
         row["blocking_points"] = row.get("blocking_points") or []
         rows.append(row)
 
-    # tout ce qui n'est plus dans le run du jour n'est plus "live"
-    r = HTTP.patch(f"{url}/rest/v1/{PLATFORM_TABLE}?is_live=eq.true", headers={**headers, "Prefer": "return=minimal"},
+    # tout ce qui n'est plus dans le run du jour n'est plus "live".
+    # Garde-fou : si TED n'a pas été lu jusqu'au bout, ses avis restent en ligne tels quels,
+    # sinon une simple coupure de TED ferait disparaître du site tous les avis européens.
+    scope = "is_live=eq.true" if TED_STATE["complete"] else "is_live=eq.true&source=eq.BOAMP"
+    if not TED_STATE["complete"]:
+        log("Plateforme : TED incomplet aujourd'hui, les avis TED déjà en ligne sont conservés")
+    r = HTTP.patch(f"{url}/rest/v1/{PLATFORM_TABLE}?{scope}", headers={**headers, "Prefer": "return=minimal"},
                    json={"is_live": False}, timeout=60)
     log(f"Plateforme : remise à zéro des avis live → {r.status_code}")
     if r.status_code >= 400:
@@ -1402,12 +1439,19 @@ def main():
     ap.add_argument("--no-europe", action="store_true", help="ne pas chercher la piste participation hors de France")
     args = ap.parse_args()
 
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        open(RUN_LOG, "w").close()
+    except Exception:
+        pass
     log("====================================")
     log(f"KRIBBL GBADW — {TODAY}")
     log("====================================")
     os.makedirs(DATA_DIR, exist_ok=True)
 
     rows = []
+    if args.source == "boamp":
+        TED_STATE["complete"] = False
     if args.source in ("all", "boamp"):
         rows += boamp_to_rows(boamp_fetch())
     if args.source in ("all", "ted"):
