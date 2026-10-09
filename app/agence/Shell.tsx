@@ -73,9 +73,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     ['/agence', 'nav_list', 'M3 4h14M3 10h14M3 16h14'],
     ['/agence/suivi', 'nav_board', 'M4 10l4 4 8-9'],
     ['/agence/resume', 'nav_resume', 'M5 2.5h7l3 3v12H5zM8 9h4M8 12.5h4'],
+    ['/agence/kit', 'nav_kit', 'M3 6.5h14v10H3zM7 6.5V4h6v2.5M3 11h14'],
     ['/agence/profil', 'nav_profile', 'M4 17V6l6-3.5L16 6v11M8 17v-5h4v5'],
   ]
-  const isOn = (href: string) => href === '/agence' ? path === href || /^\/agence\/(?!suivi|resume|profil)/.test(path) : path.startsWith(href)
+  const isOn = (href: string) => href === '/agence' ? path === href || /^\/agence\/(?!suivi|resume|profil|kit)/.test(path) : path.startsWith(href)
   return (
     <C.Provider value={{ lang, t, user }}>
       <div className="ag ag-app">
