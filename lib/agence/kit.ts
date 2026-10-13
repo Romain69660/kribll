@@ -21,7 +21,7 @@ const ADR_BALDASSARI = "ZAE d'Erbajolo, lieu-dit Pastoreccia, rue Marcelle Conra
 const syn = 'Image de synthèse'
 
 export const KIT: Kit = {
-  updated: '9 octobre 2026, après le dépôt du concours CAPA Ajaccio (AC24-35-1)',
+  updated: '13 octobre 2026 : équipes en cours pour Annecy (PEM de la Pilleuse) et Francoulès (pôle technique du Lot)',
   agency: [
     { label: 'Dénomination', value: 'GIL BARTOLOME ADW S.L.' },
     { label: 'Forme juridique', value: "Société à responsabilité limitée de droit espagnol (Sociedad Limitada), société d'architecture" },
@@ -88,9 +88,9 @@ export const KIT: Kit = {
     { region: 'Corse', name: 'BVP INGÉNIERIE, SAS', skills: 'Économie de la construction', siret: '812 773 554 00058', address: ADR_BALDASSARI, contact: '04 95 30 44 13 · secretariat@groupebaldassari.com', signatory: 'Nicolas Baldassari, président', staff: '12', status: 'actif', note: 'Déclaration de janvier 2026.' },
     { region: 'Corse / PACA', name: 'ICTP, SAS', skills: 'Structure et génie civil', siret: '434 363 826 00067', address: '254, Corniche Fahnestock, 06700 Saint-Laurent-du-Var', contact: '04 92 12 97 09 · ictp@ictp.fr', signatory: 'Didier Tosello', staff: '11', status: 'actif', note: 'Leur pouvoir au mandataire porte une mauvaise adresse de l’agence : à corriger avant une phase d’offre.' },
     { region: 'Corse', name: 'AMO SPICY, SARL', skills: 'OPC (qualification OPQIBI)', siret: '521 313 916 00020', address: 'Espace Alban, bât. E, 26 bd Dominique Paoli, 20090 Ajaccio', contact: '06 87 66 44 29 · amospicyagence@orange.fr', signatory: 'Dominique Pasqualetti, gérant ; Ghjuvanna Verdi', staff: '3', status: 'actif', note: 'Accord obtenu début octobre 2026 pour Ajaccio.' },
-    { region: 'France', name: 'B2A, Barre Bouchetard Architecture', skills: 'Agence d’architecture partenaire potentielle (ingénieurs-architectes)', staff: '7', status: 'en cours', note: 'Visio approuvée par Jaime. Utile quand un concours exige des références que l’agence n’a pas.' },
+    { region: 'France', name: 'B2A, Barre Bouchetard Architecture', skills: 'Agence d’architecture partenaire potentielle (ingénieurs-architectes), écoles : Le Lude, Les Trois Lacs, Trévoux', contact: 'Etienne Barre, architecte associé · e.barre@b2-a.fr', staff: '7', status: 'en cours', note: 'Visio confirmée le jeudi 22/10/2026 à 10h avec Pablo et Jaime (lien Google Meet à envoyer). Utile quand un concours exige des références que l’agence n’a pas.' },
+    { region: 'France', name: 'Vertical Sea (Tecta, Builders, Environnement, Sol Conseil…)', skills: 'Groupe pluridisciplinaire de 540 personnes : bâtiment (structure, fluides, économie, SSI, OPC, BIM), environnement, aménagement urbain et VRD, géotechnique. 20 agences dont Annecy, Lyon, Toulouse', address: 'Tecta : 118 av. des Marais, Allonzier-la-Caille (74)', contact: 'Claire Aguettaz, chargée de développement · sl@tecta-ing.com', status: 'en cours', note: 'A répondu le 13/10/2026 avec la présentation du groupe et reste ouverte aux collaborations. Tecta déjà engagé sur Annecy. Francoulès proposé le 13/10 à l’agence de Toulouse.' },
     { region: 'Rhône-Alpes', name: 'Iliade Ingénierie', skills: 'Ingénierie pluridisciplinaire du bâtiment', address: 'Caluire-et-Cuire (69)', status: 'piste', note: 'Lauréat du PEM des Glaisins (Grand Annecy, 2025) avec Marc Mimram.' },
-    { region: 'Rhône-Alpes', name: 'Tecta', skills: 'VRD, aménagement', address: '118 av. des Marais, Allonzier-la-Caille (74)', status: 'piste', note: 'Lauréat du PEM des Glaisins.' },
     { region: 'Rhône-Alpes', name: 'Egis Bâtiments Rhône-Alpes', skills: 'Pluridisciplinaire, mobilité', address: 'Lyon', status: 'piste', note: 'Centre bus de Grand Chambéry (2026).' },
     { region: 'Rhône-Alpes', name: 'OTEIS', skills: 'Ingénierie tous corps d’état', address: 'Lyon, Chambéry, Annecy', status: 'piste', note: 'Centre de maintenance InspiRe, Clermont.' },
     { region: 'Rhône-Alpes', name: 'ADP Dubois', skills: 'Paysage, espaces publics', address: '84 rue Carnot, Annecy', contact: '04 50 68 24 13 · contact@adpdubois.com', status: 'piste', note: 'Espaces publics en Haute-Savoie.' },
