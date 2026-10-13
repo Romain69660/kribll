@@ -448,3 +448,70 @@ export function icsFor(t: Tender): string {
     'END:VEVENT', 'END:VCALENDAR',
   ].join('\r\n')
 }
+
+// ───────────────────────────── Traduction des notes ─────────────────────────────
+// Les notes sont écrites dans une seule langue (souvent le français). À l'affichage, elles sont
+// traduites dans la langue du site. Les traductions sont gardées dans le navigateur.
+
+const TR_KEY = 'gbadw-tr'
+const trMem = new Map<string, string>()
+let trStore: Record<string, string> | null = null
+let trQueue: { text: string; lang: string; done: (s: string) => void }[] = []
+let trTimer: ReturnType<typeof setTimeout> | null = null
+
+function trLoad(): Record<string, string> {
+  if (trStore) return trStore
+  try { trStore = JSON.parse(localStorage.getItem(TR_KEY) || '{}') } catch { trStore = {} }
+  return trStore || {}
+}
+function trSave(k: string, v: string) {
+  const s = trLoad(); s[k] = v
+  const keys = Object.keys(s)
+  if (keys.length > 800) for (const x of keys.slice(0, keys.length - 800)) delete s[x]
+  try { localStorage.setItem(TR_KEY, JSON.stringify(s)) } catch { /* stockage plein ou bloqué */ }
+}
+const trKey = (text: string, lang: string) => `${lang}:${text}`
+
+export function cachedTranslation(text: string, lang: string): string | null {
+  if (!text.trim()) return text
+  const k = trKey(text, lang)
+  return trMem.get(k) ?? (typeof window !== 'undefined' ? trLoad()[k] ?? null : null)
+}
+
+async function trFlush() {
+  trTimer = null
+  const batch = trQueue; trQueue = []
+  const byLang = new Map<string, typeof batch>()
+  for (const b of batch) byLang.set(b.lang, [...(byLang.get(b.lang) || []), b])
+  for (const [lang, items] of byLang) {
+    const texts = [...new Set(items.map(i => i.text))]
+    for (let i = 0; i < texts.length; i += 40) {
+      const chunk = texts.slice(i, i + 40)
+      let out = chunk
+      try {
+        const res = await fetch('/api/agence/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-agence-code': localStorage.getItem('gbadw-code') || '' },
+          body: JSON.stringify({ texts: chunk, lang }),
+        })
+        const json = await res.json().catch(() => ({}))
+        if (res.ok && Array.isArray(json.texts)) {
+          out = json.texts
+          chunk.forEach((t, j) => { const k = trKey(t, lang); trMem.set(k, out[j]); trSave(k, out[j]) })
+        }
+      } catch { /* hors ligne : on garde le texte d'origine */ }
+      chunk.forEach((t, j) => items.filter(x => x.text === t).forEach(x => x.done(out[j])))
+    }
+  }
+}
+
+/** Traduit un texte dans la langue du site, en regroupant les demandes faites au même moment. */
+export function translateText(text: string, lang: string): Promise<string> {
+  const hit = cachedTranslation(text, lang)
+  if (hit !== null) return Promise.resolve(hit)
+  if (DEMO) return Promise.resolve(text)
+  return new Promise(done => {
+    trQueue.push({ text, lang, done })
+    if (!trTimer) trTimer = setTimeout(trFlush, 60)
+  })
+}

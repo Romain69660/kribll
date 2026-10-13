@@ -10,7 +10,7 @@ import {
 } from '../../../lib/agence/core'
 import { term, tr } from '../../../lib/agence/i18n'
 import { useAgence } from '../Shell'
-import { Days, Save, StatusSelect, Verdict } from '../ui'
+import { Days, NoteBox, Save, StatusSelect, Verdict } from '../ui'
 import Docs from './Docs'
 
 function defaultDisciplines(x: Tender): string[] {
@@ -197,7 +197,7 @@ export default function DetailPage() {
                       <button className="ag-btn" onClick={() => setMailFor(c)}>{t('write_mail')}</button>
                       <button className="ag-link" onClick={() => drop(c)}>{t('remove')}</button>
                     </div>
-                    <input className="note" defaultValue={c.note || ''} placeholder={t('notes')} onBlur={e => e.target.value !== (c.note || '') && setContact(c, { note: e.target.value })} />
+                    <NoteBox multiline={false} className="note" value={c.note || ''} placeholder={t('notes')} onSave={v => setContact(c, { note: v })} />
                   </li>
                 ))}
               </ul>
@@ -226,7 +226,7 @@ export default function DetailPage() {
           <section>
             <h2>{t('s_track')}</h2>
             <label className="fld">{t('owner')}<input value={tk.owner || ''} onChange={e => patch({ owner: e.target.value }, true)} /></label>
-            <label className="fld">{t('notes')}<textarea rows={5} value={tk.notes || ''} placeholder={t('notes_ph')} onChange={e => patch({ notes: e.target.value }, true)} /></label>
+            <label className="fld">{t('notes')}<NoteBox rows={5} value={tk.notes || ''} placeholder={t('notes_ph')} onChange={v => patch({ notes: v }, true)} /></label>
           </section>
           <section>
             <h2>{t('s_check')} <span className="ag-muted">{done}/{CHECKLIST.length}</span></h2>

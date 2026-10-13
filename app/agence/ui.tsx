@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { daysLeft, STATUS_GROUPS, toneOf, type Status, type Tender } from '../../lib/agence/core'
+import { cachedTranslation, daysLeft, STATUS_GROUPS, toneOf, translateText, type Status, type Tender } from '../../lib/agence/core'
 import { term } from '../../lib/agence/i18n'
 import { useAgence } from './Shell'
 
@@ -71,4 +71,43 @@ export function Save({ on, onClick, label }: { on: boolean; onClick: () => void;
       {label && <span>{on ? t('saved_on') : t('save')}</span>}
     </button>
   )
+}
+
+/** Texte traduit dans la langue du site (le texte d'origine s'affiche le temps de la traduction). */
+export function useTranslated(text: string, lang: string): string {
+  const key = `${lang}:${text}`
+  const [got, setGot] = useState<{ k: string; v: string } | null>(null)
+  const hit = cachedTranslation(text, lang)
+  useEffect(() => {
+    if (hit !== null) return
+    let live = true
+    translateText(text, lang).then(v => { if (live) setGot({ k: key, v }) })
+    return () => { live = false }
+  }, [key, hit, text, lang])
+  return hit ?? (got?.k === key ? got.v : text)
+}
+
+/**
+ * Champ de note : affiche la note traduite dans la langue du site, et le texte d'origine dès qu'on
+ * clique pour l'éditer. Ce qui est enregistré reste toujours le texte saisi.
+ */
+export function NoteBox({ value, onSave, onChange, multiline = true, rows = 1, rowsOpen, placeholder, className, label }: {
+  value: string; onSave?: (v: string) => void; onChange?: (v: string) => void
+  multiline?: boolean; rows?: number; rowsOpen?: number; placeholder?: string; className?: string; label?: string
+}) {
+  const { lang } = useAgence()
+  const shown = useTranslated(value, lang)
+  const [edit, setEdit] = useState(false)
+  const [draft, setDraft] = useState(value)
+  const common = {
+    className, placeholder, 'aria-label': label,
+    value: edit ? draft : shown,
+    title: !edit && shown !== value ? value : undefined,
+    onFocus: () => { setDraft(value); setEdit(true) },
+    onChange: (e: { target: { value: string } }) => { setDraft(e.target.value); onChange?.(e.target.value) },
+    onBlur: () => { setEdit(false); if (draft !== value) onSave?.(draft) },
+  }
+  return multiline
+    ? <textarea {...common} rows={edit ? (rowsOpen ?? rows) : rows} />
+    : <input {...common} />
 }

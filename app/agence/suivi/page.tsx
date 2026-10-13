@@ -8,7 +8,7 @@ import {
   type Contact, type Status, type Tender, type Tracking,
 } from '../../../lib/agence/core'
 import { useAgence } from '../Shell'
-import { Days, StatusSelect } from '../ui'
+import { Days, NoteBox, StatusSelect } from '../ui'
 
 export default function BoardPage() {
   const { t, lang, user } = useAgence()
@@ -86,9 +86,8 @@ export default function BoardPage() {
                   <td className="c-n">{done}/{CHECKLIST.length}</td>
                   <td className="c-n">{k.owner || k.updated_by || ''}</td>
                   <td className="c-note" onClick={e => e.stopPropagation()}>
-                    <textarea rows={1} defaultValue={k.notes || ''} placeholder={t('note_add')} aria-label={t('notes')}
-                      onFocus={e => { e.target.rows = 4 }}
-                      onBlur={e => { e.target.rows = 1; note(k.publication_number, e.target.value.trim()) }} />
+                    <NoteBox value={k.notes || ''} rows={1} rowsOpen={4} placeholder={t('note_add')} label={t('notes')}
+                      onSave={v => note(k.publication_number, v.trim())} />
                   </td>
                   <td><StatusSelect value={k.status} onChange={s => move(k.publication_number, s)} /></td>
                 </tr>
