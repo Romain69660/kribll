@@ -10,7 +10,7 @@ import {
 } from '../../../lib/agence/core'
 import { term, tr } from '../../../lib/agence/i18n'
 import { useAgence } from '../Shell'
-import { Days, NoteBox, Save, StatusSelect, Verdict } from '../ui'
+import { Days, NoteBox, Save, StatusSelect, Verdict, useTranslated } from '../ui'
 import Docs from './Docs'
 
 function defaultDisciplines(x: Tender): string[] {
@@ -144,12 +144,11 @@ export default function DetailPage() {
       <div className="ag-cols">
         <div className="ag-main">
           {summary && <section><h2>{t('s_summary')}</h2><p className="lead">{summary}</p></section>}
-          {blocks.length > 0 && <section className="blocks"><h2>{t('s_block')}</h2><ul>{blocks.map((b, i) => <li key={i}>{b}</li>)}</ul></section>}
-          {(x.program || x.mission || refs.length > 0 || x.eligibility) && lang !== 'fr' && <p className="ag-muted small">{t('original_fr')}</p>}
-          {x.program && <section><h2>{t('s_program')}</h2><p>{x.program}</p></section>}
-          {x.mission && <section><h2>{t('s_mission')}</h2><p>{x.mission}</p></section>}
-          {refs.length > 0 && <section><h2>{t('s_refs')}</h2><ul>{refs.map((b, i) => <li key={i}>{b}</li>)}</ul></section>}
-          {x.eligibility && <section><h2>{t('s_elig')}</h2><p>{x.eligibility}</p></section>}
+          {blocks.length > 0 && <section className="blocks"><h2>{t('s_block')}</h2><ul>{blocks.map((b, i) => <li key={i}><Tr text={b} lang={lang} /></li>)}</ul></section>}
+          {x.program && <section><h2>{t('s_program')}</h2><p><Tr text={x.program} lang={lang} /></p></section>}
+          {x.mission && <section><h2>{t('s_mission')}</h2><p><Tr text={x.mission} lang={lang} /></p></section>}
+          {refs.length > 0 && <section><h2>{t('s_refs')}</h2><ul>{refs.map((b, i) => <li key={i}><Tr text={b} lang={lang} /></li>)}</ul></section>}
+          {x.eligibility && <section><h2>{t('s_elig')}</h2><p><Tr text={x.eligibility} lang={lang} /></p></section>}
 
           <Docs tender={x} dossier={tk.dossier} onDossier={d => patch({ dossier: d })} tracking={tk} contacts={contacts} />
 
@@ -213,7 +212,7 @@ export default function DetailPage() {
             <h2>{t('s_facts')}</h2>
             <dl className="ag-facts">
               <Fact k={t('f_works')} v={money(dz?.works_eur || x.budget_eur) || x.estimated_budget} big note={dz?.works_eur ? t('from_docs') : undefined} />
-              {works ? <Fact k={t('f_fee')} v={`${money(works * 0.1)} – ${money(works * 0.12)}`} note={t('f_fee_note')} /> : null}
+              {works && x.contract_type !== 'DESIGN_BUILD' ? <Fact k={t('f_fee')} v={`${money(works * 0.1)} – ${money(works * 0.12)}`} note={t('f_fee_note')} /> : null}
               <Fact k={t('f_prize')} v={money(dz?.prize_eur || x.prize_eur)} note={dz?.prize_eur ? t('from_docs') : undefined} />
               <Fact k={t('f_teams')} v={dz?.teams || x.teams_shortlisted} />
               <Fact k={t('f_proc')} v={term(lang, x.procedure_type)} />
@@ -329,4 +328,10 @@ function MailDialog({ tender: x, contact: c, onClose, onSent }: { tender: Tender
       </div>
     </div>
   )
+}
+
+// Texte d'origine (souvent en français) affiché dans la langue choisie.
+function Tr({ text, lang }: { text: string; lang: string }) {
+  const v = useTranslated(text, lang)
+  return <>{v}</>
 }
